@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1108">
+<title>Read Like Ray</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --ink: #1a1108;
+  --paper: #f5f0e4;
+  --aged: #e8dfc8;
+  --rust: #b5451b;
+  --gold: #c9922a;
+  --sage: #5a7a5a;
+  --blue: #4a6a9a;
+  --purple: #7a5a8a;
+  --faded: #8a7a60;
+  --muted: #c0b090;
+  --surface: #221a0f;
+  --surface2: #2a2015;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--ink);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  color: var(--aged);
+  overscroll-behavior: none;
+}
+
+/* ── APP SHELL ── */
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: var(--ink);
+  display: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: block; }
+.screen.slide-in { animation: slideUp 0.3s cubic-bezier(0.32,0.72,0,1) forwards; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SAFE AREA ── */
+.safe-top { padding-top: max(44px, env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 64px)); }
+
+/* ── BOTTOM NAV ── */
+#bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: max(64px, calc(env(safe-area-inset-bottom) + 64px));
+  background: var(--surface);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: none;
+  align-items: flex-start;
+  justify-content: space-around;
+  padding: 8px 0 0;
+  z-index: 200;
+}
+#bottom-nav.visible { display: flex; }
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; cursor: pointer;
+  padding: 6px 20px; border-radius: 12px;
+  transition: all 0.15s;
+  min-width: 60px;
+}
+.nav-icon { font-size: 1.3rem; line-height: 1; }
+.nav-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--faded);
+}
+.nav-btn.active .nav-label { color: var(--rust); }
+.nav-btn.active .nav-icon { filter: brightness(1.4); }
+
+/* ── TYPOGRAPHY ── */
+.mono { font-family: 'Space Mono', monospace; }
+.serif { font-family: 'Playfair Display', serif; }
+.label {
+  font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.18em; color: var(--rust);
+}
+.section-title {
+  font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.15em; color: var(--faded);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'Space Mono', monospace; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  border: none; cursor: pointer; transition: all 0.2s;
+  display: block; width: 100%; padding: 16px; text-align: center;
+}
+.btn-primary { background: var(--rust); color: var(--paper); }
+.btn-primary:hover { background: #9a3a15; }
+.btn-secondary {
+  background: transparent; color: var(--aged);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.btn-secondary:hover { border-color: var(--rust); color: var(--rust); }
+
+/* ── INPUTS ── */
+.input {
+  font-family: 'Libre Baskerville', serif; font-size: 0.95rem;
+  padding: 14px 16px; width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--aged); outline: none;
+  transition: border-color 0.2s;
+}
+.input::placeholder { color: rgba(255,255,255,0.2); }
+.input:focus { border-color: var(--rust); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 90px; left: 20px; right: 20px;
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 16px; z-index: 999; display: none;
+  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--aged);
+}
+#toast.show { display: block; animation: toastIn 0.2s ease; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── LOADING ── */
+#loading {
+  position: fixed; inset: 0; background: var(--ink);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; z-index: 1000;
+}
+#loading .logo {
+  font-family: 'Playfair Display', serif; font-size: 2rem;
+  font-weight: 900; color: var(--paper);
+}
+#loading .logo em { font-style: italic; color: var(--rust); }
+#loading .spinner {
+  width: 24px; height: 24px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--rust);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════════════ */
+#screen-auth { background: var(--ink); }
+.auth-hero {
+  padding: 80px 32px 40px; position: relative; overflow: hidden;
+  min-height: 300px; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.auth-bg {
+  position: absolute; font-family: 'Playfair Display', serif;
+  font-size: 180px; font-weight: 900; color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.04);
+  top: -10px; right: -10px; pointer-events: none; user-select: none;
+  line-height: 1;
+}
+.auth-logo { font-family: 'Space Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.25em; color: var(--rust); margin-bottom: 16px; }
+.auth-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 900; line-height: 0.95; color: var(--paper); }
+.auth-title em { font-style: italic; color: var(--rust); }
+.auth-body { padding: 0 32px 60px; }
+.auth-quote {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  padding: 20px; margin-bottom: 32px;
+}
+.auth-quote blockquote {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 0.95rem; line-height: 1.6; color: var(--gold); margin-bottom: 6px;
+}
+.auth-quote cite {
+  font-family: 'Space Mono', monospace; font-size: 0.52rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded);
+}
+.auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.auth-tab {
+  flex: 1; padding: 12px; background: none; border: none; cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.2s;
+}
+.auth-tab.active { color: var(--rust); border-bottom-color: var(--rust); }
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-error {
+  font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  color: var(--rust); text-transform: uppercase; letter-spacing: 0.08em;
+  min-height: 20px; margin-top: -4px;
+}
+
+/* ══════════════════════════════════════════════
+   ONBOARDING
+══════════════════════════════════════════════ */
+#screen-onboard { background: var(--ink); }
+.onboard-step { padding: 60px 28px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+.step-progress { display: flex; gap: 6px; margin-bottom: 36px; }
+.step-pip { height: 3px; flex: 1; background: rgba(255,255,255,0.1); border-radius: 2px; transition: background 0.3s; }
+.step-pip.done { background: var(--rust); }
+.step-label { font-family: 'Space Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--rust); margin-bottom: 8px; }
+.step-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1.05; color: var(--paper); margin-bottom: 8px; }
+.step-desc { font-size: 0.85rem; line-height: 1.7; color: #a09070; margin-bottom: 28px; }
+.step-content { flex: 1; }
+
+/* Duration */
+.duration-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.dur-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  padding: 16px 12px; cursor: pointer; text-align: center; transition: all 0.15s;
+}
+.dur-card.sel { border-color: var(--rust); background: rgba(181,69,27,0.12); }
+.dur-num { font-family: 'Space Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.dur-unit { font-family: 'Space Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faded); margin-top: 3px; }
+.dur-bradbury {
+  background: rgba(181,69,27,0.07); border: 1px solid rgba(181,69,27,0.25);
+  padding: 14px 16px; cursor: pointer; display: flex; align-items: center;
+  justify-content: space-between; transition: all 0.15s; margin-bottom: 28px;
+}
+.dur-bradbury.sel { border-color: var(--rust); background: rgba(181,69,27,0.18); }
+.dur-bradbury-left .dur-num { font-size: 1.3rem; text-align: left; }
+.bradbury-badge {
+  font-family: 'Space Mono', monospace; font-size: 0.48rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--rust);
+  border: 1px solid var(--rust); padding: 3px 8px;
+}
+
+/* Themes */
+.theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 28px; }
+.theme-chip {
+  padding: 12px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.15s;
+}
+.theme-chip.sel { border-color: var(--sage); background: rgba(90,122,90,0.15); }
+.theme-icon { font-size: 1rem; margin-bottom: 4px; }
+.theme-name {
+  font-family: 'Space Mono', monospace; font-size: 0.55rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--faded); line-height: 1.3;
+}
+.theme-chip.sel .theme-name { color: var(--aged); }
+
+/* Era */
+.era-toggle { display: flex; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 28px; }
+.era-btn {
+  flex: 1; padding: 12px 8px; background: none; border: none; cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 0.55rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--faded); transition: all 0.2s;
+  border-right: 1px solid rgba(255,255,255,0.08); line-height: 1.4;
+}
+.era-btn:last-child { border-right: none; }
+.era-btn.active { background: var(--rust); color: var(--paper); }
+
+/* Counts */
+.count-rows { display: flex; flex-direction: column; gap: 20px; margin-bottom: 28px; }
+.count-row { display: flex; align-items: center; justify-content: space-between; }
+.count-label-wrap { display: flex; align-items: center; gap: 10px; }
+.count-dot { width: 10px; height: 10px; border-radius: 50%; }
+.count-name { font-family: 'Space Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--aged); }
+.stepper { display: flex; align-items: center; gap: 14px; }
+.step-btn {
+  width: 32px; height: 32px; background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12); color: var(--aged);
+  font-size: 1.1rem; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.15s;
+}
+.step-btn:hover { background: rgba(255,255,255,0.12); }
+.step-val { font-family: 'Space Mono', monospace; font-size: 1.3rem; font-weight: 700; color: var(--gold); width: 24px; text-align: center; }
+
+/* ══════════════════════════════════════════════
+   HOME SCREEN
+══════════════════════════════════════════════ */
+#screen-home { background: var(--ink); }
+.home-header { padding: 56px 24px 20px; }
+.home-greeting { font-family: 'Space Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--rust); margin-bottom: 4px; }
+.home-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--paper); margin-bottom: 2px; }
+.home-date { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.1em; }
+
+.streak-banner {
+  margin: 0 20px 18px;
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+}
+.streak-flame { font-size: 2rem; line-height: 1; }
+.streak-num { font-family: 'Space Mono', monospace; font-size: 2.4rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.streak-sub { font-family: 'Space Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded); margin-top: 2px; }
+.streak-right { margin-left: auto; text-align: right; }
+.streak-best { font-family: 'Space Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faded); }
+.streak-best span { color: var(--rust); }
+
+.week-row { margin: 0 20px 18px; display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.week-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.week-name { font-family: 'Space Mono', monospace; font-size: 0.45rem; text-transform: uppercase; color: var(--faded); }
+.week-dot {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+}
+.week-dot.done { background: rgba(90,122,90,0.25); border-color: var(--sage); color: var(--sage); }
+.week-dot.today { border-color: var(--rust); background: rgba(181,69,27,0.12); color: var(--rust); }
+
+.progress-wrap { margin: 0 20px 20px; }
+.progress-hdr { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.progress-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--rust); border-radius: 2px; transition: width 0.5s ease; }
+
+.queue-section { margin: 0 20px; }
+.queue-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.day-badge { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--rust); border: 1px solid rgba(181,69,27,0.4); padding: 3px 8px; letter-spacing: 0.08em; }
+
+.reading-item {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.15s; margin-bottom: 6px; position: relative;
+}
+.reading-item:hover { border-color: rgba(255,255,255,0.1); }
+.reading-item.done { opacity: 0.45; }
+.reading-item.done::after { content: '✓'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--sage); font-size: 1rem; }
+.ri-bar { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+.ri-type { font-family: 'Space Mono', monospace; font-size: 0.45rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded); margin-bottom: 3px; }
+.ri-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: var(--paper); line-height: 1.2; margin-bottom: 2px; }
+.ri-author { font-size: 0.7rem; color: var(--faded); font-style: italic; }
+.ri-time { margin-left: auto; font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--faded); text-align: right; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════
+   READER SCREEN
+══════════════════════════════════════════════ */
+#screen-reader { background: var(--paper); }
+.reader-header {
+  background: var(--ink); position: sticky; top: 0; z-index: 10;
+  padding: max(44px, env(safe-area-inset-top)) 20px 16px;
+}
+.reader-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.reader-back {
+  font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded);
+  background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.reader-actions { display: flex; gap: 16px; }
+.reader-act { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--faded); transition: color 0.15s; }
+.reader-act:hover { color: var(--aged); }
+.reader-type-tag {
+  font-family: 'Space Mono', monospace; font-size: 0.48rem;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  padding: 3px 8px; display: inline-block; margin-bottom: 6px; color: white;
+}
+.reader-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--paper); line-height: 1.2; margin-bottom: 2px; }
+.reader-author { font-size: 0.72rem; color: var(--faded); font-style: italic; }
+.reader-read-time { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+.reader-body { padding: 28px 24px 160px; }
+.reader-desc {
+  font-size: 0.88rem; line-height: 1.7; color: var(--faded);
+  font-style: italic; margin-bottom: 24px; padding-bottom: 24px;
+  border-bottom: 1px solid rgba(26,17,8,0.12);
+}
+.reader-text { font-size: 1.05rem; line-height: 1.95; color: var(--ink); white-space: pre-line; }
+.reader-prompt {
+  margin-top: 40px; padding: 20px;
+  background: var(--aged); border-left: 3px solid var(--rust);
+}
+.reader-prompt-label { font-family: 'Space Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--rust); margin-bottom: 8px; }
+.reader-prompt-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.95rem; line-height: 1.65; color: var(--ink); }
+
+.reader-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--ink); border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 20px max(20px, env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 10px; z-index: 100;
+}
+.stars { display: flex; gap: 3px; }
+.star { background: none; border: none; cursor: pointer; font-size: 1.15rem; color: rgba(255,255,255,0.18); transition: color 0.1s; }
+.star.lit { color: var(--gold); }
+.dnf-btn {
+  font-family: 'Space Mono', monospace; font-size: 0.52rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--faded);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 10px; cursor: pointer; transition: all 0.15s;
+}
+.dnf-btn:hover { color: var(--rust); border-color: var(--rust); }
+.done-btn {
+  flex: 1; font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  background: var(--sage); color: white; border: none; padding: 10px;
+  cursor: pointer; transition: background 0.2s;
+}
+.done-btn.complete { background: #3d5a3d; }
+
+/* ══════════════════════════════════════════════
+   NOTEBOOK SCREEN
+══════════════════════════════════════════════ */
+#screen-notebook { background: var(--ink); }
+.nb-header { padding: 56px 24px 20px; }
+.nb-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--paper); margin-bottom: 4px; }
+.nb-sub { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.1em; }
+.nb-filters { display: flex; gap: 8px; padding: 0 24px 20px; overflow-x: auto; }
+.nb-filter {
+  font-family: 'Space Mono', monospace; font-size: 0.5rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 6px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); color: var(--faded); cursor: pointer;
+  white-space: nowrap; transition: all 0.15s; border-radius: 20px;
+}
+.nb-filter.active { background: rgba(181,69,27,0.15); border-color: var(--rust); color: var(--rust); }
+.nb-list { padding: 0 24px; display: flex; flex-direction: column; gap: 2px; }
+.nb-entry {
+  background: var(--surface); border-left: 3px solid;
+  padding: 14px 16px; cursor: pointer; transition: all 0.15s;
+}
+.nb-entry.highlight { border-color: var(--gold); }
+.nb-entry.note { border-color: var(--sage); }
+.nb-entry-type { font-family: 'Space Mono', monospace; font-size: 0.46rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faded); margin-bottom: 6px; }
+.nb-entry-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.92rem; line-height: 1.5; color: var(--aged); margin-bottom: 6px; }
+.nb-entry-source { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.06em; }
+.nb-empty { padding: 48px 24px; text-align: center; color: var(--faded); font-style: italic; font-size: 0.88rem; line-height: 1.7; }
+
+/* ══════════════════════════════════════════════
+   FRIENDS SCREEN
+══════════════════════════════════════════════ */
+#screen-friends { background: var(--ink); }
+.fr-header { padding: 56px 24px 20px; }
+.fr-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--paper); margin-bottom: 4px; }
+.fr-sub { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.1em; }
+.fr-list { padding: 0 20px; display: flex; flex-direction: column; gap: 2px; margin-bottom: 24px; }
+.fr-card {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+  padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: all 0.15s;
+}
+.fr-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 700; color: white;
+}
+.fr-name { font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; color: var(--aged); letter-spacing: 0.04em; margin-bottom: 3px; }
+.fr-recent { font-size: 0.7rem; color: var(--faded); font-style: italic; }
+.fr-streak { margin-left: auto; text-align: right; flex-shrink: 0; }
+.fr-streak-num { font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--gold); }
+.fr-streak-label { font-family: 'Space Mono', monospace; font-size: 0.44rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faded); }
+.add-friend-btn {
+  margin: 0 20px 24px; width: calc(100% - 40px);
+  background: none; border: 1px dashed rgba(255,255,255,0.1); color: var(--faded);
+  font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 12px; cursor: pointer; transition: all 0.15s; display: flex;
+  align-items: center; justify-content: center; gap: 8px;
+}
+.add-friend-btn:hover { border-color: var(--rust); color: var(--rust); }
+.recs-section { padding: 0 20px; }
+.recs-label { font-family: 'Space Mono', monospace; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--rust); margin-bottom: 12px; }
+.rec-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); padding: 16px; margin-bottom: 8px; }
+.rec-from { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.rec-avatar-sm { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 0.42rem; font-weight: 700; color: white; }
+.rec-from-text { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--faded); text-transform: uppercase; letter-spacing: 0.06em; }
+.rec-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--paper); margin-bottom: 2px; }
+.rec-author { font-size: 0.7rem; color: var(--faded); font-style: italic; margin-bottom: 8px; }
+.rec-note { font-size: 0.78rem; line-height: 1.55; color: #a09070; font-style: italic; margin-bottom: 12px; }
+.rec-btns { display: flex; gap: 8px; }
+.rec-btn { flex: 1; font-family: 'Space Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 9px; border: none; cursor: pointer; transition: all 0.15s; }
+.rec-btn-add { background: var(--rust); color: white; }
+.rec-btn-skip { background: rgba(255,255,255,0.06); color: var(--faded); border: 1px solid rgba(255,255,255,0.08); }
+
+/* ══════════════════════════════════════════════
+   SETTINGS SCREEN
+══════════════════════════════════════════════ */
+#screen-settings { background: var(--ink); }
+.settings-header { padding: 56px 24px 20px; }
+.settings-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; color: var(--paper); margin-bottom: 4px; }
+.settings-body { padding: 0 24px 120px; }
+.settings-section-label { font-family: 'Space Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--rust); margin-bottom: 12px; margin-top: 28px; }
+.settings-row {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.05);
+  padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2px; cursor: pointer; transition: all 0.15s;
+}
+.settings-row:hover { border-color: rgba(255,255,255,0.1); }
+.settings-row-label { font-family: 'Space Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--aged); }
+.settings-row-val { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--faded); }
+.signout-btn { margin-top: 32px; }
+</style>
+</head>
+<body>
+<div id="loading">
+  <div class="logo">Read <em>Like Ray</em></div>
+  <div class="spinner"></div>
+</div>
+
+<div id="app">
+
+  <!-- AUTH -->
+  <div id="screen-auth" class="screen">
+    <div class="auth-hero safe-top">
+      <div class="auth-bg">RAY</div>
+      <div class="auth-logo">Read Like Ray</div>
+      <h1 class="auth-title">Read<br><em>Like Ray</em></h1>
+    </div>
+    <div class="auth-body">
+      <div class="auth-quote">
+        <blockquote>"Read one short story, one poem, and one essay every night for 1,000 nights."</blockquote>
+        <cite>— Ray Bradbury</cite>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+      <div class="auth-form">
+        <input class="input" id="auth-email" type="email" placeholder="Email address" autocomplete="email">
+        <input class="input" id="auth-password" type="password" placeholder="Password" autocomplete="current-password">
+        <div id="auth-username-wrap" style="display:none">
+          <input class="input" id="auth-username" type="text" placeholder="Choose a username" autocomplete="username">
+        </div>
+        <div class="auth-error" id="auth-error"></div>
+        <button class="btn btn-primary" id="auth-submit" onclick="handleAuth()">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div id="screen-onboard" class="screen">
+    <div id="onboard-step-1" class="onboard-step safe-top">
+      <div class="step-progress">
+        <div class="step-pip done"></div>
+        <div class="step-pip"></div>
+        <div class="step-pip"></div>
+        <div class="step-pip"></div>
+      </div>
+      <div class="step-label">Step 1 of 4</div>
+      <h2 class="step-title">How long<br>will you commit?</h2>
+      <p class="step-desc">Bradbury said 1,000 nights. But any commitment is worth keeping.</p>
+      <div class="step-content">
+        <div class="duration-grid">
+          <div class="dur-card" data-val="7" onclick="selectDuration(7)"><div class="dur-num">7</div><div class="dur-unit">Days</div></div>
+          <div class="dur-card" data-val="30" onclick="selectDuration(30)"><div class="dur-num">30</div><div class="dur-unit">Days</div></div>
+          <div class="dur-card" data-val="90" onclick="selectDuration(90)"><div class="dur-num">90</div><div class="dur-unit">Days</div></div>
+          <div class="dur-card" data-val="180" onclick="selectDuration(180)"><div class="dur-num">6</div><div class="dur-unit">Months</div></div>
+        </div>
+        <div class="dur-bradbury" data-val="1000" onclick="selectDuration(1000)">
+          <div class="dur-bradbury-left"><div class="dur-num">1,000</div><div class="dur-unit">Nights</div></div>
+          <div class="bradbury-badge">Bradbury Method</div>
+        </div>
+        <button class="btn btn-primary" onclick="nextOnboardStep(1)">Continue →</button>
+      </div>
+    </div>
+
+    <div id="onboard-step-2" class="onboard-step safe-top" style="display:none">
+      <div class="step-progress">
+        <div class="step-pip done"></div><div class="step-pip done"></div>
+        <div class="step-pip"></div><div class="step-pip"></div>
+      </div>
+      <div class="step-label">Step 2 of 4</div>
+      <h2 class="step-title">What moves<br>you?</h2>
+      <p class="step-desc">Your daily selections will draw from these themes. Pick as many as you like.</p>
+      <div class="step-content">
+        <div class="theme-grid" id="theme-grid"></div>
+        <button class="btn btn-primary" onclick="nextOnboardStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <div id="onboard-step-3" class="onboard-step safe-top" style="display:none">
+      <div class="step-progress">
+        <div class="step-pip done"></div><div class="step-pip done"></div>
+        <div class="step-pip done"></div><div class="step-pip"></div>
+      </div>
+      <div class="step-label">Step 3 of 4</div>
+      <h2 class="step-title">Old or new?</h2>
+      <p class="step-desc">Bradbury's method is rooted in classic literature — but contemporary voices matter too.</p>
+      <div class="step-content">
+        <div class="era-toggle">
+          <button class="era-btn active" onclick="selectEra('classic', this)">Classic<br><span style="opacity:0.6;font-size:0.85em">Pre-1928</span></button>
+          <button class="era-btn" onclick="selectEra('mixed', this)">Both<br><span style="opacity:0.6;font-size:0.85em">Mix</span></button>
+          <button class="era-btn" onclick="selectEra('contemporary', this)">Contemporary<br><span style="opacity:0.6;font-size:0.85em">Post-1928</span></button>
+        </div>
+        <button class="btn btn-primary" onclick="nextOnboardStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <div id="onboard-step-4" class="onboard-step safe-top" style="display:none">
+      <div class="step-progress">
+        <div class="step-pip done"></div><div class="step-pip done"></div>
+        <div class="step-pip done"></div><div class="step-pip done"></div>
+      </div>
+      <div class="step-label">Step 4 of 4</div>
+      <h2 class="step-title">How much<br>per night?</h2>
+      <p class="step-desc">Bradbury did one of each. Start lighter — you can always change this.</p>
+      <div class="step-content">
+        <div class="count-rows">
+          <div class="count-row">
+            <div class="count-label-wrap"><div class="count-dot" style="background:var(--sage)"></div><span class="count-name">Poems</span></div>
+            <div class="stepper"><button class="step-btn" onclick="adjustCount('poems',-1)">−</button><span class="step-val" id="count-poems">1</span><button class="step-btn" onclick="adjustCount('poems',1)">+</button></div>
+          </div>
+          <div class="count-row">
+            <div class="count-label-wrap"><div class="count-dot" style="background:var(--blue)"></div><span class="count-name">Stories</span></div>
+            <div class="stepper"><button class="step-btn" onclick="adjustCount('stories',-1)">−</button><span class="step-val" id="count-stories">1</span><button class="step-btn" onclick="adjustCount('stories',1)">+</button></div>
+          </div>
+          <div class="count-row">
+            <div class="count-label-wrap"><div class="count-dot" style="background:var(--purple)"></div><span class="count-name">Essays</span></div>
+            <div class="stepper"><button class="step-btn" onclick="adjustCount('essays',-1)">−</button><span class="step-val" id="count-essays">1</span><button class="step-btn" onclick="adjustCount('essays',1)">+</button></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="finishOnboarding()">Start Reading →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen safe-bottom">
+    <div class="home-header">
+      <div class="home-greeting" id="home-greeting">Good Evening</div>
+      <h1 class="home-title" id="home-title">Day 1 of 1,000</h1>
+      <div class="home-date" id="home-date"></div>
+    </div>
+    <div class="streak-banner">
+      <div class="streak-flame">🔥</div>
+      <div>
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="streak-sub">Day Streak</div>
+      </div>
+      <div class="streak-right">
+        <div class="streak-best">Best: <span id="streak-best">0</span></div>
+      </div>
+    </div>
+    <div class="week-row" id="week-row"></div>
+    <div class="progress-wrap">
+      <div class="progress-hdr">
+        <span class="section-title">Today's Progress</span>
+        <span class="section-title" id="progress-label">0/0 complete</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="queue-section">
+      <div class="queue-hdr">
+        <span class="section-title">Tonight's Reading</span>
+        <span class="day-badge" id="day-badge">Day 1</span>
+      </div>
+      <div id="queue-list">
+        <div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem">Loading your reading queue...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- READER -->
+  <div id="screen-reader" class="screen">
+    <div class="reader-header">
+      <div class="reader-nav">
+        <button class="reader-back" onclick="closeReader()">← Back</button>
+        <div class="reader-actions">
+          <button class="reader-act" onclick="addBookmark()" title="Bookmark">🔖</button>
+          <button class="reader-act" onclick="openNoteModal()" title="Note">✏️</button>
+        </div>
+      </div>
+      <div class="reader-type-tag" id="reader-tag"></div>
+      <div class="reader-title" id="reader-title"></div>
+      <div class="reader-author" id="reader-author"></div>
+      <div class="reader-read-time" id="reader-time"></div>
+    </div>
+    <div class="reader-body">
+      <div class="reader-desc" id="reader-desc"></div>
+      <div class="reader-text" id="reader-text"></div>
+      <div class="reader-prompt" id="reader-prompt" style="display:none">
+        <div class="reader-prompt-label">Writing Prompt</div>
+        <div class="reader-prompt-text" id="reader-prompt-text"></div>
+      </div>
+    </div>
+    <div class="reader-footer">
+      <div class="stars" id="stars">
+        <button class="star" onclick="setRating(1)">★</button>
+        <button class="star" onclick="setRating(2)">★</button>
+        <button class="star" onclick="setRating(3)">★</button>
+        <button class="star" onclick="setRating(4)">★</button>
+        <button class="star" onclick="setRating(5)">★</button>
+      </div>
+      <button class="dnf-btn" onclick="markDNF()">DNF</button>
+      <button class="done-btn" id="done-btn" onclick="markComplete()">Mark Done</button>
+    </div>
+  </div>
+
+  <!-- NOTEBOOK -->
+  <div id="screen-notebook" class="screen safe-bottom">
+    <div class="nb-header">
+      <h1 class="nb-title">Notebook</h1>
+      <div class="nb-sub" id="nb-sub">Your highlights & notes</div>
+    </div>
+    <div class="nb-filters">
+      <div class="nb-filter active" onclick="filterNotebook('all', this)">All</div>
+      <div class="nb-filter" onclick="filterNotebook('highlight', this)">✦ Highlights</div>
+      <div class="nb-filter" onclick="filterNotebook('note', this)">✏ Notes</div>
+    </div>
+    <div class="nb-list" id="nb-list"></div>
+  </div>
+
+  <!-- FRIENDS -->
+  <div id="screen-friends" class="screen safe-bottom">
+    <div class="fr-header">
+      <h1 class="fr-title">Friends</h1>
+      <div class="fr-sub">Reading together</div>
+    </div>
+    <div class="fr-list" id="fr-list"></div>
+    <button class="add-friend-btn" onclick="showAddFriend()">+ Add a Friend</button>
+    <div class="recs-section">
+      <div class="recs-label">Recommended for You</div>
+      <div id="recs-list"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="screen-settings" class="screen safe-bottom">
+    <div class="settings-header">
+      <h1 class="settings-title">Settings</h1>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section-label">Reading Preferences</div>
+      <div class="settings-row" onclick="showScreen('onboard'); startOnboardEdit()">
+        <span class="settings-row-label">Reading Counts</span>
+        <span class="settings-row-val" id="settings-counts">1 poem · 1 story · 1 essay</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-label">Era Preference</span>
+        <span class="settings-row-val" id="settings-era">Classic</span>
+      </div>
+      <div class="settings-section-label">Account</div>
+      <div class="settings-row" onclick="signOut()">
+        <span class="settings-row-label">Sign Out</span>
+        <span class="settings-row-val">→</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" data-screen="home" onclick="navTo('home')">
+    <span class="nav-icon">◈</span><span class="nav-label">Today</span>
+  </button>
+  <button class="nav-btn" data-screen="notebook" onclick="navTo('notebook')">
+    <span class="nav-icon">◎</span><span class="nav-label">Notebook</span>
+  </button>
+  <button class="nav-btn" data-screen="friends" onclick="navTo('friends')">
+    <span class="nav-icon">◉</span><span class="nav-label">Friends</span>
+  </button>
+  <button class="nav-btn" data-screen="settings" onclick="navTo('settings')">
+    <span class="nav-icon">○</span><span class="nav-label">Settings</span>
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://xyxjivuykzewcdbhyrys.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__W3bwXIBYkb-D3EztXBfPg_qNY9YbNb';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let user = null;
+let profile = null;
+let currentReading = null;
+let currentQueueId = null;
+let currentRating = 0;
+let allAnnotations = [];
+let authMode = 'signin';
+let onboardData = { duration: 1000, themes: [], era: 'classic', poems: 1, stories: 1, essays: 1 };
+
+const THEMES = [
+  { id: 'nature', icon: '🌿', name: 'Nature & the Wild' },
+  { id: 'war', icon: '⚔️', name: 'War & Conflict' },
+  { id: 'love', icon: '♡', name: 'Love & Loss' },
+  { id: 'american', icon: '◈', name: 'The American Experience' },
+  { id: 'supernatural', icon: '◎', name: 'The Supernatural & Strange' },
+  { id: 'science', icon: '◉', name: 'Science & the Mind' },
+  { id: 'justice', icon: '⚖', name: 'Justice & Society' },
+  { id: 'travel', icon: '◇', name: 'Travel & Exile' },
+  { id: 'faith', icon: '○', name: 'Faith & Doubt' },
+  { id: 'childhood', icon: '◌', name: 'Childhood & Memory' },
+  { id: 'work', icon: '▣', name: 'Work & Class' },
+  { id: 'death', icon: '◆', name: 'Death & Grief' },
+];
+
+const TYPE_COLORS = { poem: '#5a7a5a', story: '#4a6a9a', essay: '#7a5a8a' };
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    user = session.user;
+    await loadProfile();
+  }
+  document.getElementById('loading').style.display = 'none';
+  buildThemeGrid();
+
+  if (!user) { showScreen('auth'); return; }
+  if (!profile || !profile.username) { showScreen('onboard'); return; }
+  await goHome();
+}
+
+async function loadProfile() {
+  const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  profile = data;
+  return data;
+}
+
+// ── SCREEN ROUTING ─────────────────────────────────────────────────────────
+function showScreen(name, animate = true) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active', 'slide-in'); });
+  const s = document.getElementById('screen-' + name);
+  if (!s) return;
+  s.classList.add('active');
+  if (animate) s.classList.add('slide-in');
+  const mainScreens = ['home','notebook','friends','settings'];
+  const nav = document.getElementById('bottom-nav');
+  nav.classList.toggle('visible', mainScreens.includes(name));
+  if (mainScreens.includes(name)) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+  }
+}
+
+function navTo(name) {
+  showScreen(name, false);
+  if (name === 'home') refreshHome();
+  if (name === 'notebook') loadNotebook();
+  if (name === 'friends') loadFriends();
+}
+
+// ── AUTH ───────────────────────────────────────────────────────────────────
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (mode==='signin'&&i===0)||(mode==='signup'&&i===1)));
+  document.getElementById('auth-username-wrap').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-submit').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Email and password required.'; return; }
+
+  if (authMode === 'signin') {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { errEl.textContent = error.message; return; }
+    user = data.user;
+    await loadProfile();
+    if (!profile || !profile.username) { showScreen('onboard'); return; }
+    await goHome();
+  } else {
+    const username = document.getElementById('auth-username').value.trim();
+    if (!username) { errEl.textContent = 'Username required.'; return; }
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) { errEl.textContent = error.message; return; }
+    user = data.user;
+    await sb.from('profiles').insert({ id: user.id, username });
+    await loadProfile();
+    showScreen('onboard');
+  }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  user = null; profile = null;
+  showScreen('auth', false);
+}
+
+// ── ONBOARDING ─────────────────────────────────────────────────────────────
+function buildThemeGrid() {
+  const grid = document.getElementById('theme-grid');
+  grid.innerHTML = THEMES.map(t => `
+    <div class="theme-chip" data-id="${t.id}" onclick="toggleTheme('${t.id}', this)">
+      <div class="theme-icon">${t.icon}</div>
+      <div class="theme-name">${t.name}</div>
+    </div>`).join('');
+}
+
+function toggleTheme(id, el) {
+  el.classList.toggle('sel');
+  if (onboardData.themes.includes(id)) onboardData.themes = onboardData.themes.filter(x => x !== id);
+  else onboardData.themes.push(id);
+}
+
+function selectDuration(val) {
+  onboardData.duration = val;
+  document.querySelectorAll('.dur-card, .dur-bradbury').forEach(el => {
+    el.classList.toggle('sel', parseInt(el.dataset.val) === val);
+  });
+}
+
+function selectEra(val, btn) {
+  onboardData.era = val;
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function adjustCount(type, delta) {
+  onboardData[type] = Math.max(0, Math.min(3, (onboardData[type] || 1) + delta));
+  document.getElementById('count-' + type).textContent = onboardData[type];
+}
+
+function nextOnboardStep(current) {
+  document.getElementById('onboard-step-' + current).style.display = 'none';
+  document.getElementById('onboard-step-' + (current + 1)).style.display = 'flex';
+  document.getElementById('screen-onboard').scrollTop = 0;
+}
+
+async function finishOnboarding() {
+  const { error } = await sb.from('profiles').upsert({
+    id: user.id,
+    duration_goal: onboardData.duration,
+    era_preference: onboardData.era,
+    counts_poems: onboardData.poems,
+    counts_stories: onboardData.stories,
+    counts_essays: onboardData.essays,
+  });
+  if (onboardData.themes.length > 0) {
+    await sb.from('user_themes').delete().eq('user_id', user.id);
+    await sb.from('user_themes').insert(onboardData.themes.map(t => ({ user_id: user.id, theme: t })));
+  }
+  await loadProfile();
+  await goHome();
+}
+
+// ── HOME ───────────────────────────────────────────────────────────────────
+async function goHome() {
+  showScreen('home', false);
+  await refreshHome();
+}
+
+async function refreshHome() {
+  if (!user || !profile) return;
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+  document.getElementById('home-greeting').textContent = greeting;
+  document.getElementById('home-title').textContent = `Day ${getDayNumber()} of ${profile.duration_goal || 1000}`;
+  document.getElementById('home-date').textContent = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  document.getElementById('streak-num').textContent = profile.streak_current || 0;
+  document.getElementById('streak-best').textContent = profile.streak_best || 0;
+  document.getElementById('day-badge').textContent = `Day ${getDayNumber()}`;
+  renderWeek();
+  await loadQueue();
+}
+
+function getDayNumber() {
+  if (!profile) return 1;
+  const start = new Date(profile.created_at);
+  const today = new Date();
+  const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  return diff + 1;
+}
+
+function renderWeek() {
+  const days = ['S','M','T','W','T','F','S'];
+  const today = new Date();
+  const dow = today.getDay();
+  const html = days.map((d, i) => {
+    const isToday = i === dow;
+    const isPast = i < dow;
+    const cls = isToday ? 'today' : isPast ? 'done' : '';
+    const icon = isPast ? '✓' : isToday ? '·' : '';
+    return `<div class="week-cell"><span class="week-name">${d}</span><div class="week-dot ${cls}">${icon}</div></div>`;
+  }).join('');
+  document.getElementById('week-row').innerHTML = html;
+}
+
+async function loadQueue() {
+  const today = new Date().toISOString().split('T')[0];
+  let { data: queue } = await sb.from('daily_queue')
+    .select('*, readings(*)')
+    .eq('user_id', user.id)
+    .eq('queued_date', today);
+
+  if (!queue || queue.length === 0) {
+    await generateQueue(today);
+    let { data: newQueue } = await sb.from('daily_queue')
+      .select('*, readings(*)')
+      .eq('user_id', user.id)
+      .eq('queued_date', today);
+    queue = newQueue || [];
+  }
+
+  renderQueue(queue);
+}
+
+async function generateQueue(date) {
+  const counts = { poem: profile.counts_poems || 1, story: profile.counts_stories || 1, essay: profile.counts_essays || 1 };
+  const { data: themes } = await sb.from('user_themes').select('theme').eq('user_id', user.id);
+  const themeIds = themes ? themes.map(t => t.theme) : [];
+
+  const inserts = [];
+  for (const [type, count] of Object.entries(counts)) {
+    let query = sb.from('readings').select('id').eq('type', type);
+    if (profile.era_preference !== 'mixed') query = query.eq('era', profile.era_preference);
+    if (themeIds.length > 0) query = query.overlaps('themes', themeIds);
+    const { data: pool } = await query.limit(50);
+    if (!pool || pool.length === 0) continue;
+    const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, count);
+    shuffled.forEach(r => inserts.push({ user_id: user.id, reading_id: r.id, queued_date: date }));
+  }
+  if (inserts.length > 0) await sb.from('daily_queue').insert(inserts);
+}
+
+function renderQueue(queue) {
+  const total = queue.length;
+  const done = queue.filter(q => q.completed).length;
+  document.getElementById('progress-label').textContent = `${done}/${total} complete`;
+  document.getElementById('progress-fill').style.width = total > 0 ? `${(done/total)*100}%` : '0%';
+
+  if (total === 0) {
+    document.getElementById('queue-list').innerHTML = '<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">No readings found for your preferences.<br>Try adjusting your themes in Settings.</div>';
+    return;
+  }
+
+  document.getElementById('queue-list').innerHTML = queue.map(q => {
+    const r = q.readings;
+    if (!r) return '';
+    const color = TYPE_COLORS[r.type] || 'var(--faded)';
+    return `<div class="reading-item${q.completed?' done':''}" onclick="openReader('${q.id}')">
+      <div class="ri-bar" style="background:${color}"></div>
+      <div style="flex:1">
+        <div class="ri-type">${r.type}</div>
+        <div class="ri-title">${r.title}</div>
+        <div class="ri-author">${r.author}${r.year ? ', ' + r.year : ''}</div>
+      </div>
+      <div class="ri-time">${r.read_time_minutes || '?'} min</div>
+    </div>`;
+  }).join('');
+}
+
+// ── READER ─────────────────────────────────────────────────────────────────
+async function openReader(queueId) {
+  const today = new Date().toISOString().split('T')[0];
+  const { data: qItem } = await sb.from('daily_queue')
+    .select('*, readings(*)')
+    .eq('id', queueId)
+    .single();
+  if (!qItem || !qItem.readings) return;
+
+  currentReading = qItem.readings;
+  currentQueueId = queueId;
+  currentRating = qItem.rating || 0;
+
+  const r = currentReading;
+  const color = TYPE_COLORS[r.type] || 'var(--faded)';
+  document.getElementById('reader-tag').textContent = r.type.toUpperCase();
+  document.getElementById('reader-tag').style.background = color;
+  document.getElementById('reader-title').textContent = r.title;
+  document.getElementById('reader-author').textContent = `${r.author}${r.year ? ' — ' + r.year : ''}`;
+  document.getElementById('reader-time').textContent = r.read_time_minutes ? `${r.read_time_minutes} min read` : '';
+  document.getElementById('reader-desc').textContent = r.description || '';
+  document.getElementById('reader-text').textContent = r.body;
+
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('lit', i < currentRating));
+  const doneBtn = document.getElementById('done-btn');
+  doneBtn.textContent = qItem.completed ? '✓ Complete' : 'Mark Done';
+  doneBtn.classList.toggle('complete', qItem.completed);
+
+  showScreen('reader');
+}
+
+function closeReader() {
+  showScreen('home', false);
+  refreshHome();
+}
+
+function setRating(n) {
+  currentRating = n;
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('lit', i < n));
+  if (currentQueueId) sb.from('daily_queue').update({ rating: n }).eq('id', currentQueueId);
+}
+
+async function markComplete() {
+  if (!currentQueueId) return;
+  await sb.from('daily_queue').update({ completed: true, completed_at: new Date().toISOString() }).eq('id', currentQueueId);
+  await updateStreak();
+  document.getElementById('done-btn').textContent = '✓ Complete';
+  document.getElementById('done-btn').classList.add('complete');
+  toast('Reading marked complete ✓');
+  setTimeout(closeReader, 800);
+}
+
+async function markDNF() {
+  if (!currentQueueId) return;
+  await sb.from('daily_queue').update({ dnf: true }).eq('id', currentQueueId);
+  toast('Skipped — finding a replacement...');
+  const today = new Date().toISOString().split('T')[0];
+  const type = currentReading.type;
+  let query = sb.from('readings').select('id').eq('type', type);
+  if (profile.era_preference !== 'mixed') query = query.eq('era', profile.era_preference);
+  const { data: pool } = await query.limit(50);
+  if (pool && pool.length > 0) {
+    const replacement = pool[Math.floor(Math.random() * pool.length)];
+    await sb.from('daily_queue').insert({ user_id: user.id, reading_id: replacement.id, queued_date: today });
+  }
+  setTimeout(closeReader, 600);
+}
+
+async function updateStreak() {
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const last = profile.streak_last_date;
+  let streak = profile.streak_current || 0;
+  if (last === yesterday) streak++;
+  else if (last !== today) streak = 1;
+  const best = Math.max(streak, profile.streak_best || 0);
+  await sb.from('profiles').update({ streak_current: streak, streak_best: best, streak_last_date: today }).eq('id', user.id);
+  profile.streak_current = streak;
+  profile.streak_best = best;
+  profile.streak_last_date = today;
+}
+
+// ── ANNOTATIONS ────────────────────────────────────────────────────────────
+async function addBookmark() {
+  if (!currentReading) return;
+  const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+  const text = sel || currentReading.title;
+  await sb.from('annotations').insert({ user_id: user.id, reading_id: currentReading.id, type: 'highlight', selected_text: text });
+  toast('Highlight saved to notebook ✦');
+}
+
+async function openNoteModal() {
+  const note = prompt('Add a note:');
+  if (!note || !currentReading) return;
+  const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+  await sb.from('annotations').insert({ user_id: user.id, reading_id: currentReading.id, type: 'note', selected_text: sel || null, note_body: note });
+  toast('Note saved to notebook ✏');
+}
+
+// ── NOTEBOOK ───────────────────────────────────────────────────────────────
+async function loadNotebook() {
+  const { data } = await sb.from('annotations').select('*, readings(title, author)').eq('user_id', user.id).order('created_at', { ascending: false });
+  allAnnotations = data || [];
+  document.getElementById('nb-sub').textContent = `${allAnnotations.length} saved passage${allAnnotations.length !== 1 ? 's' : ''}`;
+  renderNotebook('all');
+}
+
+function filterNotebook(type, el) {
+  document.querySelectorAll('.nb-filter').forEach(f => f.classList.remove('active'));
+  el.classList.add('active');
+  renderNotebook(type);
+}
+
+function renderNotebook(filter) {
+  const items = filter === 'all' ? allAnnotations : allAnnotations.filter(a => a.type === filter);
+  const list = document.getElementById('nb-list');
+  if (items.length === 0) {
+    list.innerHTML = '<div class="nb-empty">No ' + (filter === 'all' ? 'entries' : filter + 's') + ' yet.<br>Highlight text while reading to save passages here.</div>';
+    return;
+  }
+  list.innerHTML = items.map(a => `
+    <div class="nb-entry ${a.type}">
+      <div class="nb-entry-type">${a.type === 'highlight' ? '✦ Highlight' : '✏ Note'}</div>
+      <div class="nb-entry-text">"${a.selected_text || a.note_body || ''}"</div>
+      ${a.note_body && a.type === 'note' ? `<div style="font-size:0.78rem;color:#a09070;margin-bottom:6px;font-style:italic">${a.note_body}</div>` : ''}
+      <div class="nb-entry-source">${a.readings ? a.readings.title + ' — ' + a.readings.author : ''}</div>
+    </div>`).join('');
+}
+
+// ── FRIENDS ────────────────────────────────────────────────────────────────
+async function loadFriends() {
+  const { data: friendships } = await sb.from('friendships').select('friend_id').eq('user_id', user.id);
+  const ids = friendships ? friendships.map(f => f.friend_id) : [];
+  const frList = document.getElementById('fr-list');
+  if (ids.length === 0) {
+    frList.innerHTML = '<div style="padding:16px 0;color:var(--faded);font-style:italic;font-size:0.85rem">No friends yet. Add someone to see their streak.</div>';
+  } else {
+    const { data: friends } = await sb.from('profiles').select('id, username, streak_current').in('id', ids);
+    frList.innerHTML = (friends || []).map(f => {
+      const initials = f.username.slice(0,2).toUpperCase();
+      const colors = ['#5a7a5a','#4a6a9a','#b5451b','#c9922a'];
+      const color = colors[f.username.charCodeAt(0) % colors.length];
+      return `<div class="fr-card"><div class="fr-avatar" style="background:${color}">${initials}</div><div><div class="fr-name">${f.username}</div></div><div class="fr-streak"><div class="fr-streak-num">🔥${f.streak_current || 0}</div><div class="fr-streak-label">streak</div></div></div>`;
+    }).join('');
+  }
+
+  const { data: recs } = await sb.from('recommendations').select('*, readings(title, author, type), profiles!from_user_id(username)').eq('to_user_id', user.id).eq('seen', false).limit(5);
+  const recsList = document.getElementById('recs-list');
+  if (!recs || recs.length === 0) {
+    recsList.innerHTML = '<div style="color:var(--faded);font-style:italic;font-size:0.85rem">No recommendations yet.</div>';
+  } else {
+    recsList.innerHTML = recs.map(r => `
+      <div class="rec-card">
+        <div class="rec-from"><div class="rec-avatar-sm" style="background:var(--sage)">${(r.profiles?.username||'?').slice(0,2).toUpperCase()}</div><span class="rec-from-text">${r.profiles?.username || 'Someone'} recommended</span></div>
+        <div class="rec-title">${r.readings?.title || ''}</div>
+        <div class="rec-author">${r.readings?.author || ''}</div>
+        ${r.note ? `<div class="rec-note">"${r.note}"</div>` : ''}
+        <div class="rec-btns"><button class="rec-btn rec-btn-add" onclick="addRecToQueue('${r.id}','${r.reading_id}')">Add to Queue</button><button class="rec-btn rec-btn-skip" onclick="dismissRec('${r.id}')">Skip</button></div>
+      </div>`).join('');
+  }
+}
+
+async function addRecToQueue(recId, readingId) {
+  const today = new Date().toISOString().split('T')[0];
+  await sb.from('daily_queue').insert({ user_id: user.id, reading_id: readingId, queued_date: today });
+  await sb.from('recommendations').update({ seen: true }).eq('id', recId);
+  toast('Added to today\'s queue →');
+  loadFriends();
+}
+
+async function dismissRec(recId) {
+  await sb.from('recommendations').update({ seen: true }).eq('id', recId);
+  loadFriends();
+}
+
+async function showAddFriend() {
+  const username = prompt('Enter their username:');
+  if (!username) return;
+  const { data: found } = await sb.from('profiles').select('id').eq('username', username).single();
+  if (!found) { toast('User not found.'); return; }
+  await sb.from('friendships').insert({ user_id: user.id, friend_id: found.id });
+  toast('Friend added ✓');
+  loadFriends();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
