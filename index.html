@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a1108">
 <title>Read Like Ray</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a1108'/><text y='78' x='50' text-anchor='middle' font-size='72' font-family='Georgia,serif' fill='%23b5451b'>R</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -352,10 +353,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="rd-body">
     <div class="rd-context" id="rd-context"></div>
     <a class="rd-open-btn" id="rd-link" href="#" target="_blank" rel="noopener">Open Full Text →</a>
-    <div class="rd-prompt" id="rd-prompt" style="display:none">
-      <div class="rd-prompt-lbl">Writing Prompt</div>
-      <div class="rd-prompt-txt" id="rd-prompt-txt"></div>
-    </div>
+
     <div style="margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--faded);">Add a note</div>
     <textarea class="rd-note-area" id="rd-note" placeholder="Your thoughts, a line that struck you..."></textarea>
     <button class="rd-note-save" onclick="saveNote()">Save Note ✏</button>
@@ -370,7 +368,6 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="nb-filters">
     <div class="nb-fil active" onclick="filterNB('all',this)">All</div>
-    <div class="nb-fil" onclick="filterNB('highlight',this)">✦ Highlights</div>
     <div class="nb-fil" onclick="filterNB('note',this)">✏ Notes</div>
   </div>
   <div class="nb-list" id="nb-list"></div>
@@ -615,9 +612,7 @@ async function openReader(qid){
   document.getElementById('rd-author').textContent=`${r.author}${r.year?' — '+r.year:''}`;
   document.getElementById('rd-context').textContent=r.context||'';
   document.getElementById('rd-link').href=r.source_url||'#';
-  const pp=document.getElementById('rd-prompt');
-  if(r.writing_prompt){pp.style.display='block';document.getElementById('rd-prompt-txt').textContent=r.writing_prompt;}
-  else pp.style.display='none';
+
   document.getElementById('rd-note').value='';
   document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<currentRating));
   const db=document.getElementById('done-btn');
