@@ -368,7 +368,9 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="nb-filters">
     <div class="nb-fil active" onclick="filterNB('all',this)">All</div>
-    <div class="nb-fil" onclick="filterNB('note',this)">✏ Notes</div>
+    <div class="nb-fil" onclick="filterNB('poem',this)">Poems</div>
+    <div class="nb-fil" onclick="filterNB('story',this)">Stories</div>
+    <div class="nb-fil" onclick="filterNB('essay',this)">Essays</div>
   </div>
   <div class="nb-list" id="nb-list"></div>
 </div>
@@ -685,7 +687,7 @@ function filterNB(type,el){
   el.classList.add('active'); renderNB(type);
 }
 function renderNB(filter){
-  const items=filter==='all'?allAnnotations:allAnnotations.filter(a=>a.type===filter);
+  const items=filter==='all'?allAnnotations:allAnnotations.filter(a=>a.readings&&a.readings.type===filter);
   const list=document.getElementById('nb-list');
   if(items.length===0){list.innerHTML='<div class="nb-empty">Nothing saved yet.<br>Add notes while reading to collect passages here.</div>';return;}
   list.innerHTML=items.map(a=>`<div class="nb-entry ${a.type}"><div class="nb-etype">${a.type==='highlight'?'✦ Highlight':'✏ Note'}</div><div class="nb-etext">"${(a.note_body||a.selected_text||'').slice(0,200)}"</div><div class="nb-esrc">${a.readings?a.readings.title+' — '+a.readings.author:''}</div></div>`).join('');
