@@ -329,6 +329,17 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="rd-hdr">
     <div class="rd-nav">
       <button class="rd-back" onclick="closeReader()">← Back</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="stars" id="stars">
+          <button class="star" onclick="setRating(1)">★</button>
+          <button class="star" onclick="setRating(2)">★</button>
+          <button class="star" onclick="setRating(3)">★</button>
+          <button class="star" onclick="setRating(4)">★</button>
+          <button class="star" onclick="setRating(5)">★</button>
+        </div>
+        <button class="dnf-btn" onclick="markDNF()">DNF</button>
+        <button class="done-btn" id="done-btn" onclick="markComplete()" style="width:auto;padding:8px 12px;flex:none;font-size:0.52rem;">Done</button>
+      </div>
     </div>
     <div class="rd-tag" id="rd-tag"></div>
     <div class="rd-title" id="rd-title"></div>
@@ -344,17 +355,6 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div style="margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--faded);">Add a note</div>
     <textarea class="rd-note-area" id="rd-note" placeholder="Your thoughts, a line that struck you..."></textarea>
     <button class="rd-note-save" onclick="saveNote()">Save Note ✏</button>
-  </div>
-  <div class="rd-footer">
-    <div class="stars" id="stars">
-      <button class="star" onclick="setRating(1)">★</button>
-      <button class="star" onclick="setRating(2)">★</button>
-      <button class="star" onclick="setRating(3)">★</button>
-      <button class="star" onclick="setRating(4)">★</button>
-      <button class="star" onclick="setRating(5)">★</button>
-    </div>
-    <button class="dnf-btn" onclick="markDNF()">DNF</button>
-    <button class="done-btn" id="done-btn" onclick="markComplete()">Mark Done</button>
   </div>
 </div>
 
