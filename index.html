@@ -677,7 +677,7 @@ async function saveNote(){
 
 // NOTEBOOK
 async function loadNotebook(){
-  const {data}=await sb.from('annotations').select('*,readings(title,author)').eq('user_id',user.id).order('created_at',{ascending:false});
+  const {data}=await sb.from('annotations').select('*,readings(title,author,type)').eq('user_id',user.id).order('created_at',{ascending:false});
   allAnnotations=data||[];
   document.getElementById('nb-sub').textContent=`${allAnnotations.length} saved passage${allAnnotations.length!==1?'s':''}`;
   renderNB('all');
