@@ -262,7 +262,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <div id="screen-onboard" class="screen">
   <div id="step-1" class="onboard-step safe-top">
     <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
-    <div class="step-lbl">Step 1 of 4</div>
+    <div class="step-lbl">Step 1 of 3</div>
     <h2 class="step-ttl">How long will you commit?</h2>
     <p class="step-dsc">Bradbury said 1,000 nights. Any commitment is worth keeping.</p>
     <div class="dur-grid">
@@ -280,7 +280,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
   <div id="step-2" class="onboard-step safe-top" style="display:none">
     <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
-    <div class="step-lbl">Step 2 of 4</div>
+    <div class="step-lbl">Step 2 of 3</div>
     <h2 class="step-ttl">What moves you?</h2>
     <p class="step-dsc">Your daily selections will draw from these themes.</p>
     <div class="theme-grid" id="theme-grid"></div>
@@ -288,23 +288,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 
   <div id="step-3" class="onboard-step safe-top" style="display:none">
-    <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip"></div></div>
-    <div class="step-lbl">Step 3 of 4</div>
-    <h2 class="step-ttl">Old or new?</h2>
-    <p class="step-dsc">Bradbury's method is rooted in classic literature — but contemporary voices matter too.</p>
-    <div class="era-toggle">
-      <button class="era-btn active" onclick="selEra('classic',this)">Classic<br><span style="opacity:0.6;font-size:0.85em">Pre-1928</span></button>
-      <button class="era-btn" onclick="selEra('mixed',this)">Both<br><span style="opacity:0.6;font-size:0.85em">Mix</span></button>
-      <button class="era-btn" onclick="selEra('contemporary',this)">Contemporary<br><span style="opacity:0.6;font-size:0.85em">Post-1928</span></button>
-    </div>
-    <button class="btn btn-primary" onclick="goStep(3,4)">Continue →</button>
-  </div>
-
-  <div id="step-4" class="onboard-step safe-top" style="display:none">
     <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div></div>
-    <div class="step-lbl">Step 4 of 4</div>
+    <div class="step-lbl">Step 3 of 3</div>
     <h2 class="step-ttl">How much per night?</h2>
-    <p class="step-dsc">Bradbury did one of each. Start lighter — you can change this anytime.</p>
+    <p class="step-dsc">Bradbury did one of each. Start lighter or go all in — you can change this anytime.</p>
     <div class="count-rows">
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--sage)"></div><span class="cname">Poems</span></div><div class="stepper"><button class="stbtn" onclick="adj('poems',-1)">−</button><span class="stval" id="cv-poems">1</span><button class="stbtn" onclick="adj('poems',1)">+</button></div></div>
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--blue)"></div><span class="cname">Stories</span></div><div class="stepper"><button class="stbtn" onclick="adj('stories',-1)">−</button><span class="stval" id="cv-stories">1</span><button class="stbtn" onclick="adj('stories',1)">+</button></div></div>
