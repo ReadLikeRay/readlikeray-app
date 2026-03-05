@@ -149,7 +149,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .rd-tag { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.14em; padding:3px 8px; display:inline-block; margin-bottom:5px; color:white; }
 .rd-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--paper); line-height:1.2; margin-bottom:2px; }
 .rd-author { font-size:0.7rem; color:var(--faded); font-style:italic; }
-.rd-body { padding:24px 24px 180px; }
+.rd-body { padding:24px 24px 240px; }
 .rd-context { font-size:0.85rem; line-height:1.72; color:#a09070; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.08); font-style:italic; }
 .rd-open-btn { display:block; width:100%; padding:16px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; text-align:center; text-decoration:none; margin-bottom:24px; transition:background 0.2s; }
 .rd-open-btn:hover { background:#9a3a15; }
@@ -261,7 +261,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <!-- ONBOARDING -->
 <div id="screen-onboard" class="screen">
   <div id="step-1" class="onboard-step safe-top">
-    <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+    <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
     <div class="step-lbl">Step 1 of 3</div>
     <h2 class="step-ttl">How long will you commit?</h2>
     <p class="step-dsc">Bradbury said 1,000 nights. Any commitment is worth keeping.</p>
@@ -279,7 +279,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 
   <div id="step-2" class="onboard-step safe-top" style="display:none">
-    <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
+    <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip"></div></div>
     <div class="step-lbl">Step 2 of 3</div>
     <h2 class="step-ttl">What moves you?</h2>
     <p class="step-dsc">Your daily selections will draw from these themes.</p>
@@ -288,10 +288,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 
   <div id="step-3" class="onboard-step safe-top" style="display:none">
-    <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div></div>
+    <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div></div>
     <div class="step-lbl">Step 3 of 3</div>
     <h2 class="step-ttl">How much per night?</h2>
-    <p class="step-dsc">Bradbury did one of each. Start lighter or go all in — you can change this anytime.</p>
+    <p class="step-dsc">Bradbury did one of each. Start lighter — you can change this anytime.</p>
     <div class="count-rows">
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--sage)"></div><span class="cname">Poems</span></div><div class="stepper"><button class="stbtn" onclick="adj('poems',-1)">−</button><span class="stval" id="cv-poems">1</span><button class="stbtn" onclick="adj('poems',1)">+</button></div></div>
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--blue)"></div><span class="cname">Stories</span></div><div class="stepper"><button class="stbtn" onclick="adj('stories',-1)">−</button><span class="stval" id="cv-stories">1</span><button class="stbtn" onclick="adj('stories',1)">+</button></div></div>
@@ -392,7 +392,6 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="set-body">
     <div class="set-sec-lbl">Your Preferences</div>
     <div class="set-row"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
-    <div class="set-row"><span class="set-row-lbl">Era</span><span class="set-row-val" id="set-era">Classic</span></div>
     <div class="set-row"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
     <div class="set-sec-lbl">Account</div>
     <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
@@ -413,7 +412,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
 <script>
 const SUPABASE_URL = 'https://xyxjivuykzewcdbhyrys.supabase.co';
-const SUPABASE_KEY = 'sb_publishable__W3bwXlBYkb-D3EztXBfPg_qNY9YbNb';
+const SUPABASE_KEY = 'sb_publishable__W3bwXIBYkb-D3EztXBfPg_qNY9YbNb';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const THEMES = [
