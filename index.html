@@ -572,8 +572,8 @@ function renderWeek(){
 }
 async function loadQueue(){
   const today=new Date().toISOString().split('T')[0];
-  let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today);
-  if(!q||q.length===0){await generateQueue(today);({data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today));}
+  let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
+  if(!q||q.length===0){await generateQueue(today);({data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false));}
   renderQueue(q||[]);
 }
 async function generateQueue(date){
@@ -642,14 +642,19 @@ async function markComplete(){
 }
 async function markDNF(){
   if(!currentQueueId)return;
-  await sb.from('daily_queue').update({dnf:true}).eq('id',currentQueueId);
+  // Delete the DNF'd item entirely and add a replacement
+  await sb.from('daily_queue').delete().eq('id',currentQueueId);
   const today=new Date().toISOString().split('T')[0];
   let q=sb.from('readings').select('id').eq('type',currentReading.type);
   if(profile.era_preference!=='mixed') q=q.eq('era',profile.era_preference);
   const {data:pool}=await q.limit(50);
   if(pool&&pool.length>0){
-    const r=pool[Math.floor(Math.random()*pool.length)];
-    await sb.from('daily_queue').insert({user_id:user.id,reading_id:r.id,queued_date:today});
+    // Pick one that isn't already in today's queue
+    const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
+    const usedIds=existing?existing.map(e=>e.reading_id):[];
+    const available=pool.filter(r=>!usedIds.includes(r.id));
+    const pick=available.length>0?available[Math.floor(Math.random()*available.length)]:pool[Math.floor(Math.random()*pool.length)];
+    await sb.from('daily_queue').insert({user_id:user.id,reading_id:pick.id,queued_date:today});
   }
   toast('Skipped — added a replacement');
   setTimeout(closeReader,600);
