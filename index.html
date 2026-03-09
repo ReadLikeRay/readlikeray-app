@@ -464,10 +464,6 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="fr-list" id="fr-list"></div>
   <button class="add-fr-btn" onclick="addFriend()">+ Add a Friend</button>
-  <div class="recs-sec">
-    <div class="recs-lbl">Recommended for You</div>
-    <div id="recs-list"></div>
-  </div>
 </div>
 
 <!-- ADMIN (hidden — visible to admin only) -->
@@ -972,18 +968,7 @@ async function loadFriends(){
     const colors=['#5a7a5a','#4a6a9a','#b5451b','#c9922a'];
     frList.innerHTML=(friends||[]).map(f=>`<div class="fr-card"><div class="fr-av" style="background:${colors[f.username.charCodeAt(0)%colors.length]}">${f.username.slice(0,2).toUpperCase()}</div><div><div class="fr-name">${f.username}</div></div><div class="fr-streak"><div class="fr-snum">🔥${f.streak_current||0}</div><div class="fr-slbl">streak</div></div></div>`).join('');
   }
-  const {data:recs}=await sb.from('recommendations').select('*,readings(title,author,type),profiles!from_user_id(username)').eq('to_user_id',user.id).eq('seen',false).limit(5);
-  const rl=document.getElementById('recs-list');
-  if(!recs||recs.length===0){rl.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem">No recommendations yet.</div>';return;}
-  rl.innerHTML=recs.map(r=>`<div class="rec-card"><div class="rec-from"><div class="rec-av" style="background:var(--sage)">${(r.profiles?.username||'?').slice(0,2).toUpperCase()}</div><span class="rec-from-txt">${r.profiles?.username||'Someone'} recommended</span></div><div class="rec-title">${r.readings?.title||''}</div><div class="rec-author">${r.readings?.author||''}</div>${r.note?`<div class="rec-note">"${r.note}"</div>`:''}<div class="rec-btns"><button class="rec-btn rec-add" onclick="addRec('${r.id}','${r.reading_id}')">Add to Queue</button><button class="rec-btn rec-skip" onclick="skipRec('${r.id}')">Skip</button></div></div>`).join('');
 }
-async function addRec(rid,readingId){
-  const today=new Date().toISOString().split('T')[0];
-  await sb.from('daily_queue').insert({user_id:user.id,reading_id:readingId,queued_date:today});
-  await sb.from('recommendations').update({seen:true}).eq('id',rid);
-  toast('Added to queue →'); loadFriends();
-}
-async function skipRec(rid){await sb.from('recommendations').update({seen:true}).eq('id',rid);loadFriends();}
 async function addFriend(){
   const username=prompt('Enter their username:');
   if(!username)return;
