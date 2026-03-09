@@ -340,6 +340,19 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
 <!-- ONBOARDING -->
 <div id="screen-onboard" class="screen">
+  <!-- WELCOME INTRO (shown before step 1 for cold users) -->
+  <div id="step-0" class="onboard-step safe-top" style="display:none">
+    <div class="step-pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+    <div class="step-lbl">Welcome</div>
+    <h2 class="step-ttl">Read Like<br><em style="color:var(--rust)">Ray</em></h2>
+    <p class="step-dsc" style="margin-bottom:18px">Ray Bradbury educated himself entirely at the library — one short story, one poem, and one essay every night for 1,000 nights.</p>
+    <p class="step-dsc" style="margin-bottom:18px">This app is his method, made into a daily habit. Every night you'll get a small queue of handpicked public-domain writing drawn from the themes you care about.</p>
+    <p class="step-dsc">Rate what you read, track your streak, and see what your friends are finishing. It takes 15–30 minutes a night.</p>
+    <div style="margin-top:auto;padding-top:28px">
+      <button class="btn btn-primary" onclick="goStep(0,1)">Get Started →</button>
+    </div>
+  </div>
+
   <div id="step-1" class="onboard-step safe-top">
     <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
     <div class="step-lbl">Step 1 of 3</div>
@@ -535,6 +548,22 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="adm-list" id="adm-list"></div>
 </div>
 
+<!-- BROWSE -->
+<div id="screen-browse" class="screen safe-bottom">
+  <div style="padding:52px 22px 18px;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:700;color:var(--paper);margin-bottom:8px">Browse</h1>
+    <input class="input" id="browse-input" type="text" placeholder="Search titles, authors..." oninput="browseSearch(this.value)" style="margin-bottom:10px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="cr-fil active" id="bfil-all" onclick="setBrowseFilter('all',this)">All</button>
+      <button class="cr-fil" id="bfil-poem" onclick="setBrowseFilter('poem',this)">Poems</button>
+      <button class="cr-fil" id="bfil-story" onclick="setBrowseFilter('story',this)">Stories</button>
+      <button class="cr-fil" id="bfil-essay" onclick="setBrowseFilter('essay',this)">Essays</button>
+      <button class="cr-fil" id="bfil-unread" onclick="setBrowseFilter('unread',this)">Unread</button>
+    </div>
+  </div>
+  <div id="browse-list" style="padding:0 22px 40px"></div>
+</div>
+
 <!-- SETTINGS -->
 <div id="screen-settings" class="screen safe-bottom">
   <div class="set-hdr"><h1 class="set-ttl">Settings</h1></div>
@@ -554,7 +583,12 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     </div>
     <div class="set-sec-lbl">Account</div>
     <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
-    <div class="set-row" onclick="signOut()"><span class="set-row-lbl">Sign Out</span><span class="set-row-val">→</span></div>
+    <div class="set-row"><span class="set-row-lbl">Longest Streak</span><span class="set-row-val" id="set-best">0 days</span></div>
+    <div class="set-row" onclick="changeUsername()" style="cursor:pointer"><span class="set-row-lbl">Change Username</span><span class="set-row-val">→</span></div>
+    <div class="set-row" onclick="changePassword()" style="cursor:pointer"><span class="set-row-lbl">Change Password</span><span class="set-row-val">→</span></div>
+    <div class="set-row" onclick="removeFriendFlow()" style="cursor:pointer"><span class="set-row-lbl">Remove a Friend</span><span class="set-row-val">→</span></div>
+    <div class="set-row" onclick="signOut()" style="cursor:pointer"><span class="set-row-lbl">Sign Out</span><span class="set-row-val">→</span></div>
+    <div class="set-row" onclick="deleteAccount()" style="cursor:pointer"><span class="set-row-lbl" style="color:var(--rust)">Delete Account</span><span class="set-row-val" style="color:var(--rust)">→</span></div>
   </div>
 </div>
 
@@ -563,6 +597,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <nav id="bottom-nav">
   <button class="nav-btn active" data-s="home" onclick="navTo('home')"><span class="nav-icon">◈</span><span class="nav-label">Today</span></button>
   <button class="nav-btn" data-s="completed" onclick="navTo('completed')"><span class="nav-icon">◎</span><span class="nav-label">Completed</span></button>
+  <button class="nav-btn" data-s="browse" onclick="navTo('browse')"><span class="nav-icon">◇</span><span class="nav-label">Browse</span></button>
   <button class="nav-btn" data-s="friends" onclick="navTo('friends')"><span class="nav-icon">◉</span><span class="nav-label">Friends</span></button>
   <button class="nav-btn" data-s="settings" onclick="navTo('settings')"><span class="nav-icon">○</span><span class="nav-label">Settings</span></button>
   <button class="nav-btn" data-s="admin" id="admin-nav-btn" onclick="navTo('admin')" style="display:none"><span class="nav-icon">⚑</span><span class="nav-label">Admin</span></button>
@@ -617,7 +652,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('screen-'+name);
   if(s) s.classList.add('active');
-  const main=['home','completed','friends','settings','admin'];
+  const main=['home','completed','browse','friends','settings','admin'];
   const nav=document.getElementById('bottom-nav');
   nav.classList.toggle('visible',main.includes(name));
   if(main.includes(name)) document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===name));
@@ -627,6 +662,7 @@ function navTo(name){
   showScreen(name);
   if(name==='home') refreshHome();
   if(name==='completed') loadCompleted();
+  if(name==='browse') loadBrowse();
   if(name==='friends') loadFriends();
   if(name==='settings') loadSettings();
   if(name==='admin') loadAdmin();
@@ -662,6 +698,9 @@ async function handleAuth(){
     await sb.from('profiles').insert({id:user.id,username});
     await loadProfile();
     showScreen('onboard');
+    // Show welcome intro for new users
+    document.getElementById('step-0').style.display='flex';
+    document.getElementById('step-1').style.display='none';
   }
 }
 
@@ -752,13 +791,25 @@ async function generateQueue(date){
   const counts={poem:profile.counts_poems||1,story:profile.counts_stories||1,essay:profile.counts_essays||1};
   const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
   const thIds=th?th.map(t=>t.theme):[];
+  // Avoid readings already completed or DNF'd
+  const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  const doneIds=new Set((done||[]).map(d=>d.reading_id));
   const inserts=[];
   for(const [type,count] of Object.entries(counts)){
-    let q=sb.from('readings').select('id').eq('type',type);
-    if(profile.era_preference!=='mixed') q=q.eq('era',profile.era_preference);
-    if(thIds.length>0) q=q.overlaps('themes',thIds);
-    const {data:pool}=await q.limit(50);
-    if(!pool||pool.length===0) continue;
+    // Try themed first, then fall back to all of that type
+    let pool=[];
+    if(thIds.length>0){
+      const {data}=await sb.from('readings').select('id').eq('type',type).overlaps('themes',thIds).limit(100);
+      pool=(data||[]).filter(r=>!doneIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+    }
+    if(pool.length<count){
+      const {data}=await sb.from('readings').select('id').eq('type',type).limit(100);
+      const fallback=(data||[]).filter(r=>!doneIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+      // Merge, deduplicate
+      const poolIds=new Set(pool.map(p=>p.id));
+      pool=[...pool,...fallback.filter(r=>!poolIds.has(r.id))];
+    }
+    if(pool.length===0) continue;
     pool.sort(()=>Math.random()-0.5).slice(0,count).forEach(r=>inserts.push({user_id:user.id,reading_id:r.id,queued_date:date}));
   }
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
@@ -767,6 +818,9 @@ function renderQueue(queue){
   const total=queue.length, done=queue.filter(q=>q.completed).length;
   document.getElementById('prog-lbl').textContent=`${done}/${total} complete`;
   document.getElementById('prog-fill').style.width=total>0?`${(done/total)*100}%`:'0%';
+  // Hide short-time button if all done or already swapped
+  const shortBtn=document.querySelector('.short-time-btn');
+  if(shortBtn) shortBtn.style.display=(done===total&&total>0)?'none':'block';
   if(total===0){document.getElementById('queue-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">No readings found.<br>Try adjusting your themes in Settings.</div>';return;}
   document.getElementById('queue-list').innerHTML=queue.map(q=>{
     const r=q.readings; if(!r)return'';
@@ -811,8 +865,7 @@ async function switchToShortQueue(){
   }
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
   toast('Queue swapped ✓');
-  btn.textContent='Short on time? Swap for shorter readings →';
-  btn.disabled=false;
+  btn.style.display='none';
   await loadQueue();
 }
 
@@ -872,19 +925,36 @@ async function markComplete(){
 }
 async function markDNF(){
   if(!currentQueueId)return;
-  // Delete the DNF'd item entirely and add a replacement
-  await sb.from('daily_queue').delete().eq('id',currentQueueId);
+  // Mark as DNF rather than delete — so reading won't reappear
+  await sb.from('daily_queue').update({dnf:true}).eq('id',currentQueueId);
+  // Also log to completed_readings with rating 0 so queue generator avoids it
+  await sb.from('completed_readings').upsert({
+    user_id:user.id, reading_id:currentReading.id,
+    completed_at:new Date().toISOString(), rating:0, note_body:null
+  },{onConflict:'user_id,reading_id'});
   const today=new Date().toISOString().split('T')[0];
-  let q=sb.from('readings').select('id').eq('type',currentReading.type);
-  if(profile.era_preference!=='mixed') q=q.eq('era',profile.era_preference);
-  const {data:pool}=await q.limit(50);
+  // Get all used reading ids (queued + ever completed/dnf'd)
+  const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
+  const {data:everDone}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  const usedIds=new Set([...(existing||[]).map(e=>e.reading_id),...(everDone||[]).map(e=>e.reading_id)]);
+  // Try with themes first, then fall back to any reading of that type
+  const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
+  const thIds=th?th.map(t=>t.theme):[];
+  let pool=null;
+  if(thIds.length>0){
+    const {data}=await sb.from('readings').select('id').eq('type',currentReading.type).overlaps('themes',thIds).limit(100);
+    pool=(data||[]).filter(r=>!usedIds.has(r.id));
+  }
+  if(!pool||pool.length===0){
+    const {data}=await sb.from('readings').select('id').eq('type',currentReading.type).limit(100);
+    pool=(data||[]).filter(r=>!usedIds.has(r.id));
+  }
   if(pool&&pool.length>0){
-    // Pick one that isn't already in today's queue
-    const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
-    const usedIds=existing?existing.map(e=>e.reading_id):[];
-    const available=pool.filter(r=>!usedIds.includes(r.id));
-    const pick=available.length>0?available[Math.floor(Math.random()*available.length)]:pool[Math.floor(Math.random()*pool.length)];
+    const pick=pool[Math.floor(Math.random()*pool.length)];
     await sb.from('daily_queue').insert({user_id:user.id,reading_id:pick.id,queued_date:today});
+  } else {
+    toast('You\'ve read everything in this category. Impressive.');
+    setTimeout(closeReader,800); return;
   }
   toast('Skipped — added a replacement');
   setTimeout(closeReader,600);
@@ -1049,6 +1119,7 @@ async function loadSettings(){
   document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
   document.getElementById('set-counts').textContent=`${profile.counts_poems||1} poem · ${profile.counts_stories||1} story · ${profile.counts_essays||1} essay`;
   document.getElementById('set-username').textContent=profile.username||'—';
+  document.getElementById('set-best').textContent=`${profile.streak_best||0} days`;
   // Feedback toggle
   const enabled=localStorage.getItem('feedbackEnabled')!=='false';
   updateFeedbackToggle(enabled);
@@ -1208,6 +1279,94 @@ async function addFriend(){
   toast('Friend added ✓'); loadFriends();
 }
 
+
+// SETTINGS ACTIONS
+async function changeUsername(){
+  const newName=prompt('Enter new username:');
+  if(!newName||!newName.trim()) return;
+  const name=newName.trim();
+  const {data:existing}=await sb.from('profiles').select('id').eq('username',name).single();
+  if(existing){toast('Username already taken.'); return;}
+  await sb.from('profiles').update({username:name}).eq('id',user.id);
+  profile.username=name;
+  document.getElementById('set-username').textContent=name;
+  toast('Username updated ✓');
+}
+async function changePassword(){
+  const pw=prompt('Enter new password (min 6 characters):');
+  if(!pw||pw.length<6){toast('Password too short.'); return;}
+  const {error}=await sb.auth.updateUser({password:pw});
+  if(error){toast('Error: '+error.message); return;}
+  toast('Password updated ✓');
+}
+async function removeFriendFlow(){
+  const {data:fs}=await sb.from('friendships').select('friend_id,profiles!friend_id(username)').eq('user_id',user.id);
+  if(!fs||fs.length===0){toast('No friends to remove.'); return;}
+  const names=fs.map(f=>f.profiles?.username).filter(Boolean).join(', ');
+  const target=prompt(`Your friends: ${names}\n\nEnter the username to remove:`);
+  if(!target) return;
+  const match=fs.find(f=>f.profiles?.username?.toLowerCase()===target.trim().toLowerCase());
+  if(!match){toast('Friend not found.'); return;}
+  // Remove both directions
+  await sb.from('friendships').delete().eq('user_id',user.id).eq('friend_id',match.friend_id);
+  await sb.from('friendships').delete().eq('user_id',match.friend_id).eq('friend_id',user.id);
+  toast(`${match.profiles.username} removed.`);
+}
+async function deleteAccount(){
+  const confirm1=prompt('This will permanently delete your account and all your data. Type DELETE to confirm:');
+  if(confirm1!=='DELETE'){toast('Cancelled.'); return;}
+  // Delete user data
+  await sb.from('daily_queue').delete().eq('user_id',user.id);
+  await sb.from('completed_readings').delete().eq('user_id',user.id);
+  await sb.from('reading_feedback').delete().eq('user_id',user.id);
+  await sb.from('annotations').delete().eq('user_id',user.id);
+  await sb.from('user_themes').delete().eq('user_id',user.id);
+  await sb.from('friendships').delete().eq('user_id',user.id);
+  await sb.from('friendships').delete().eq('friend_id',user.id);
+  await sb.from('profiles').delete().eq('id',user.id);
+  await sb.auth.signOut();
+  user=null; profile=null;
+  showScreen('auth');
+  toast('Account deleted.');
+}
+
+// BROWSE
+let browseAll=[], browseFilter='all', browseQuery='';
+let browseReadIds=new Set();
+async function loadBrowse(){
+  if(browseAll.length===0){
+    const {data}=await sb.from('readings').select('id,title,author,type,read_time_minutes,themes').order('title');
+    browseAll=data||[];
+  }
+  // Get completed reading ids for "unread" filter
+  const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  browseReadIds=new Set((done||[]).map(d=>d.reading_id));
+  renderBrowse();
+}
+function setBrowseFilter(f,el){
+  browseFilter=f;
+  document.querySelectorAll('#screen-browse .cr-fil').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderBrowse();
+}
+function browseSearch(q){ browseQuery=q.toLowerCase(); renderBrowse(); }
+function renderBrowse(){
+  let items=browseAll;
+  if(browseFilter==='poem'||browseFilter==='story'||browseFilter==='essay') items=items.filter(r=>r.type===browseFilter);
+  if(browseFilter==='unread') items=items.filter(r=>!browseReadIds.has(r.id));
+  if(browseQuery) items=items.filter(r=>r.title.toLowerCase().includes(browseQuery)||r.author.toLowerCase().includes(browseQuery));
+  const list=document.getElementById('browse-list');
+  if(items.length===0){list.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem;padding:24px 0">No results.</div>'; return;}
+  list.innerHTML=items.map(r=>{
+    const done=browseReadIds.has(r.id);
+    const color=TYPE_COLORS[r.type]||'var(--faded)';
+    return `<div class="ri${done?' done':''}" onclick="openReadingDirect('${r.id}')">
+      <div class="ri-bar" style="background:${color}"></div>
+      <div style="flex:1"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
+      <div class="ri-time">${r.read_time_minutes||'?'} min</div>
+    </div>`;
+  }).join('');
+}
 
 // TOAST
 function toast(msg){
