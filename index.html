@@ -1598,31 +1598,35 @@ async function openFriendProfile(friendId, username){
 }
 
 async function openReadingDirect(readingId){
-  if(!readingId) return;
-  const {data:r}=await sb.from('readings').select('*').eq('id',readingId).single();
-  if(!r) return;
-  currentReading=r;
-  currentQueueId=null;
-  currentRating=0;
-  const color=TYPE_COLORS[r.type]||'var(--faded)';
-  document.getElementById('rd-tag').textContent=r.type.toUpperCase();
-  document.getElementById('rd-tag').style.background=color;
-  document.getElementById('rd-title').textContent=r.title;
-  document.getElementById('rd-author').textContent=`${r.author}${r.year?' — '+r.year:''}`;
-  document.getElementById('rd-context').textContent=r.context||r.blurb||'';
-  document.getElementById('rd-link').href=r.source_url||'#';
-  document.getElementById('rd-note').value='';
-  document.getElementById('done-btn').textContent='Done';
-  document.getElementById('done-btn').classList.remove('complete');
-  document.querySelectorAll('#stars .star').forEach(s=>s.classList.remove('active'));
-  // Pre-fill if already completed
-  const {data:existing}=await sb.from('completed_readings').select('rating,note_body').eq('user_id',user.id).eq('reading_id',readingId).single();
-  if(existing){
-    currentRating=existing.rating||0;
-    document.querySelectorAll('#stars .star').forEach((s,i)=>{ s.classList.toggle('active',i<currentRating); });
-    if(existing.note_body) document.getElementById('rd-note').value=existing.note_body;
+  if(!readingId||readingId==='undefined') return;
+  try {
+    const {data:r}=await sb.from('readings').select('*').eq('id',readingId).maybeSingle();
+    if(!r){toast('Could not load reading.');return;}
+    currentReading=r;
+    currentQueueId=null;
+    currentRating=0;
+    const color=TYPE_COLORS[r.type]||'var(--faded)';
+    document.getElementById('rd-tag').textContent=r.type.toUpperCase();
+    document.getElementById('rd-tag').style.background=color;
+    document.getElementById('rd-title').textContent=r.title;
+    document.getElementById('rd-author').textContent=`${r.author}${r.year?' — '+r.year:''}`;
+    document.getElementById('rd-context').textContent=r.context||r.blurb||'';
+    document.getElementById('rd-link').href=r.source_url||'#';
+    document.getElementById('rd-note').value='';
+    document.getElementById('done-btn').textContent='Done';
+    document.getElementById('done-btn').classList.remove('complete');
+    document.querySelectorAll('#stars .star').forEach(s=>s.classList.remove('active'));
+    const {data:existing}=await sb.from('completed_readings').select('rating,note_body').eq('user_id',user.id).eq('reading_id',readingId).maybeSingle();
+    if(existing){
+      currentRating=existing.rating||0;
+      document.querySelectorAll('#stars .star').forEach((s,i)=>{ s.classList.toggle('active',i<currentRating); });
+      if(existing.note_body) document.getElementById('rd-note').value=existing.note_body;
+    }
+    showScreen('reader');
+  } catch(e) {
+    toast('Could not load reading.');
+    console.error('openReadingDirect error:',e);
   }
-  showScreen('reader');
 }
 
 async function addFriend(){
