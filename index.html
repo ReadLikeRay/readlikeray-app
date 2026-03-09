@@ -1009,9 +1009,14 @@ async function renderWeek(){
     .eq('user_id',user.id)
     .gte('queued_date',weekStartStr)
     .lte('queued_date',todayStr);
-  // Build a set of dates where at least one reading was completed
-  const readDates=new Set();
-  (weekQ||[]).forEach(q=>{ if(q.completed) readDates.add(q.queued_date); });
+  // Build a set of dates where ALL readings were completed
+  const dateMap={};
+  (weekQ||[]).forEach(q=>{
+    if(!dateMap[q.queued_date]) dateMap[q.queued_date]={total:0,done:0};
+    if(!q.completed===false||q.completed) dateMap[q.queued_date].total++;
+    if(q.completed) dateMap[q.queued_date].done++;
+  });
+  const readDates=new Set(Object.entries(dateMap).filter(([,v])=>v.total>0&&v.done===v.total).map(([k])=>k));
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
     const dayDate=new Date(weekStart);
     dayDate.setDate(weekStart.getDate()+i);
@@ -1019,8 +1024,8 @@ async function renderWeek(){
     const isToday=i===dow;
     const isPast=i<dow;
     const didRead=readDates.has(dateStr);
-    const cls=isToday?'today':isPast&&didRead?'done':isPast&&!didRead?'missed':'';
-    return `<div class="wc"><span class="wn">${d}</span><div class="wd ${cls}">${isPast?(didRead?'✓':'·'):isToday?'·':''}</div></div>`;
+    const cls=isToday&&didRead?'done':isToday?'today':isPast&&didRead?'done':isPast&&!didRead?'missed':'';
+    return `<div class="wc"><span class="wn">${d}</span><div class="wd ${cls}">${isPast||isToday?(didRead?'✓':'·'):''}</div></div>`;
   }).join('');
 }
 async function loadQueue(){
@@ -1791,9 +1796,12 @@ async function editDuration(){
 
 // COMPLETED → READER
 async function openCompletedReading(readingId, e, card){
-  if(e.target.classList.contains('cr-note-expand')||e.target.classList.contains('cr-note-body')){
+  // If tapping the note expand/body, toggle it instead
+  const t=e.target;
+  if(t.classList.contains('cr-note-expand')||t.classList.contains('cr-note-body')){
     toggleCRNote(card); return;
   }
+  if(!readingId||readingId==='undefined') return;
   await openReadingDirect(readingId);
 }
 
