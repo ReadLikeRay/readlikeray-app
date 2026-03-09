@@ -537,6 +537,18 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="cr-list" id="cr-list"></div>
 </div>
 
+<!-- BADGE EARNED OVERLAY -->
+<div id="badge-overlay" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:24px;">
+  <div style="width:100%;max-width:340px;background:var(--surface);border:1px solid rgba(201,168,76,0.3);padding:32px 28px;text-align:center;position:relative;">
+    <button onclick="closeBadgeOverlay()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--faded);font-size:1.1rem;cursor:pointer;line-height:1;">✕</button>
+    <div style="font-family:'Space Mono',monospace;font-size:0.46rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--gold);margin-bottom:16px;">Badge Unlocked</div>
+    <div id="bo-icon" style="font-size:3rem;line-height:1;margin-bottom:12px;"></div>
+    <div id="bo-name" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper);margin-bottom:10px;"></div>
+    <div id="bo-desc" style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.78rem;color:#a09070;line-height:1.7;margin-bottom:24px;"></div>
+    <button onclick="closeBadgeOverlay()" style="width:100%;padding:13px;background:var(--rust);color:var(--paper);font-family:'Space Mono',monospace;font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;border:none;cursor:pointer;">Got it</button>
+  </div>
+</div>
+
 <!-- DNF DIALOG -->
 <div id="dnf-dialog" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center;">
   <div style="width:100%;max-width:480px;background:var(--surface);border-top:1px solid rgba(255,255,255,0.1);padding:28px 24px 48px;">
@@ -636,6 +648,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <button class="cr-fil" id="bfil-story" onclick="setBrowseFilter('story',this)">Stories</button>
       <button class="cr-fil" id="bfil-essay" onclick="setBrowseFilter('essay',this)">Essays</button>
       <button class="cr-fil" id="bfil-unread" onclick="setBrowseFilter('unread',this)">Unread</button>
+      <button class="cr-fil" id="bfil-short" onclick="toggleBrowseSort(this)">Shortest First</button>
     </div>
   </div>
   <div id="browse-list" style="padding:0 22px 40px"></div>
@@ -1736,7 +1749,7 @@ async function deleteAccount(){
 }
 
 // BROWSE
-let browseAll=[], browseFilter='all', browseQuery='';
+let browseAll=[], browseFilter='all', browseQuery='', browseSortShort=false;
 let browseReadIds=new Set();
 let browseLastLoaded=0;
 async function loadBrowse(){
@@ -1757,14 +1770,23 @@ function setBrowseFilter(f,el){
   renderBrowse();
 }
 function browseSearch(q){ browseQuery=q.toLowerCase(); renderBrowse(); }
+function toggleBrowseSort(el){
+  browseSortShort=!browseSortShort;
+  el.classList.toggle('active', browseSortShort);
+  renderBrowse();
+}
 function renderBrowse(){
   let items=browseAll;
   if(browseFilter==='poem'||browseFilter==='story'||browseFilter==='essay') items=items.filter(r=>r.type===browseFilter);
   if(browseFilter==='unread') items=items.filter(r=>!browseReadIds.has(r.id));
   if(browseQuery) items=items.filter(r=>r.title.toLowerCase().includes(browseQuery)||r.author.toLowerCase().includes(browseQuery));
   items=[...items].sort((a,b)=>{
+    // Primary: unread before read
     const ad=browseReadIds.has(a.id), bd=browseReadIds.has(b.id);
-    return ad===bd?0:ad?1:-1;
+    if(ad!==bd) return ad?1:-1;
+    // Secondary: if shortest-first active, sort by read time
+    if(browseSortShort) return (a.read_time_minutes||0)-(b.read_time_minutes||0);
+    return 0;
   });
   const list=document.getElementById('browse-list');
   if(items.length===0){list.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem;padding:24px 0">No results.</div>'; return;}
@@ -1957,8 +1979,17 @@ async function awardBadge(badgeId){
   try{
     await sb.from('user_badges').insert({user_id:user.id,badge_id:badgeId});
     const badge=BADGES.find(b=>b.id===badgeId);
-    if(badge) toast(`🏅 Badge unlocked: ${badge.name}`);
+    if(badge) showBadgeOverlay(badge);
   }catch(e){/* already earned — unique constraint */}
+}
+function showBadgeOverlay(badge){
+  document.getElementById('bo-icon').textContent=badge.icon;
+  document.getElementById('bo-name').textContent=badge.name;
+  document.getElementById('bo-desc').textContent=badge.desc;
+  document.getElementById('badge-overlay').style.display='flex';
+}
+function closeBadgeOverlay(){
+  document.getElementById('badge-overlay').style.display='none';
 }
 async function checkBadges(context={}){
   // context: {rating, type, hour, totalCompleted, totalByType, totalRated, totalFiveStars, streak, friendCount, usedDNF, usedFreeze, usedShortQueue, completedFullQueue, explorerTheme, daysSinceJoin, streakFreezeEarned}
