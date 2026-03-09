@@ -35,7 +35,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .safe-bottom { padding-bottom: max(88px, calc(env(safe-area-inset-bottom) + 72px)); }
 
 /* NAV */
-#bottom-nav { position:fixed; bottom:0; left:0; right:0; height:max(64px,calc(env(safe-area-inset-bottom)+64px)); background:var(--surface); border-top:1px solid rgba(255,255,255,0.07); display:none; align-items:flex-start; justify-content:space-around; padding:8px 0 0; z-index:200; }
+#bottom-nav { position:fixed; bottom:0; left:0; right:0; height:max(72px,calc(env(safe-area-inset-bottom)+72px)); background:var(--surface); border-top:1px solid rgba(255,255,255,0.07); display:none; align-items:flex-start; justify-content:space-around; padding:8px 0 max(16px,env(safe-area-inset-bottom)); z-index:200; }
 #bottom-nav.visible { display:flex; }
 .nav-btn { display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; cursor:pointer; padding:6px 20px; min-width:60px; }
 .nav-icon { font-size:1.25rem; line-height:1; }
@@ -352,7 +352,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .settings-slide { position:absolute; inset:0; background:var(--ink); transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); z-index:50; overflow-y:auto; scrollbar-width:none; }
 .settings-slide::-webkit-scrollbar { display:none; }
 .settings-slide.open { transform:translateX(0); }
-.settings-slide-hdr { display:flex; align-items:center; gap:14px; padding:52px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.settings-slide-hdr { display:flex; align-items:center; gap:14px; padding:max(52px,env(safe-area-inset-top)) 22px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
 .settings-back { background:none; border:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
 .settings-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--paper); }
 .settings-body { padding:0 0 80px; }
@@ -702,7 +702,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <button class="settings-back" onclick="closeBadgesSlide()">← Back</button>
       <div class="settings-title">All Badges</div>
     </div>
-    <div style="padding:16px 20px 100px">
+    <div style="padding:16px 20px calc(max(88px, env(safe-area-inset-bottom) + 72px))">
       <div id="badges-slide-grid" class="badge-grid" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
   </div>
