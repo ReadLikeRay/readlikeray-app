@@ -1142,8 +1142,13 @@ async function openReader(qid){
 }
 let readerReturnScreen='home';
 function closeReader(){
-  if(readerReturnScreen==='home') refreshHome();
-  navTo(readerReturnScreen);
+  const target=readerReturnScreen||'home';
+  showScreen(target);
+  if(target==='home') refreshHome();
+  else if(target==='completed') loadCompleted();
+  else if(target==='browse') loadBrowse();
+  else if(target==='friends') loadFriends();
+  readerReturnScreen='home';
 }
 function setRating(n){
   currentRating=n;
