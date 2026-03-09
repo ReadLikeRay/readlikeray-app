@@ -1147,7 +1147,6 @@ async function markComplete(){
   const note=document.getElementById('rd-note').value.trim();
   if(currentQueueId){
     await sb.from('daily_queue').update({completed:true,completed_at:nowISO,rating:currentRating}).eq('id',currentQueueId);
-    await updateStreak();
   }
   await sb.from('completed_readings').upsert({
     user_id:user.id, reading_id:currentReading.id,
@@ -1177,6 +1176,7 @@ async function markComplete(){
   const today=new Date().toISOString().split('T')[0];
   const {data:todayQ}=await sb.from('daily_queue').select('completed').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   const completedFullQueue=todayQ&&todayQ.length>0&&todayQ.every(q=>q.completed);
+  if(completedFullQueue) await updateStreak();
   await checkBadges({
     rating:currentRating, type:currentReading.type,
     hour:now.getHours(), totalCompleted, totalByType,
