@@ -793,7 +793,8 @@ async function generateQueue(date){
   const thIds=th?th.map(t=>t.theme):[];
   // Avoid readings already completed or DNF'd
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
-  const doneIds=new Set((done||[]).map(d=>d.reading_id));
+  const {data:dnfd}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
+  const doneIds=new Set([...(done||[]).map(d=>d.reading_id),...(dnfd||[]).map(d=>d.reading_id)]);
   const inserts=[];
   for(const [type,count] of Object.entries(counts)){
     // Try themed first, then fall back to all of that type
@@ -925,19 +926,17 @@ async function markComplete(){
 }
 async function markDNF(){
   if(!currentQueueId)return;
-  // Mark as DNF rather than delete — so reading won't reappear
   await sb.from('daily_queue').update({dnf:true}).eq('id',currentQueueId);
-  // Also log to completed_readings with rating 0 so queue generator avoids it
-  await sb.from('completed_readings').upsert({
-    user_id:user.id, reading_id:currentReading.id,
-    completed_at:new Date().toISOString(), rating:0, note_body:null
-  },{onConflict:'user_id,reading_id'});
+  await sb.from('dnf_readings').upsert({user_id:user.id,reading_id:currentReading.id},{onConflict:'user_id,reading_id'});
   const today=new Date().toISOString().split('T')[0];
-  // Get all used reading ids (queued + ever completed/dnf'd)
   const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
-  const {data:everDone}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
-  const usedIds=new Set([...(existing||[]).map(e=>e.reading_id),...(everDone||[]).map(e=>e.reading_id)]);
-  // Try with themes first, then fall back to any reading of that type
+  const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  const {data:dnfd}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
+  const usedIds=new Set([
+    ...(existing||[]).map(e=>e.reading_id),
+    ...(done||[]).map(e=>e.reading_id),
+    ...(dnfd||[]).map(e=>e.reading_id),
+  ]);
   const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
   const thIds=th?th.map(t=>t.theme):[];
   let pool=null;
