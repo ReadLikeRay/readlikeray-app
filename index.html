@@ -405,9 +405,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="step-pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
     <div class="step-lbl">Welcome</div>
     <h2 class="step-ttl">Read Like<br><em style="color:var(--rust)">Ray</em></h2>
-    <p class="step-dsc" style="margin-bottom:18px">Ray Bradbury educated himself entirely at the library — one short story, one poem, and one essay every night for 1,000 nights.</p>
-    <p class="step-dsc" style="margin-bottom:18px">This app is his method, made into a daily habit. Every day you'll get a small queue of handpicked writing drawn from the themes you care about.</p>
-    <p class="step-dsc">Rate what you read, track your streak, earn badges, and see what your friends are finishing. You decide how much time to commit each night.</p>
+    <p class="step-dsc" style="margin-bottom:18px">Ray Bradbury, writer of Fahrenheit 451, educated himself entirely at the library — one short story, one poem, and one essay every night for 1,000 nights.</p>
+    <p class="step-dsc">This app is his method, made into a daily habit. Every day you'll get a small queue of handpicked writing drawn from the themes you care about. Rate what you read, track your streak, earn badges, and see what your friends are finishing.</p>
     <div style="margin-top:auto;padding-top:28px">
       <button class="btn btn-primary" onclick="goStep(0,1)">Get Started →</button>
     </div>
@@ -417,7 +416,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
     <div class="step-lbl">Step 1 of 3</div>
     <h2 class="step-ttl">How long will you commit?</h2>
-    <p class="step-dsc">Choose a week, six months or something in between. Any commitment is worth keeping.</p>
+    <p class="step-dsc">Choose a week, six months or something in between.</p>
     <div class="dur-grid">
       <div class="dur-card" data-v="7" onclick="selDur(7,this)"><div class="dur-n">7</div><div class="dur-u">Days</div></div>
       <div class="dur-card" data-v="30" onclick="selDur(30,this)"><div class="dur-n">30</div><div class="dur-u">Days</div></div>
@@ -1271,7 +1270,7 @@ async function saveNote(){
 // COMPLETED READINGS
 async function loadCompleted(){
   const {data}=await sb.from('completed_readings')
-    .select('*,readings(title,author,type,year)')
+    .select('*,readings(id,title,author,type,year)')
     .eq('user_id',user.id)
     .order('completed_at',{ascending:false});
   allCompleted=data||[];
