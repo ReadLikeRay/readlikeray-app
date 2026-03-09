@@ -140,7 +140,9 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .ri-type { font-family:'Space Mono',monospace; font-size:0.43rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:2px; }
 .ri-title { font-family:'Playfair Display',serif; font-size:0.92rem; font-weight:700; color:var(--paper); line-height:1.2; margin-bottom:2px; }
 .ri-author { font-size:0.68rem; color:var(--faded); font-style:italic; }
-.ri-time { margin-left:auto; font-family:'Space Mono',monospace; font-size:0.46rem; color:var(--faded); text-align:right; flex-shrink:0; }
+.short-time-btn { display:block; width:100%; margin-top:14px; padding:12px; background:none; border:1px dashed rgba(255,255,255,0.1); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; transition:all 0.15s; text-align:center; }
+.short-time-btn:hover { border-color:var(--gold); color:var(--gold); }
+.short-time-btn:disabled { opacity:0.3; cursor:default; }
 
 /* ── READER ── */
 #screen-reader { background:var(--ink); }
@@ -365,6 +367,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="queue-sec">
     <div class="queue-hdr"><span class="section-label">Tonight's Reading</span><span class="day-badge" id="day-badge">Day 1</span></div>
     <div id="queue-list"><div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem">Loading your queue...</div></div>
+    <button class="short-time-btn" onclick="switchToShortQueue()">Short on time? Swap for shorter readings →</button>
   </div>
 </div>
 
@@ -713,6 +716,47 @@ function renderQueue(queue){
     const color=TYPE_COLORS[r.type]||'var(--faded)';
     return `<div class="ri${q.completed?' done':''}" onclick="openReader('${q.id}')"><div class="ri-bar" style="background:${color}"></div><div style="flex:1"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}${r.year?', '+r.year:''}</div></div><div class="ri-time">${r.read_time_minutes||'?'} min</div></div>`;
   }).join('');
+}
+
+async function switchToShortQueue(){
+  const btn=document.querySelector('.short-time-btn');
+  btn.disabled=true; btn.textContent='Swapping...';
+  const today=new Date().toISOString().split('T')[0];
+  // Get incomplete queue items for today
+  const {data:incomplete}=await sb.from('daily_queue')
+    .select('*,readings(type)')
+    .eq('user_id',user.id)
+    .eq('queued_date',today)
+    .eq('completed',false);
+  if(!incomplete||incomplete.length===0){
+    toast('Nothing left to swap.'); btn.disabled=false; btn.textContent='Short on time? Swap for shorter readings →'; return;
+  }
+  // Delete incomplete items
+  const ids=incomplete.map(q=>q.id);
+  await sb.from('daily_queue').delete().in('id',ids);
+  // Get already-used reading ids today to avoid duplicates
+  const {data:used}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
+  const usedIds=used?used.map(u=>u.reading_id):[];
+  // Build replacement inserts — one per incomplete item, ≤10 min, same type
+  const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
+  const thIds=th?th.map(t=>t.theme):[];
+  const inserts=[];
+  for(const q of incomplete){
+    const type=q.readings?.type; if(!type) continue;
+    let query=sb.from('readings').select('id').eq('type',type).lte('read_time_minutes',10);
+    if(thIds.length>0) query=query.overlaps('themes',thIds);
+    const {data:pool}=await query.limit(50);
+    const available=(pool||[]).filter(r=>!usedIds.includes(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+    if(available.length===0) continue;
+    const pick=available[Math.floor(Math.random()*available.length)];
+    inserts.push({user_id:user.id,reading_id:pick.id,queued_date:today});
+    usedIds.push(pick.id);
+  }
+  if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
+  toast('Queue swapped ✓');
+  btn.textContent='Short on time? Swap for shorter readings →';
+  btn.disabled=false;
+  await loadQueue();
 }
 
 // READER
