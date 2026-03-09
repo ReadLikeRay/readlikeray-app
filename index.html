@@ -1762,6 +1762,10 @@ function renderBrowse(){
   if(browseFilter==='poem'||browseFilter==='story'||browseFilter==='essay') items=items.filter(r=>r.type===browseFilter);
   if(browseFilter==='unread') items=items.filter(r=>!browseReadIds.has(r.id));
   if(browseQuery) items=items.filter(r=>r.title.toLowerCase().includes(browseQuery)||r.author.toLowerCase().includes(browseQuery));
+  items=[...items].sort((a,b)=>{
+    const ad=browseReadIds.has(a.id), bd=browseReadIds.has(b.id);
+    return ad===bd?0:ad?1:-1;
+  });
   const list=document.getElementById('browse-list');
   if(items.length===0){list.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem;padding:24px 0">No results.</div>'; return;}
   list.innerHTML=items.map(r=>{
