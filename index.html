@@ -981,7 +981,10 @@ async function addFriend(){
   if(!username)return;
   const {data:found}=await sb.from('profiles').select('id').eq('username',username).single();
   if(!found){toast('User not found.');return;}
-  await sb.from('friendships').insert({user_id:user.id,friend_id:found.id});
+  await sb.from('friendships').insert([
+    {user_id:user.id,friend_id:found.id},
+    {user_id:found.id,friend_id:user.id}
+  ]);
   toast('Friend added ✓'); loadFriends();
 }
 
