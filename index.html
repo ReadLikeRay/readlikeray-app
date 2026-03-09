@@ -936,7 +936,6 @@ async function loadSettings(){
   await loadProfile();
   if(!profile)return;
   document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
-  document.getElementById('set-era').textContent=profile.era_preference||'classic';
   document.getElementById('set-counts').textContent=`${profile.counts_poems||1} poem · ${profile.counts_stories||1} story · ${profile.counts_essays||1} essay`;
   document.getElementById('set-username').textContent=profile.username||'—';
   // Feedback toggle
