@@ -293,7 +293,11 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .rec-add { background:var(--rust); color:white; }
 .rec-skip { background:rgba(255,255,255,0.06); color:var(--faded); border:1px solid rgba(255,255,255,0.08); }
 
-/* ── SETTINGS ── */
+/* ── NOTES ── */
+.note-card { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:14px 15px; margin-bottom:6px; }
+.note-reading { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--rust); margin-bottom:6px; }
+.note-body { font-size:0.82rem; line-height:1.65; color:var(--aged); font-style:italic; margin-bottom:10px; }
+.note-del { background:none; border:1px solid rgba(255,255,255,0.08); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.07em; padding:5px 10px; cursor:pointer; }
 .set-hdr { padding:52px 22px 18px; }
 .set-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
 .set-body { padding:0 22px 120px; }
@@ -424,6 +428,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="rd-hdr">
     <div class="rd-nav">
       <button class="rd-back" onclick="closeReader()">← Back</button>
+      <button onclick="shareReading()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Share ↗</button>
     </div>
     <div class="rd-tag" id="rd-tag"></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
@@ -565,15 +570,41 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div id="browse-list" style="padding:0 22px 40px"></div>
 </div>
 
+<!-- NOTES -->
+<div id="screen-notes" class="screen safe-bottom">
+  <div style="padding:52px 22px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:700;color:var(--paper);margin-bottom:3px">Your Notes</h1>
+      <div style="font-family:'Space Mono',monospace;font-size:0.54rem;color:var(--faded);text-transform:uppercase;letter-spacing:0.1em">Tap delete to remove</div>
+    </div>
+    <button onclick="showScreen('settings')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">← Back</button>
+  </div>
+  <div id="notes-list" style="padding:0 22px 80px"></div>
+</div>
+
 <!-- SETTINGS -->
 <div id="screen-settings" class="screen safe-bottom">
   <div class="set-hdr"><h1 class="set-ttl">Settings</h1></div>
   <div class="set-body">
     <div class="set-sec-lbl">Your Preferences</div>
-    <div class="set-row"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
+    <div class="set-row" onclick="editDuration()" style="cursor:pointer"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
     <div class="set-row" onclick="editCounts()" style="cursor:pointer"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
     <div class="set-row" onclick="editThemes()" style="cursor:pointer"><span class="set-row-lbl">Themes</span><span class="set-row-val">Edit →</span></div>
-    <div class="set-sec-lbl">Reading Experience</div>
+    <div class="set-sec-lbl">Your Notes</div>
+    <div class="set-row" onclick="navTo('notes')" style="cursor:pointer"><span class="set-row-lbl">View & Delete Notes</span><span class="set-row-val">→</span></div>
+    <div class="set-sec-lbl">Reminders</div>
+    <div class="set-row" style="cursor:default;">
+      <div>
+        <div class="set-row-lbl">Reading Reminder</div>
+        <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;" id="reminder-status">Off</div>
+      </div>
+      <button onclick="toggleReminder()" id="reminder-toggle" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;background:rgba(255,255,255,0.1);">
+        <div id="reminder-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
+      </button>
+    </div>
+    <div class="set-row" onclick="setReminderTime()" style="cursor:pointer" id="reminder-time-row" style="display:none">
+      <span class="set-row-lbl">Reminder Time</span><span class="set-row-val" id="reminder-time-val">9:00 PM</span>
+    </div>
     <div class="set-row" style="cursor:default;">
       <div>
         <div class="set-row-lbl">Reading Feedback</div>
@@ -654,7 +685,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('screen-'+name);
   if(s) s.classList.add('active');
-  const main=['home','completed','browse','friends','settings','admin'];
+  const main=['home','completed','browse','friends','settings','admin','notes'];
   const nav=document.getElementById('bottom-nav');
   nav.classList.toggle('visible',main.includes(name));
   if(main.includes(name)) document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===name));
@@ -664,6 +695,7 @@ function navTo(name){
   showScreen(name);
   if(name==='home') refreshHome();
   if(name==='completed') loadCompleted();
+  if(name==='notes') loadNotes();
   if(name==='browse') loadBrowse();
   if(name==='friends') loadFriends();
   if(name==='settings') loadSettings();
@@ -706,7 +738,12 @@ async function handleAuth(){
   }
 }
 
-async function signOut(){await sb.auth.signOut();user=null;profile=null;showScreen('auth');}
+async function signOut(){
+  localStorage.removeItem('feedbackEnabled');
+  await sb.auth.signOut();
+  user=null; profile=null;
+  showScreen('auth');
+}
 
 // ONBOARDING
 function buildThemeGrid(){
@@ -846,7 +883,7 @@ function renderQueue(queue){
   // Hide short-time button if all done or already swapped
   const shortBtn=document.querySelector('.short-time-btn');
   if(shortBtn) shortBtn.style.display=(done===total&&total>0)?'none':'block';
-  if(total===0){document.getElementById('queue-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">No readings found.<br>Try adjusting your themes in Settings.</div>';return;}
+  if(total===0){document.getElementById('queue-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">You\'ve read everything in your queue.<br><span style="font-size:0.75rem">Browse to find more readings, or adjust your themes in Settings.</span></div>';return;}
   document.getElementById('queue-list').innerHTML=queue.map(q=>{
     const r=q.readings; if(!r)return'';
     const color=TYPE_COLORS[r.type]||'var(--faded)';
@@ -1146,6 +1183,7 @@ async function loadSettings(){
   // Feedback toggle
   const enabled=localStorage.getItem('feedbackEnabled')!=='false';
   updateFeedbackToggle(enabled);
+  loadReminderUI();
 }
 function updateFeedbackToggle(enabled){
   const btn=document.getElementById('feedback-toggle');
@@ -1382,6 +1420,7 @@ async function deleteAccount(){
   await sb.from('friendships').delete().eq('friend_id',user.id);
   await sb.from('profiles').delete().eq('id',user.id);
   await sb.auth.signOut();
+  localStorage.removeItem('feedbackEnabled');
   user=null; profile=null;
   showScreen('auth');
   toast('Account deleted.');
@@ -1390,12 +1429,14 @@ async function deleteAccount(){
 // BROWSE
 let browseAll=[], browseFilter='all', browseQuery='';
 let browseReadIds=new Set();
+let browseLastLoaded=0;
 async function loadBrowse(){
-  if(browseAll.length===0){
+  // Refresh library every 10 minutes
+  if(Date.now()-browseLastLoaded > 600000 || browseAll.length===0){
     const {data}=await sb.from('readings').select('id,title,author,type,read_time_minutes,themes').order('title');
     browseAll=data||[];
+    browseLastLoaded=Date.now();
   }
-  // Get completed reading ids for "unread" filter
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
   browseReadIds=new Set((done||[]).map(d=>d.reading_id));
   renderBrowse();
@@ -1417,12 +1458,125 @@ function renderBrowse(){
   list.innerHTML=items.map(r=>{
     const done=browseReadIds.has(r.id);
     const color=TYPE_COLORS[r.type]||'var(--faded)';
-    return `<div class="ri${done?' done':''}" onclick="openReadingDirect('${r.id}')">
+    return `<div class="ri${done?' done':''}" style="position:relative">
       <div class="ri-bar" style="background:${color}"></div>
-      <div style="flex:1"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
-      <div class="ri-time">${r.read_time_minutes||'?'} min</div>
+      <div style="flex:1;cursor:pointer" onclick="openReadingDirect('${r.id}')"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <div class="ri-time">${r.read_time_minutes||'?'} min</div>
+        <button onclick="queueForTomorrow('${r.id}','${r.title.replace(/'/g,"\\'")}',event)" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--faded);font-family:'Space Mono',monospace;font-size:0.4rem;text-transform:uppercase;letter-spacing:0.06em;padding:4px 7px;cursor:pointer;white-space:nowrap" title="Add to tomorrow's queue">+ Tomorrow</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+async function queueForTomorrow(readingId, title, e){
+  e.stopPropagation();
+  const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
+  // Check not already queued tomorrow
+  const {data:existing}=await sb.from('daily_queue').select('id').eq('user_id',user.id).eq('reading_id',readingId).eq('queued_date',tomorrow);
+  if(existing&&existing.length>0){toast('Already in tomorrow\'s queue.'); return;}
+  await sb.from('daily_queue').insert({user_id:user.id,reading_id:readingId,queued_date:tomorrow});
+  toast(`"${title}" added to tomorrow →`);
+}
+
+async function shareReading(){
+  if(!currentReading) return;
+  const url=currentReading.source_url||'';
+  const text=`"${currentReading.title}" by ${currentReading.author} — via Read Like Ray`;
+  if(navigator.share){
+    try{ await navigator.share({title:currentReading.title,text,url}); }catch(e){}
+  } else {
+    await navigator.clipboard.writeText(url||text);
+    toast('Link copied ✓');
+  }
+}
+
+async function editDuration(){
+  const options='1. 7 nights\n2. 30 nights\n3. 90 nights\n4. 6 months (180)\n5. 1,000 nights (Bradbury Method)';
+  const input=prompt(`Choose a new duration goal:\n\n${options}`);
+  if(!input) return;
+  const map={'1':7,'2':30,'3':90,'4':180,'5':1000};
+  const val=map[input.trim()];
+  if(!val){toast('Invalid selection.'); return;}
+  await sb.from('profiles').update({duration_goal:val}).eq('id',user.id);
+  profile.duration_goal=val;
+  document.getElementById('set-duration').textContent=`${val} nights`;
+  toast('Duration updated ✓');
+}
+
+// REMINDERS
+function loadReminderUI(){
+  const enabled=localStorage.getItem('reminderEnabled')==='true';
+  const time=localStorage.getItem('reminderTime')||'21:00';
+  const [h,m]=time.split(':');
+  const hour=parseInt(h), min=parseInt(m)||0;
+  const ampm=hour>=12?'PM':'AM';
+  const h12=hour%12||12;
+  document.getElementById('reminder-toggle').style.background=enabled?'var(--sage)':'rgba(255,255,255,0.1)';
+  document.getElementById('reminder-knob').style.left=enabled?'23px':'3px';
+  document.getElementById('reminder-status').textContent=enabled?`On — ${h12}:${String(min).padStart(2,'0')} ${ampm}`:'Off';
+  document.getElementById('reminder-time-row').style.display=enabled?'flex':'none';
+  document.getElementById('reminder-time-val').textContent=`${h12}:${String(min).padStart(2,'0')} ${ampm}`;
+}
+async function toggleReminder(){
+  const enabled=localStorage.getItem('reminderEnabled')==='true';
+  if(!enabled){
+    if(!('Notification' in window)){toast('Notifications not supported on this browser.'); return;}
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('Permission denied — enable notifications in browser settings.'); return;}
+    localStorage.setItem('reminderEnabled','true');
+    scheduleReminder();
+  } else {
+    localStorage.setItem('reminderEnabled','false');
+  }
+  loadReminderUI();
+}
+async function setReminderTime(){
+  const input=prompt('Enter reminder time (e.g. 21:00 for 9 PM, 20:30 for 8:30 PM):',localStorage.getItem('reminderTime')||'21:00');
+  if(!input) return;
+  const match=input.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if(!match||parseInt(match[1])>23||parseInt(match[2])>59){toast('Invalid time. Use HH:MM format.'); return;}
+  localStorage.setItem('reminderTime',input.trim());
+  scheduleReminder();
+  loadReminderUI();
+  toast('Reminder time updated ✓');
+}
+function scheduleReminder(){
+  if(localStorage.getItem('reminderEnabled')!=='true') return;
+  const time=localStorage.getItem('reminderTime')||'21:00';
+  const [h,m]=time.split(':').map(Number);
+  const now=new Date();
+  const target=new Date();
+  target.setHours(h,m,0,0);
+  if(target<=now) target.setDate(target.getDate()+1);
+  const ms=target-now;
+  setTimeout(()=>{
+    if(localStorage.getItem('reminderEnabled')==='true'&&Notification.permission==='granted'){
+      new Notification('Read Like Ray',{body:"Tonight's readings are waiting. 📚",icon:'/favicon.ico'});
+    }
+    scheduleReminder(); // reschedule for next day
+  },ms);
+}
+// Kick off reminder on load if enabled
+if(localStorage.getItem('reminderEnabled')==='true') scheduleReminder();
+
+// NOTES
+async function loadNotes(){
+  const {data}=await sb.from('annotations').select('*,readings(title,author)').eq('user_id',user.id).order('created_at',{ascending:false});
+  const list=document.getElementById('notes-list');
+  if(!data||data.length===0){list.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem;padding:32px 0;text-align:center">No notes yet.</div>'; return;}
+  list.innerHTML=data.map(n=>`
+    <div class="note-card" id="note-${n.id}">
+      <div class="note-reading">${n.readings?.title||'Unknown'} — ${n.readings?.author||''}</div>
+      <div class="note-body">${n.note_body}</div>
+      <button class="note-del" onclick="deleteNote('${n.id}')">Delete</button>
+    </div>`).join('');
+}
+async function deleteNote(id){
+  if(!confirm('Delete this note?')) return;
+  await sb.from('annotations').delete().eq('id',id);
+  document.getElementById('note-'+id)?.remove();
+  toast('Note deleted.');
 }
 
 // TOAST
