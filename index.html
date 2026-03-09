@@ -531,6 +531,19 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="cr-list" id="cr-list"></div>
 </div>
 
+<!-- DNF DIALOG -->
+<div id="dnf-dialog" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center;">
+  <div style="width:100%;max-width:480px;background:var(--surface);border-top:1px solid rgba(255,255,255,0.1);padding:28px 24px 48px;">
+    <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--paper);margin-bottom:8px">Not feeling it?</div>
+    <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.82rem;color:var(--faded);line-height:1.7;margin-bottom:24px">Remove this from your library permanently, or set it aside to revisit again one day?</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button onclick="confirmDNF(false)" style="width:100%;padding:14px;background:rgba(90,122,90,0.15);border:1px solid var(--sage);color:var(--sage);font-family:'Space Mono',monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Revisit again one day</button>
+      <button onclick="confirmDNF(true)" style="width:100%;padding:14px;background:rgba(181,69,27,0.1);border:1px solid rgba(181,69,27,0.4);color:var(--rust);font-family:'Space Mono',monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Remove permanently</button>
+      <button onclick="closeDNFDialog()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.08);color:var(--faded);font-family:'Space Mono',monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- FEEDBACK OVERLAY -->
 <div id="feedback-overlay">
   <div class="fb-sheet">
@@ -666,11 +679,25 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 
   <div class="prof-body">
-    <div class="prof-sec-lbl">Badges</div>
-    <div class="badge-grid" id="profile-badges"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="prof-sec-lbl" style="margin:0">Badges</div>
+      <button onclick="openBadgesSlide()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
+    </div>
+    <div class="badge-grid" id="profile-badges-preview"></div>
 
     <div class="prof-sec-lbl">★ Five-Star Favorites</div>
     <div id="prof-favs"></div>
+  </div>
+
+  <!-- Badges all slide -->
+  <div id="badges-slide" class="settings-slide">
+    <div class="settings-slide-hdr">
+      <button class="settings-back" onclick="closeBadgesSlide()">← Back</button>
+      <div class="settings-title">All Badges</div>
+    </div>
+    <div style="padding:16px 20px 100px">
+      <div id="badges-slide-grid" class="badge-grid" style="grid-template-columns:repeat(4,1fr)"></div>
+    </div>
   </div>
 
   <!-- Slide-in settings -->
@@ -700,6 +727,9 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
         <span class="set-row-lbl">Reminder Time</span><span class="set-row-val" id="reminder-time-val">9:00 PM</span>
       </div>
       <div class="set-sec-lbl">Reading Experience</div>
+      <div class="set-row" onclick="changeTextSize()" style="cursor:pointer">
+        <span class="set-row-lbl">Text Size</span><span class="set-row-val" id="set-textsize">Medium →</span>
+      </div>
       <div class="set-row" style="cursor:default;">
         <div>
           <div class="set-row-lbl">Reading Feedback</div>
@@ -1153,11 +1183,29 @@ async function markComplete(){
   }
 }
 async function markDNF(){
-  if(!currentQueueId)return;
+  if(!currentQueueId) return;
+  // Show confirm dialog instead of acting immediately
+  showDNFDialog();
+}
+function showDNFDialog(){
+  document.getElementById('dnf-dialog').style.display='flex';
+}
+function closeDNFDialog(){
+  document.getElementById('dnf-dialog').style.display='none';
+}
+async function confirmDNF(permanent){
+  closeDNFDialog();
   await sb.from('daily_queue').update({dnf:true}).eq('id',currentQueueId);
-  await sb.from('dnf_readings').upsert({user_id:user.id,reading_id:currentReading.id},{onConflict:'user_id,reading_id'});
-  // Badge: honest reader
-  await checkBadges({usedDNF:true});
+  if(permanent){
+    // Remove from library permanently
+    await sb.from('dnf_readings').upsert({user_id:user.id,reading_id:currentReading.id},{onConflict:'user_id,reading_id'});
+    await checkBadges({usedDNF:true});
+    toast('Removed from your library.');
+  } else {
+    // Revisit later — mark queue DNF but do NOT add to dnf_readings
+    toast('Set aside — you\'ll see it again someday.');
+  }
+  // Replace with a new reading either way
   const today=new Date().toISOString().split('T')[0];
   const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
@@ -1181,12 +1229,8 @@ async function markDNF(){
   if(pool&&pool.length>0){
     const pick=pool[Math.floor(Math.random()*pool.length)];
     await sb.from('daily_queue').insert({user_id:user.id,reading_id:pick.id,queued_date:today});
-  } else {
-    toast('You\'ve read everything in this category. Impressive.');
-    setTimeout(closeReader,800); return;
   }
-  toast('Skipped — added a replacement');
-  setTimeout(closeReader,600);
+  setTimeout(closeReader,400);
 }
 async function updateStreak(){
   const today=new Date().toISOString().split('T')[0];
@@ -1243,7 +1287,7 @@ function renderCompleted(){
     const date=new Date(c.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const stars=[1,2,3,4,5].map(i=>`<span class="cr-star" style="color:${i<=(c.rating||0)?'var(--gold)':'rgba(255,255,255,0.12)'}"'>★</span>`).join('');
     const noteHtml=c.note_body?`<div class="cr-note-expand">▼ note</div><div class="cr-note-body" style="display:none">"${c.note_body}"</div>`:'';
-    return `<div class="cr-card" style="border-left-color:${color}" onclick="toggleCRNote(this)">
+    return `<div class="cr-card" style="border-left-color:${color}" onclick="openCompletedReading('${r.id}',event,this)">
       <div class="cr-card-top">
         <div style="flex:1;min-width:0">
           <div class="cr-meta">
@@ -1253,7 +1297,10 @@ function renderCompleted(){
           <div class="cr-title">${r.title}</div>
           <div class="cr-author">${r.author}${r.year?' — '+r.year:''}</div>
         </div>
-        <div class="cr-stars">${stars}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <div class="cr-stars">${stars}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.38rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--faded)">Open →</div>
+        </div>
       </div>
       ${noteHtml}
     </div>`;
@@ -1374,8 +1421,8 @@ async function loadProfileScreen(){
   const {data:tq}=await sb.from('daily_queue').select('completed,readings(read_time_minutes)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   const tonightMins=(tq||[]).filter(q=>!q.completed).reduce((s,q)=>s+(q.readings?.read_time_minutes||0),0);
   document.getElementById('prof-tonight').textContent=tonightMins>0?`${tonightMins}m`:'Done ✓';
-  // Badges
-  await loadBadgesUI(user.id,'profile-badges');
+  // Badges preview
+  await loadBadgesPreview(user.id);
   // Five-star favorites
   const {data:favs}=await sb.from('completed_readings')
     .select('reading_id,readings(id,title,author)')
@@ -1733,6 +1780,63 @@ async function editDuration(){
   toast('Duration updated ✓');
 }
 
+// COMPLETED → READER
+async function openCompletedReading(readingId, e, card){
+  if(e.target.classList.contains('cr-note-expand')||e.target.classList.contains('cr-note-body')){
+    toggleCRNote(card); return;
+  }
+  await openReadingDirect(readingId);
+}
+
+// BADGES SLIDE
+function openBadgesSlide(){
+  document.getElementById('badges-slide').classList.add('open');
+}
+function closeBadgesSlide(){
+  document.getElementById('badges-slide').classList.remove('open');
+}
+async function loadBadgesPreview(userId){
+  const {data:earned}=await sb.from('user_badges').select('badge_id,earned_at').eq('user_id',userId);
+  const earnedMap=Object.fromEntries((earned||[]).map(b=>[b.badge_id,b.earned_at]));
+  const sorted=[...BADGES].sort((a,b)=>{ const ae=!!earnedMap[a.id],be=!!earnedMap[b.id]; return ae===be?0:ae?-1:1; });
+  const preview=sorted.slice(0,8);
+  const previewEl=document.getElementById('profile-badges-preview');
+  if(previewEl) previewEl.innerHTML=preview.map(b=>{
+    const isEarned=!!earnedMap[b.id];
+    const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return `<div class="badge ${isEarned?'earned':'locked'}" onclick="showBadgeInfo('${b.id}')" style="cursor:pointer"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>${isEarned?`<div class="badge-date">${date}</div>`:''}</div>`;
+  }).join('');
+  const slideEl=document.getElementById('badges-slide-grid');
+  if(slideEl) slideEl.innerHTML=sorted.map(b=>{
+    const isEarned=!!earnedMap[b.id];
+    const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return `<div class="badge ${isEarned?'earned':'locked'}" onclick="showBadgeInfo('${b.id}')" style="cursor:pointer"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>${isEarned?`<div class="badge-date">${date}</div>`:''}</div>`;
+  }).join('');
+}
+function showBadgeInfo(badgeId){
+  const b=BADGES.find(x=>x.id===badgeId);
+  if(!b) return;
+  toast(`${b.icon} ${b.name}: ${b.desc}`);
+}
+
+// TEXT SIZE
+const TEXT_SIZES={small:0.88,medium:1,large:1.14,'x-large':1.28};
+function applyTextSize(size){
+  const scale=TEXT_SIZES[size]||1;
+  document.documentElement.style.fontSize=(16*scale)+'px';
+  const el=document.getElementById('set-textsize');
+  if(el) el.textContent=size.charAt(0).toUpperCase()+size.slice(1)+' →';
+}
+function changeTextSize(){
+  const sizes=Object.keys(TEXT_SIZES);
+  const current=localStorage.getItem('textSize')||'medium';
+  const idx=sizes.indexOf(current);
+  const next=sizes[(idx+1)%sizes.length];
+  localStorage.setItem('textSize',next);
+  applyTextSize(next);
+  toast(`Text size: ${next.charAt(0).toUpperCase()+next.slice(1)}`);
+}
+
 // REMINDERS
 function loadReminderUI(){
   const enabled=localStorage.getItem('reminderEnabled')==='true';
@@ -1940,6 +2044,10 @@ function toast(msg){
   el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2500);
 }
+
+// Apply saved text size
+const _savedSize=localStorage.getItem('textSize')||'medium';
+applyTextSize(_savedSize);
 
 init();
 </script>
