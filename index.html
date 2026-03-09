@@ -230,7 +230,41 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .adm-fix { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.08em; background:rgba(90,122,90,0.15); border:1px solid var(--sage); color:var(--sage); padding:7px 12px; cursor:pointer; transition:all 0.15s; }
 .adm-empty { padding:48px 22px; text-align:center; color:var(--faded); font-style:italic; font-size:0.85rem; }
 
-/* ── FRIENDS ── */
+/* ── FRIEND FEED ── */
+.feed-sec { padding:0 20px 24px; }
+.feed-lbl { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--rust); margin-bottom:12px; }
+.feed-group { margin-bottom:16px; }
+.feed-who { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.feed-av { width:26px; height:26px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:0.46rem; font-weight:700; color:white; }
+.feed-username { font-family:'Space Mono',monospace; font-size:0.52rem; font-weight:700; color:var(--aged); letter-spacing:0.04em; }
+.feed-card { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:11px 13px; margin-bottom:5px; cursor:pointer; transition:border-color 0.15s; }
+.feed-card:hover { border-color:var(--gold); }
+.feed-title { font-family:'Playfair Display',serif; font-size:0.9rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.feed-author { font-size:0.66rem; color:var(--faded); font-style:italic; margin-bottom:6px; }
+.feed-meta { display:flex; align-items:center; justify-content:space-between; }
+.feed-stars { font-size:0.7rem; color:var(--gold); letter-spacing:1px; }
+.feed-time { font-family:'Space Mono',monospace; font-size:0.42rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.06em; }
+.feed-empty { font-family:'Libre Baskerville',serif; font-style:italic; font-size:0.82rem; color:var(--faded); padding:8px 0 16px; }
+
+/* ── FRIEND PROFILE ── */
+#screen-friend-profile { background:var(--ink); }
+.fp-hdr { background:var(--ink); position:sticky; top:0; z-index:10; padding:max(44px,env(safe-area-inset-top)) 20px 14px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.fp-back { font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); background:none; border:none; cursor:pointer; margin-bottom:12px; display:block; }
+.fp-identity { display:flex; align-items:center; gap:14px; }
+.fp-av { width:52px; height:52px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:0.9rem; font-weight:700; color:white; }
+.fp-name { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:var(--paper); }
+.fp-body { padding:20px 22px 120px; }
+.fp-stats { display:flex; gap:6px; margin-bottom:24px; }
+.fp-stat { flex:1; background:var(--surface); border:1px solid rgba(255,255,255,0.05); padding:14px 12px; text-align:center; }
+.fp-stat-n { font-family:'Space Mono',monospace; font-size:1.3rem; font-weight:700; color:var(--gold); line-height:1; margin-bottom:4px; }
+.fp-stat-l { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--faded); line-height:1.4; }
+.fp-sec-lbl { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--rust); margin-bottom:10px; }
+.fp-fav { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:6px; cursor:pointer; transition:border-color 0.15s; }
+.fp-fav:hover { border-left-color:var(--rust); }
+.fp-fav-title { font-family:'Playfair Display',serif; font-size:0.92rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.fp-fav-author { font-size:0.66rem; color:var(--faded); font-style:italic; margin-bottom:4px; }
+.fp-fav-stars { font-size:0.7rem; color:var(--gold); }
+.fp-empty { font-family:'Libre Baskerville',serif; font-style:italic; font-size:0.82rem; color:var(--faded); padding:8px 0; }
 .fr-hdr { padding:52px 22px 18px; }
 .fr-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
 .fr-sub { font-family:'Space Mono',monospace; font-size:0.54rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.1em; }
@@ -467,6 +501,29 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="fr-list" id="fr-list"></div>
   <button class="add-fr-btn" onclick="addFriend()">+ Add a Friend</button>
+  <div class="feed-sec">
+    <div class="feed-lbl">Friends' Recent Reads</div>
+    <div id="friend-feed"></div>
+  </div>
+</div>
+
+<!-- FRIEND PROFILE -->
+<div id="screen-friend-profile" class="screen safe-bottom">
+  <div class="fp-hdr">
+    <button class="fp-back" onclick="showScreen('friends')">← Back</button>
+    <div class="fp-identity">
+      <div class="fp-av" id="fp-av"></div>
+      <div class="fp-name" id="fp-name"></div>
+    </div>
+  </div>
+  <div class="fp-body">
+    <div class="fp-stats">
+      <div class="fp-stat"><div class="fp-stat-n" id="fp-total">—</div><div class="fp-stat-l">Readings<br>Completed</div></div>
+      <div class="fp-stat"><div class="fp-stat-n" id="fp-longest">—</div><div class="fp-stat-l">Longest<br>Streak</div></div>
+    </div>
+    <div class="fp-sec-lbl">★ Five-Star Favorites</div>
+    <div id="fp-favs"></div>
+  </div>
 </div>
 
 <!-- ADMIN (hidden — visible to admin only) -->
@@ -786,11 +843,14 @@ function setRating(n){
   if(currentQueueId) sb.from('daily_queue').update({rating:n}).eq('id',currentQueueId);
 }
 async function markComplete(){
-  if(!currentQueueId)return;
   const now=new Date().toISOString();
-  await sb.from('daily_queue').update({completed:true,completed_at:now,rating:currentRating}).eq('id',currentQueueId);
-  // Save to completed_readings for permanent record
   const note=document.getElementById('rd-note').value.trim();
+  // If opened from queue, update the queue row
+  if(currentQueueId){
+    await sb.from('daily_queue').update({completed:true,completed_at:now,rating:currentRating}).eq('id',currentQueueId);
+    await updateStreak();
+  }
+  // Always save to completed_readings
   await sb.from('completed_readings').upsert({
     user_id:user.id, reading_id:currentReading.id,
     completed_at:now, rating:currentRating,
@@ -799,13 +859,16 @@ async function markComplete(){
   if(note){
     await sb.from('annotations').insert({user_id:user.id,reading_id:currentReading.id,type:'note',note_body:note});
   }
-  await updateStreak();
   document.getElementById('done-btn').textContent='✓ Complete';
   document.getElementById('done-btn').classList.add('complete');
-  // Show feedback if enabled
-  const fbPref=localStorage.getItem('feedbackEnabled');
-  if(fbPref!=='false') showFeedback();
-  else { toast('Reading marked complete ✓'); setTimeout(closeReader,800); }
+  // Show feedback if enabled (only for queued reads — direct reads skip feedback)
+  if(currentQueueId){
+    const fbPref=localStorage.getItem('feedbackEnabled');
+    if(fbPref!=='false') showFeedback();
+    else { toast('Reading marked complete ✓'); setTimeout(closeReader,800); }
+  } else {
+    toast('Reading saved ✓'); setTimeout(closeReader,800);
+  }
 }
 async function markDNF(){
   if(!currentQueueId)return;
@@ -1002,17 +1065,137 @@ function toggleFeedbackPref(){
   localStorage.setItem('feedbackEnabled',next);
   updateFeedbackToggle(next);
 }
+const FR_COLORS=['#5a7a5a','#4a6a9a','#b5451b','#c9922a'];
+function frColor(username){ return FR_COLORS[username.charCodeAt(0)%FR_COLORS.length]; }
+function timeAgo(iso){
+  const diff=Date.now()-new Date(iso).getTime();
+  const m=Math.floor(diff/60000),h=Math.floor(m/60),d=Math.floor(h/24);
+  if(d>0) return d===1?'yesterday':`${d} days ago`;
+  if(h>0) return `${h}h ago`;
+  if(m>0) return `${m}m ago`;
+  return 'just now';
+}
+
 async function loadFriends(){
   const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
   const ids=fs?fs.map(f=>f.friend_id):[];
   const frList=document.getElementById('fr-list');
-  if(ids.length===0){frList.innerHTML='<div style="padding:16px 0;color:var(--faded);font-style:italic;font-size:0.85rem">No friends yet.</div>';}
-  else{
-    const {data:friends}=await sb.from('profiles').select('id,username,streak_current').in('id',ids);
-    const colors=['#5a7a5a','#4a6a9a','#b5451b','#c9922a'];
-    frList.innerHTML=(friends||[]).map(f=>`<div class="fr-card"><div class="fr-av" style="background:${colors[f.username.charCodeAt(0)%colors.length]}">${f.username.slice(0,2).toUpperCase()}</div><div><div class="fr-name">${f.username}</div></div><div class="fr-streak"><div class="fr-snum">🔥${f.streak_current||0}</div><div class="fr-slbl">streak</div></div></div>`).join('');
+  if(ids.length===0){
+    frList.innerHTML='<div style="padding:16px 0;color:var(--faded);font-style:italic;font-size:0.85rem">No friends yet.</div>';
+    document.getElementById('friend-feed').innerHTML='';
+    return;
   }
+  const {data:friends}=await sb.from('profiles').select('id,username,streak_current').in('id',ids);
+  frList.innerHTML=(friends||[]).map(f=>`
+    <div class="fr-card" onclick="openFriendProfile('${f.id}','${f.username}')" style="cursor:pointer">
+      <div class="fr-av" style="background:${frColor(f.username)}">${f.username.slice(0,2).toUpperCase()}</div>
+      <div><div class="fr-name">${f.username}</div></div>
+      <div class="fr-streak"><div class="fr-snum">🔥${f.streak_current||0}</div><div class="fr-slbl">streak</div></div>
+    </div>`).join('');
+  await loadFriendFeed(ids);
 }
+
+async function loadFriendFeed(friendIds){
+  const feedEl=document.getElementById('friend-feed');
+  // Fetch last 10 starred completions across all friends
+  const {data:entries}=await sb.from('completed_readings')
+    .select('user_id,reading_id,completed_at,rating,readings(id,title,author,type,source_url)')
+    .in('user_id',friendIds)
+    .not('rating','is',null)
+    .gt('rating',0)
+    .order('completed_at',{ascending:false})
+    .limit(10);
+  if(!entries||entries.length===0){
+    feedEl.innerHTML='<div class="feed-empty">No starred reads yet.</div>'; return;
+  }
+  // Get profiles for these users
+  const uids=[...new Set(entries.map(e=>e.user_id))];
+  const {data:profiles}=await sb.from('profiles').select('id,username').in('id',uids);
+  const profileMap=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
+  // Group by user_id preserving order of first appearance
+  const groups=[];
+  const seen={};
+  for(const e of entries){
+    if(!seen[e.user_id]){seen[e.user_id]=[];groups.push({uid:e.user_id,items:seen[e.user_id]});}
+    seen[e.user_id].push(e);
+  }
+  feedEl.innerHTML=groups.map(g=>{
+    const p=profileMap[g.uid]||{username:'?'};
+    const stars='★'.repeat(g.items[0].rating||0);
+    return `<div class="feed-group">
+      <div class="feed-who">
+        <div class="feed-av" style="background:${frColor(p.username)}">${p.username.slice(0,2).toUpperCase()}</div>
+        <div class="feed-username">${p.username}</div>
+      </div>
+      ${g.items.map(e=>`
+        <div class="feed-card" onclick="openReadingDirect('${e.readings?.id}')">
+          <div class="feed-title">${e.readings?.title||'—'}</div>
+          <div class="feed-author">${e.readings?.author||''}</div>
+          <div class="feed-meta">
+            <span class="feed-stars">${'★'.repeat(e.rating||0)}</span>
+            <span class="feed-time">${timeAgo(e.completed_at)}</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+async function openFriendProfile(friendId, username){
+  showScreen('friend-profile');
+  document.getElementById('fp-av').style.background=frColor(username);
+  document.getElementById('fp-av').textContent=username.slice(0,2).toUpperCase();
+  document.getElementById('fp-name').textContent=username;
+  document.getElementById('fp-total').textContent='…';
+  document.getElementById('fp-longest').textContent='…';
+  document.getElementById('fp-favs').innerHTML='';
+  // Total completed
+  const {count}=await sb.from('completed_readings').select('*',{count:'exact',head:true}).eq('user_id',friendId);
+  document.getElementById('fp-total').textContent=count||0;
+  // Longest streak from profile
+  const {data:fp}=await sb.from('profiles').select('streak_best').eq('id',friendId).single();
+  document.getElementById('fp-longest').textContent=fp?.streak_best||0;
+  // 5-star favorites (up to 5, most recent)
+  const {data:favs}=await sb.from('completed_readings')
+    .select('reading_id,completed_at,readings(id,title,author,type)')
+    .eq('user_id',friendId)
+    .eq('rating',5)
+    .order('completed_at',{ascending:false})
+    .limit(5);
+  const favsEl=document.getElementById('fp-favs');
+  if(!favs||favs.length===0){
+    favsEl.innerHTML='<div class="fp-empty">No five-star reads yet.</div>'; return;
+  }
+  favsEl.innerHTML=favs.map(f=>`
+    <div class="fp-fav" onclick="openReadingDirect('${f.readings?.id}')">
+      <div class="fp-fav-title">${f.readings?.title||'—'}</div>
+      <div class="fp-fav-author">${f.readings?.author||''}</div>
+      <div class="fp-fav-stars">★★★★★</div>
+    </div>`).join('');
+}
+
+async function openReadingDirect(readingId){
+  if(!readingId) return;
+  const {data:r}=await sb.from('readings').select('*').eq('id',readingId).single();
+  if(!r) return;
+  currentReading=r;
+  currentQueueId=null; // not a queued item
+  document.getElementById('reader-type').textContent=r.type;
+  document.getElementById('reader-title').textContent=r.title;
+  document.getElementById('reader-author').textContent=r.author+(r.year?', '+r.year:'');
+  document.getElementById('reader-blurb').textContent=r.blurb||'';
+  document.getElementById('reader-time').textContent=`${r.read_time_minutes||'?'} min read`;
+  document.getElementById('reader-open').href=r.source_url||'#';
+  document.getElementById('reader-note-area').value='';
+  document.getElementById('reader-stars').querySelectorAll('.star').forEach(s=>s.classList.remove('active'));
+  // Check if already completed by this user
+  const {data:existing}=await sb.from('completed_readings').select('rating,note_body').eq('user_id',user.id).eq('reading_id',readingId).single();
+  if(existing){
+    if(existing.rating) document.getElementById('reader-stars').querySelectorAll('.star').forEach(s=>{ if(parseInt(s.dataset.v)<=existing.rating) s.classList.add('active'); });
+    if(existing.note_body) document.getElementById('reader-note-area').value=existing.note_body;
+  }
+  showScreen('reader');
+}
+
 async function addFriend(){
   const username=prompt('Enter their username:');
   if(!username)return;
@@ -1024,6 +1207,7 @@ async function addFriend(){
   ]);
   toast('Friend added ✓'); loadFriends();
 }
+
 
 // TOAST
 function toast(msg){
