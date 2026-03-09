@@ -1121,6 +1121,7 @@ async function switchToShortQueue(){
 
 // READER
 async function openReader(qid){
+  readerReturnScreen='home';
   const {data:qi}=await sb.from('daily_queue').select('*,readings(*)').eq('id',qid).single();
   if(!qi||!qi.readings)return;
   currentReading=qi.readings; currentQueueId=qid; currentRating=qi.rating||0;
@@ -1139,7 +1140,11 @@ async function openReader(qid){
   db.classList.toggle('complete',qi.completed);
   showScreen('reader');
 }
-function closeReader(){showScreen('home');refreshHome();}
+let readerReturnScreen='home';
+function closeReader(){
+  if(readerReturnScreen==='home') refreshHome();
+  navTo(readerReturnScreen);
+}
 function setRating(n){
   currentRating=n;
   document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
@@ -1548,7 +1553,7 @@ async function loadFriendFeed(friendIds){
         <div class="feed-username">${p.username}</div>
       </div>
       ${g.items.map(e=>`
-        <div class="feed-card" onclick="openReadingDirect('${e.readings?.id}')">
+        <div class="feed-card" onclick="openReadingDirect('${e.readings?.id}','friends')">
           <div class="feed-title">${e.readings?.title||'—'}</div>
           <div class="feed-author">${e.readings?.author||''}</div>
           <div class="feed-meta">
@@ -1596,8 +1601,9 @@ async function openFriendProfile(friendId, username){
   await loadBadgesUI(friendId,'fp-badges');
 }
 
-async function openReadingDirect(readingId){
+async function openReadingDirect(readingId, returnScreen='completed'){
   if(!readingId||readingId==='undefined') return;
+  readerReturnScreen=returnScreen;
   try {
     const {data:r}=await sb.from('readings').select('*').eq('id',readingId).maybeSingle();
     if(!r){toast('Could not load reading.');return;}
@@ -1758,7 +1764,7 @@ function renderBrowse(){
     const color=TYPE_COLORS[r.type]||'var(--faded)';
     return `<div class="ri${done?' done':''}" style="position:relative">
       <div class="ri-bar" style="background:${color}"></div>
-      <div style="flex:1;cursor:pointer" onclick="openReadingDirect('${r.id}')"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
+      <div style="flex:1;cursor:pointer" onclick="openReadingDirect('${r.id}','browse')"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         <div class="ri-time">${r.read_time_minutes||'?'} min</div>
         <button onclick="queueForTomorrow('${r.id}','${r.title.replace(/'/g,"\\'")}',event)" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--faded);font-family:'Space Mono',monospace;font-size:0.4rem;text-transform:uppercase;letter-spacing:0.06em;padding:4px 7px;cursor:pointer;white-space:nowrap" title="Add to tomorrow's queue">+ Tomorrow</button>
