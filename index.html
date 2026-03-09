@@ -932,7 +932,8 @@ async function markLinkFixed(id){
 }
 
 // SETTINGS
-function loadSettings(){
+async function loadSettings(){
+  await loadProfile();
   if(!profile)return;
   document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
   document.getElementById('set-era').textContent=profile.era_preference||'classic';
