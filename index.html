@@ -655,6 +655,14 @@ async function goHome(){
 }
 async function refreshHome(){
   if(!user||!profile)return;
+  // Check if streak should be reset
+  const today=new Date().toISOString().split('T')[0];
+  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const last=profile.streak_last_date;
+  if(last&&last!==today&&last!==yesterday){
+    await sb.from('profiles').update({streak_current:0}).eq('id',user.id);
+    profile.streak_current=0;
+  }
   const now=new Date();
   const h=now.getHours();
   document.getElementById('home-greet').textContent=h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening';
