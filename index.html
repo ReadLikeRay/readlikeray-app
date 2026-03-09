@@ -154,6 +154,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .rd-context { font-size:0.85rem; line-height:1.72; color:#a09070; margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.08); font-style:italic; }
 .rd-open-btn { display:block; width:100%; padding:16px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.15em; border:none; cursor:pointer; text-align:center; text-decoration:none; margin-bottom:24px; transition:background 0.2s; }
 .rd-open-btn:hover { background:#9a3a15; }
+.rd-broken-btn { display:block; width:100%; padding:9px; background:none; border:1px solid rgba(255,255,255,0.08); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; text-align:center; margin-top:-16px; margin-bottom:24px; transition:all 0.15s; }
+.rd-broken-btn:hover { border-color:var(--rust); color:var(--rust); }
 .rd-prompt { padding:18px; background:rgba(255,255,255,0.04); border-left:3px solid var(--rust); margin-bottom:20px; }
 .rd-prompt-lbl { font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--rust); margin-bottom:7px; }
 .rd-prompt-txt { font-family:'Playfair Display',serif; font-style:italic; font-size:0.92rem; line-height:1.65; color:var(--aged); }
@@ -169,21 +171,62 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .done-btn { flex:1; font-family:'Space Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; background:var(--sage); color:white; border:none; padding:10px; cursor:pointer; transition:background 0.2s; }
 .done-btn.complete { background:#3d5a3d; }
 
-/* ── NOTEBOOK ── */
-.nb-hdr { padding:52px 22px 18px; }
-.nb-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
-.nb-sub { font-family:'Space Mono',monospace; font-size:0.54rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.1em; }
-.nb-filters { display:flex; gap:7px; padding:0 22px 18px; }
-.nb-fil { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.08em; padding:6px 13px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--faded); cursor:pointer; white-space:nowrap; border-radius:20px; transition:all 0.15s; }
-.nb-fil.active { background:rgba(181,69,27,0.15); border-color:var(--rust); color:var(--rust); }
-.nb-list { padding:0 22px; display:flex; flex-direction:column; gap:2px; }
-.nb-entry { background:var(--surface); border-left:3px solid; padding:13px 15px; cursor:pointer; }
-.nb-entry.highlight { border-color:var(--gold); }
-.nb-entry.note { border-color:var(--sage); }
-.nb-etype { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:5px; }
-.nb-etext { font-family:'Playfair Display',serif; font-style:italic; font-size:0.9rem; line-height:1.5; color:var(--aged); margin-bottom:5px; }
-.nb-esrc { font-family:'Space Mono',monospace; font-size:0.46rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.06em; }
-.nb-empty { padding:48px 22px; text-align:center; color:var(--faded); font-style:italic; font-size:0.85rem; line-height:1.7; }
+/* ── COMPLETED READINGS ── */
+.cr-hdr { padding:52px 22px 14px; }
+.cr-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
+.cr-sub { font-family:'Space Mono',monospace; font-size:0.54rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.1em; }
+.cr-controls { padding:0 22px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.cr-filters { display:flex; gap:5px; }
+.cr-fil { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.08em; padding:6px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--faded); cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+.cr-fil.active { background:rgba(181,69,27,0.15); border-color:var(--rust); color:var(--rust); }
+.cr-sort { display:flex; border:1px solid rgba(255,255,255,0.08); }
+.cr-sort-btn { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.06em; padding:6px 9px; background:none; border:none; color:var(--faded); cursor:pointer; transition:all 0.15s; }
+.cr-sort-btn:first-child { border-right:1px solid rgba(255,255,255,0.08); }
+.cr-sort-btn.active { background:rgba(255,255,255,0.07); color:var(--aged); }
+.cr-list { padding:0 22px; display:flex; flex-direction:column; gap:7px; }
+.cr-card { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid; padding:13px 14px; cursor:pointer; transition:border-color 0.15s; }
+.cr-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.cr-meta { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+.cr-type-badge { font-family:'Space Mono',monospace; font-size:0.43rem; text-transform:uppercase; letter-spacing:0.1em; padding:2px 7px; color:white; }
+.cr-date { font-family:'Space Mono',monospace; font-size:0.43rem; color:var(--faded); letter-spacing:0.06em; }
+.cr-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--paper); line-height:1.25; margin-bottom:2px; }
+.cr-author { font-size:0.68rem; color:var(--faded); font-style:italic; }
+.cr-stars { display:flex; gap:2px; flex-shrink:0; padding-top:2px; }
+.cr-star { font-size:0.75rem; }
+.cr-note-expand { font-family:'Space Mono',monospace; font-size:0.4rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+.cr-note-body { margin-top:11px; padding-top:11px; border-top:1px solid rgba(255,255,255,0.06); font-family:'Playfair Display',serif; font-style:italic; font-size:0.82rem; line-height:1.7; color:#c9b89a; }
+.cr-empty { padding:48px 22px; text-align:center; color:var(--faded); font-style:italic; font-size:0.85rem; line-height:1.7; }
+
+/* ── FEEDBACK OVERLAY ── */
+#feedback-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500; display:none; align-items:flex-end; justify-content:center; }
+#feedback-overlay.show { display:flex; }
+.fb-sheet { background:var(--surface); border-top:1px solid rgba(255,255,255,0.1); width:100%; max-width:480px; padding:28px 24px max(28px,env(safe-area-inset-bottom)); animation:slideUp 0.25s cubic-bezier(0.32,0.72,0,1); }
+@keyframes slideUp { from{transform:translateY(100%)}to{transform:translateY(0)} }
+.fb-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.05rem; color:var(--aged); text-align:center; margin-bottom:22px; }
+.fb-thumbs { display:flex; justify-content:center; gap:28px; margin-bottom:16px; }
+.fb-thumb { width:60px; height:60px; border-radius:50%; font-size:1.7rem; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; }
+.fb-thumb:active { transform:scale(0.92); }
+.fb-thumb-up { background:rgba(90,122,90,0.2); border:1px solid var(--sage); }
+.fb-thumb-down { background:rgba(181,69,27,0.12); border:1px solid var(--rust); }
+.fb-skip { display:block; width:100%; background:none; border:none; font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); cursor:pointer; text-align:center; padding:6px; }
+.fb-reasons { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.fb-reason { background:var(--surface2); border:1px solid rgba(255,255,255,0.07); color:var(--aged); padding:11px 14px; text-align:left; font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.07em; cursor:pointer; transition:border-color 0.15s; }
+.fb-reason:hover { border-color:var(--rust); }
+.fb-confirm { text-align:center; }
+.fb-confirm-icon { font-size:2rem; margin-bottom:12px; }
+.fb-confirm-msg { font-family:'Playfair Display',serif; font-style:italic; font-size:0.92rem; color:var(--aged); line-height:1.65; margin-bottom:20px; }
+.fb-done-btn { background:var(--sage); color:white; border:none; padding:11px 28px; font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+
+/* ── ADMIN ── */
+.adm-hdr { padding:52px 22px 18px; }
+.adm-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
+.adm-sub { font-family:'Space Mono',monospace; font-size:0.54rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.1em; }
+.adm-list { padding:0 22px; display:flex; flex-direction:column; gap:6px; }
+.adm-card { background:var(--surface); border:1px solid rgba(255,255,255,0.06); border-left:3px solid var(--rust); padding:13px 14px; }
+.adm-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
+.adm-meta { font-family:'Space Mono',monospace; font-size:0.45rem; color:var(--faded); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
+.adm-fix { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.08em; background:rgba(90,122,90,0.15); border:1px solid var(--sage); color:var(--sage); padding:7px 12px; cursor:pointer; transition:all 0.15s; }
+.adm-empty { padding:48px 22px; text-align:center; color:var(--faded); font-style:italic; font-size:0.85rem; }
 
 /* ── FRIENDS ── */
 .fr-hdr { padding:52px 22px 18px; }
@@ -353,6 +396,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="rd-body">
     <div class="rd-context" id="rd-context"></div>
     <a class="rd-open-btn" id="rd-link" href="#" target="_blank" rel="noopener">Open Full Text →</a>
+    <button class="rd-broken-btn" onclick="reportBrokenLink()">Link not working?</button>
 
     <div style="margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--faded);">Add a note</div>
     <textarea class="rd-note-area" id="rd-note" placeholder="Your thoughts, a line that struck you..."></textarea>
@@ -360,19 +404,56 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 </div>
 
-<!-- NOTEBOOK -->
-<div id="screen-notebook" class="screen safe-bottom">
-  <div class="nb-hdr">
-    <h1 class="nb-ttl">Notebook</h1>
-    <div class="nb-sub" id="nb-sub">Your highlights & notes</div>
+<!-- COMPLETED READINGS -->
+<div id="screen-completed" class="screen safe-bottom">
+  <div class="cr-hdr">
+    <h1 class="cr-ttl">Completed</h1>
+    <div class="cr-sub" id="cr-sub">0 readings</div>
   </div>
-  <div class="nb-filters">
-    <div class="nb-fil active" onclick="filterNB('all',this)">All</div>
-    <div class="nb-fil" onclick="filterNB('poem',this)">Poems</div>
-    <div class="nb-fil" onclick="filterNB('story',this)">Stories</div>
-    <div class="nb-fil" onclick="filterNB('essay',this)">Essays</div>
+  <div class="cr-controls">
+    <div class="cr-filters">
+      <div class="cr-fil active" onclick="filterCR('all',this)">All</div>
+      <div class="cr-fil" onclick="filterCR('poem',this)">Poems</div>
+      <div class="cr-fil" onclick="filterCR('story',this)">Stories</div>
+      <div class="cr-fil" onclick="filterCR('essay',this)">Essays</div>
+    </div>
+    <div class="cr-sort">
+      <button class="cr-sort-btn active" id="sort-date" onclick="sortCR('date')">Date Read</button>
+      <button class="cr-sort-btn" id="sort-stars" onclick="sortCR('stars')">★ Stars</button>
+    </div>
   </div>
-  <div class="nb-list" id="nb-list"></div>
+  <div class="cr-list" id="cr-list"></div>
+</div>
+
+<!-- FEEDBACK OVERLAY -->
+<div id="feedback-overlay">
+  <div class="fb-sheet">
+    <div id="fb-thumbs-view">
+      <div class="fb-title">How was it?</div>
+      <div class="fb-thumbs">
+        <button class="fb-thumb fb-thumb-up" onclick="feedbackThumbUp()">👍</button>
+        <button class="fb-thumb fb-thumb-down" onclick="showFeedbackReasons()">👎</button>
+      </div>
+      <button class="fb-skip" onclick="closeFeedback()">Skip</button>
+    </div>
+    <div id="fb-reasons-view" style="display:none">
+      <div class="fb-title">What didn't you like?</div>
+      <div class="fb-reasons">
+        <button class="fb-reason" onclick="feedbackReason('too_long')">Too long</button>
+        <button class="fb-reason" onclick="feedbackReason('too_slow')">Too slow</button>
+        <button class="fb-reason" onclick="feedbackReason('hard_to_follow')">Hard to follow</button>
+        <button class="fb-reason" onclick="feedbackReason('writing_style')">Didn't like the writing style</button>
+        <button class="fb-reason" onclick="feedbackReason('subject')">Not interested in the subject</button>
+        <button class="fb-reason" onclick="feedbackReason('not_for_me')">Just not for me</button>
+      </div>
+      <button class="fb-skip" onclick="closeFeedback()">Skip</button>
+    </div>
+    <div id="fb-confirm-view" style="display:none" class="fb-confirm">
+      <div class="fb-confirm-icon" id="fb-confirm-icon"></div>
+      <div class="fb-confirm-msg" id="fb-confirm-msg"></div>
+      <button class="fb-done-btn" onclick="closeFeedback()">Done</button>
+    </div>
+  </div>
 </div>
 
 <!-- FRIENDS -->
@@ -389,6 +470,15 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 </div>
 
+<!-- ADMIN (hidden — visible to admin only) -->
+<div id="screen-admin" class="screen safe-bottom">
+  <div class="adm-hdr">
+    <h1 class="adm-ttl">Broken Links</h1>
+    <div class="adm-sub" id="adm-sub">Reported by users</div>
+  </div>
+  <div class="adm-list" id="adm-list"></div>
+</div>
+
 <!-- SETTINGS -->
 <div id="screen-settings" class="screen safe-bottom">
   <div class="set-hdr"><h1 class="set-ttl">Settings</h1></div>
@@ -396,6 +486,16 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="set-sec-lbl">Your Preferences</div>
     <div class="set-row"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
     <div class="set-row"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
+    <div class="set-sec-lbl">Reading Experience</div>
+    <div class="set-row" style="cursor:default;">
+      <div>
+        <div class="set-row-lbl">Reading Feedback</div>
+        <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;">Rate readings after completion</div>
+      </div>
+      <button id="feedback-toggle" onclick="toggleFeedbackPref()" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;">
+        <div id="feedback-knob" style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
+      </button>
+    </div>
     <div class="set-sec-lbl">Account</div>
     <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
     <div class="set-row" onclick="signOut()"><span class="set-row-lbl">Sign Out</span><span class="set-row-val">→</span></div>
@@ -406,9 +506,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
 <nav id="bottom-nav">
   <button class="nav-btn active" data-s="home" onclick="navTo('home')"><span class="nav-icon">◈</span><span class="nav-label">Today</span></button>
-  <button class="nav-btn" data-s="notebook" onclick="navTo('notebook')"><span class="nav-icon">◎</span><span class="nav-label">Notebook</span></button>
+  <button class="nav-btn" data-s="completed" onclick="navTo('completed')"><span class="nav-icon">◎</span><span class="nav-label">Completed</span></button>
   <button class="nav-btn" data-s="friends" onclick="navTo('friends')"><span class="nav-icon">◉</span><span class="nav-label">Friends</span></button>
   <button class="nav-btn" data-s="settings" onclick="navTo('settings')"><span class="nav-icon">○</span><span class="nav-label">Settings</span></button>
+  <button class="nav-btn" data-s="admin" id="admin-nav-btn" onclick="navTo('admin')" style="display:none"><span class="nav-icon">⚑</span><span class="nav-label">Admin</span></button>
 </nav>
 
 <div id="toast"></div>
@@ -434,7 +535,10 @@ const THEMES = [
 ];
 const TYPE_COLORS = {poem:'#5a7a5a',story:'#4a6a9a',essay:'#7a5a8a'};
 
-let user=null, profile=null, currentReading=null, currentQueueId=null, currentRating=0, allAnnotations=[];
+let user=null, profile=null, currentReading=null, currentQueueId=null, currentRating=0;
+let allCompleted=[], crFilter='all', crSort='date';
+let feedbackEnabled=true;
+const ADMIN_ID='35ffa89e-8a01-460d-a9dd-1449a2c4d28b';
 let authMode='signin';
 let od={duration:1000,themes:[],era:'classic',poems:1,stories:1,essays:1};
 
@@ -457,7 +561,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('screen-'+name);
   if(s) s.classList.add('active');
-  const main=['home','notebook','friends','settings'];
+  const main=['home','completed','friends','settings','admin'];
   const nav=document.getElementById('bottom-nav');
   nav.classList.toggle('visible',main.includes(name));
   if(main.includes(name)) document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===name));
@@ -466,9 +570,10 @@ function showScreen(name){
 function navTo(name){
   showScreen(name);
   if(name==='home') refreshHome();
-  if(name==='notebook') loadNotebook();
+  if(name==='completed') loadCompleted();
   if(name==='friends') loadFriends();
   if(name==='settings') loadSettings();
+  if(name==='admin') loadAdmin();
 }
 
 // AUTH
@@ -543,7 +648,11 @@ async function finishOnboard(){
 }
 
 // HOME
-async function goHome(){showScreen('home');await refreshHome();}
+async function goHome(){
+  showScreen('home');
+  if(user&&user.id===ADMIN_ID) document.getElementById('admin-nav-btn').style.display='flex';
+  await refreshHome();
+}
 async function refreshHome(){
   if(!user||!profile)return;
   const now=new Date();
@@ -630,12 +739,25 @@ function setRating(n){
 }
 async function markComplete(){
   if(!currentQueueId)return;
-  await sb.from('daily_queue').update({completed:true,completed_at:new Date().toISOString()}).eq('id',currentQueueId);
+  const now=new Date().toISOString();
+  await sb.from('daily_queue').update({completed:true,completed_at:now,rating:currentRating}).eq('id',currentQueueId);
+  // Save to completed_readings for permanent record
+  const note=document.getElementById('rd-note').value.trim();
+  await sb.from('completed_readings').upsert({
+    user_id:user.id, reading_id:currentReading.id,
+    completed_at:now, rating:currentRating,
+    note_body:note||null
+  },{onConflict:'user_id,reading_id'});
+  if(note){
+    await sb.from('annotations').insert({user_id:user.id,reading_id:currentReading.id,type:'note',note_body:note});
+  }
   await updateStreak();
   document.getElementById('done-btn').textContent='✓ Complete';
   document.getElementById('done-btn').classList.add('complete');
-  toast('Reading marked complete ✓');
-  setTimeout(closeReader,800);
+  // Show feedback if enabled
+  const fbPref=localStorage.getItem('feedbackEnabled');
+  if(fbPref!=='false') showFeedback();
+  else { toast('Reading marked complete ✓'); setTimeout(closeReader,800); }
 }
 async function markDNF(){
   if(!currentQueueId)return;
@@ -675,25 +797,163 @@ async function saveNote(){
   toast('Note saved ✏');
 }
 
-// NOTEBOOK
-async function loadNotebook(){
-  const {data}=await sb.from('annotations').select('*,readings(title,author,type)').eq('user_id',user.id).order('created_at',{ascending:false});
-  allAnnotations=data||[];
-  document.getElementById('nb-sub').textContent=`${allAnnotations.length} saved passage${allAnnotations.length!==1?'s':''}`;
-  renderNB('all');
+// COMPLETED READINGS
+async function loadCompleted(){
+  const {data}=await sb.from('completed_readings')
+    .select('*,readings(title,author,type,year)')
+    .eq('user_id',user.id)
+    .order('completed_at',{ascending:false});
+  allCompleted=data||[];
+  document.getElementById('cr-sub').textContent=`${allCompleted.length} reading${allCompleted.length!==1?'s':''}`;
+  renderCompleted();
 }
-function filterNB(type,el){
-  document.querySelectorAll('.nb-fil').forEach(f=>f.classList.remove('active'));
-  el.classList.add('active'); renderNB(type);
+function filterCR(type,el){
+  crFilter=type;
+  document.querySelectorAll('.cr-fil').forEach(f=>f.classList.remove('active'));
+  el.classList.add('active');
+  renderCompleted();
 }
-function renderNB(filter){
-  const items=filter==='all'?allAnnotations:allAnnotations.filter(a=>a.readings&&a.readings.type===filter);
-  const list=document.getElementById('nb-list');
-  if(items.length===0){list.innerHTML='<div class="nb-empty">Nothing saved yet.<br>Add notes while reading to collect passages here.</div>';return;}
-  list.innerHTML=items.map(a=>`<div class="nb-entry ${a.type}"><div class="nb-etype">${a.type==='highlight'?'✦ Highlight':'✏ Note'}</div><div class="nb-etext">"${(a.note_body||a.selected_text||'').slice(0,200)}"</div><div class="nb-esrc">${a.readings?a.readings.title+' — '+a.readings.author:''}</div></div>`).join('');
+function sortCR(by){
+  crSort=by;
+  document.getElementById('sort-date').classList.toggle('active',by==='date');
+  document.getElementById('sort-stars').classList.toggle('active',by==='stars');
+  renderCompleted();
+}
+function renderCompleted(){
+  let items=crFilter==='all'?allCompleted:allCompleted.filter(c=>c.readings&&c.readings.type===crFilter);
+  if(crSort==='stars') items=[...items].sort((a,b)=>(b.rating||0)-(a.rating||0)||new Date(b.completed_at)-new Date(a.completed_at));
+  const list=document.getElementById('cr-list');
+  if(items.length===0){list.innerHTML='<div class="cr-empty">Nothing here yet.<br>Complete readings to build your library.</div>';return;}
+  list.innerHTML=items.map(c=>{
+    const r=c.readings; if(!r)return'';
+    const color=TYPE_COLORS[r.type]||'var(--faded)';
+    const date=new Date(c.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const stars=[1,2,3,4,5].map(i=>`<span class="cr-star" style="color:${i<=(c.rating||0)?'var(--gold)':'rgba(255,255,255,0.12)'}"'>★</span>`).join('');
+    const noteHtml=c.note_body?`<div class="cr-note-expand">▼ note</div><div class="cr-note-body" style="display:none">"${c.note_body}"</div>`:'';
+    return `<div class="cr-card" style="border-left-color:${color}" onclick="toggleCRNote(this)">
+      <div class="cr-card-top">
+        <div style="flex:1;min-width:0">
+          <div class="cr-meta">
+            <span class="cr-type-badge" style="background:${color}">${r.type.toUpperCase()}</span>
+            <span class="cr-date">${date}</span>
+          </div>
+          <div class="cr-title">${r.title}</div>
+          <div class="cr-author">${r.author}${r.year?' — '+r.year:''}</div>
+        </div>
+        <div class="cr-stars">${stars}</div>
+      </div>
+      ${noteHtml}
+    </div>`;
+  }).join('');
+}
+function toggleCRNote(card){
+  const noteBody=card.querySelector('.cr-note-body');
+  const noteLabel=card.querySelector('.cr-note-expand');
+  if(!noteBody)return;
+  const hidden=noteBody.style.display==='none';
+  noteBody.style.display=hidden?'block':'none';
+  if(noteLabel) noteLabel.textContent=hidden?'▲ note':'▼ note';
 }
 
-// FRIENDS
+// FEEDBACK
+function showFeedback(){
+  document.getElementById('fb-thumbs-view').style.display='block';
+  document.getElementById('fb-reasons-view').style.display='none';
+  document.getElementById('fb-confirm-view').style.display='none';
+  document.getElementById('feedback-overlay').classList.add('show');
+}
+function closeFeedback(){
+  document.getElementById('feedback-overlay').classList.remove('show');
+  closeReader();
+}
+function showFeedbackReasons(){
+  document.getElementById('fb-thumbs-view').style.display='none';
+  document.getElementById('fb-reasons-view').style.display='block';
+}
+async function feedbackThumbUp(){
+  if(currentReading){
+    await sb.from('reading_feedback').insert({user_id:user.id,reading_id:currentReading.id,signal:'up',themes:currentReading.themes,read_time:currentReading.read_time_minutes});
+  }
+  document.getElementById('fb-reasons-view').style.display='none';
+  document.getElementById('fb-thumbs-view').style.display='none';
+  document.getElementById('fb-confirm-icon').textContent='👍';
+  document.getElementById('fb-confirm-msg').textContent='Expect more like this in the future.';
+  document.getElementById('fb-confirm-view').style.display='block';
+}
+async function feedbackReason(reason){
+  if(currentReading){
+    await sb.from('reading_feedback').insert({user_id:user.id,reading_id:currentReading.id,signal:'down',reason,themes:currentReading.themes,read_time:currentReading.read_time_minutes});
+  }
+  document.getElementById('fb-reasons-view').style.display='none';
+  document.getElementById('fb-confirm-icon').textContent='👎';
+  document.getElementById('fb-confirm-msg').textContent='Understood. Expect fewer readings like this one in the future.';
+  document.getElementById('fb-confirm-view').style.display='block';
+}
+
+// BROKEN LINK
+async function reportBrokenLink(){
+  if(!currentReading)return;
+  await sb.from('link_reports').insert({reading_id:currentReading.id,title:currentReading.title,reported_at:new Date().toISOString(),fixed:false});
+  // Load a replacement of same type directly in reader
+  const today=new Date().toISOString().split('T')[0];
+  const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
+  const usedIds=existing?existing.map(e=>e.reading_id):[];
+  let q=sb.from('readings').select('id').eq('type',currentReading.type);
+  if(profile.era_preference!=='mixed') q=q.eq('era',profile.era_preference);
+  const {data:pool}=await q.limit(50);
+  const available=(pool||[]).filter(r=>!usedIds.includes(r.id)&&r.id!==currentReading.id);
+  if(available.length===0){toast('No replacement available right now.');return;}
+  const pick=available[Math.floor(Math.random()*available.length)];
+  const {data:inserted}=await sb.from('daily_queue').insert({user_id:user.id,reading_id:pick.id,queued_date:today}).select().single();
+  toast("We're on it. Loading a replacement...");
+  setTimeout(()=>{ if(inserted) openReader(inserted.id); },900);
+}
+
+// ADMIN
+async function loadAdmin(){
+  const {data}=await sb.from('link_reports').select('*').eq('fixed',false).order('reported_at',{ascending:false});
+  const reports=data||[];
+  document.getElementById('adm-sub').textContent=`${reports.length} open report${reports.length!==1?'s':''}`;
+  const list=document.getElementById('adm-list');
+  if(reports.length===0){list.innerHTML='<div class="adm-empty">No open reports.</div>';return;}
+  list.innerHTML=reports.map(r=>{
+    const date=new Date(r.reported_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div class="adm-card">
+      <div class="adm-title">${r.title||'Unknown'}</div>
+      <div class="adm-meta">Reported ${date}</div>
+      <button class="adm-fix" onclick="markLinkFixed('${r.id}')">Mark Fixed ✓</button>
+    </div>`;
+  }).join('');
+}
+async function markLinkFixed(id){
+  await sb.from('link_reports').update({fixed:true}).eq('id',id);
+  toast('Marked fixed ✓');
+  loadAdmin();
+}
+
+// SETTINGS
+function loadSettings(){
+  if(!profile)return;
+  document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
+  document.getElementById('set-era').textContent=profile.era_preference||'classic';
+  document.getElementById('set-counts').textContent=`${profile.counts_poems||1} poem · ${profile.counts_stories||1} story · ${profile.counts_essays||1} essay`;
+  document.getElementById('set-username').textContent=profile.username||'—';
+  // Feedback toggle
+  const enabled=localStorage.getItem('feedbackEnabled')!=='false';
+  updateFeedbackToggle(enabled);
+}
+function updateFeedbackToggle(enabled){
+  const btn=document.getElementById('feedback-toggle');
+  const knob=document.getElementById('feedback-knob');
+  btn.style.background=enabled?'var(--sage)':'rgba(255,255,255,0.1)';
+  knob.style.left=enabled?'23px':'3px';
+}
+function toggleFeedbackPref(){
+  const current=localStorage.getItem('feedbackEnabled')!=='false';
+  const next=!current;
+  localStorage.setItem('feedbackEnabled',next);
+  updateFeedbackToggle(next);
+}
 async function loadFriends(){
   const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
   const ids=fs?fs.map(f=>f.friend_id):[];
@@ -723,15 +983,6 @@ async function addFriend(){
   if(!found){toast('User not found.');return;}
   await sb.from('friendships').insert({user_id:user.id,friend_id:found.id});
   toast('Friend added ✓'); loadFriends();
-}
-
-// SETTINGS
-function loadSettings(){
-  if(!profile)return;
-  document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
-  document.getElementById('set-era').textContent=profile.era_preference||'classic';
-  document.getElementById('set-counts').textContent=`${profile.counts_poems||1} poem · ${profile.counts_stories||1} story · ${profile.counts_essays||1} essay`;
-  document.getElementById('set-username').textContent=profile.username||'—';
 }
 
 // TOAST
