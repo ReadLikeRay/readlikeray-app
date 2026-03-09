@@ -316,14 +316,44 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .note-reading { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--rust); margin-bottom:6px; }
 .note-body { font-size:0.82rem; line-height:1.65; color:var(--aged); font-style:italic; margin-bottom:10px; }
 .note-del { background:none; border:1px solid rgba(255,255,255,0.08); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.07em; padding:5px 10px; cursor:pointer; }
-.set-hdr { padding:52px 22px 18px; }
-.set-ttl { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--paper); margin-bottom:3px; }
-.set-body { padding:0 22px 120px; }
-.set-sec-lbl { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--rust); margin-bottom:10px; margin-top:26px; }
-.set-row { background:var(--surface); border:1px solid rgba(255,255,255,0.05); padding:13px 15px; display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; cursor:pointer; transition:all 0.15s; }
-.set-row:hover { border-color:rgba(255,255,255,0.1); }
-.set-row-lbl { font-family:'Space Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--aged); }
-.set-row-val { font-family:'Space Mono',monospace; font-size:0.56rem; color:var(--faded); }
+
+/* ── PROFILE ── */
+.prof-hdr-bar { display:flex; align-items:center; justify-content:space-between; padding:52px 22px 20px; }
+.prof-av { width:48px; height:48px; border-radius:50%; background:var(--rust); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:0.9rem; font-weight:700; color:white; flex-shrink:0; }
+.prof-name { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.prof-sub { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); }
+.gear-btn { width:36px; height:36px; background:var(--surface2); border:1px solid rgba(255,255,255,0.08); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; color:var(--faded); transition:all 0.15s; flex-shrink:0; }
+.gear-btn:hover { border-color:rgba(255,255,255,0.2); color:var(--aged); }
+.prof-stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); margin:0 20px 14px; }
+.prof-stat { background:var(--surface); padding:13px 8px; text-align:center; }
+.prof-stat-n { font-family:'Space Mono',monospace; font-size:1rem; font-weight:700; color:var(--gold); line-height:1; margin-bottom:4px; }
+.prof-stat-l { font-family:'Space Mono',monospace; font-size:0.34rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); line-height:1.4; }
+.prof-freeze-row { margin:0 20px 18px; background:var(--surface); border:1px solid rgba(106,154,191,0.2); padding:13px 16px; display:flex; align-items:center; gap:13px; cursor:pointer; transition:border-color 0.15s; }
+.prof-freeze-row:hover { border-color:rgba(106,154,191,0.4); }
+.prof-freeze-n { font-family:'Space Mono',monospace; font-size:0.9rem; font-weight:700; color:#6a9abf; line-height:1; margin-bottom:3px; }
+.prof-freeze-l { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); }
+.prof-freeze-tip { font-family:'Space Mono',monospace; font-size:0.38rem; color:var(--faded); text-align:right; line-height:1.55; }
+.prof-body { padding:0 20px 100px; }
+.prof-sec-lbl { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:10px; margin-top:20px; }
+.prof-fav { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:11px 13px; margin-bottom:6px; cursor:pointer; transition:border-left-color 0.15s; }
+.prof-fav:hover { border-left-color:var(--rust); }
+.prof-fav-title { font-family:'Playfair Display',serif; font-size:0.88rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.prof-fav-author { font-size:0.68rem; color:var(--faded); font-style:italic; }
+.prof-fav-stars { color:var(--gold); font-size:0.68rem; margin-top:4px; }
+
+/* ── SETTINGS SLIDE ── */
+.settings-slide { position:absolute; inset:0; background:var(--ink); transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); z-index:50; overflow-y:auto; scrollbar-width:none; }
+.settings-slide::-webkit-scrollbar { display:none; }
+.settings-slide.open { transform:translateX(0); }
+.settings-slide-hdr { display:flex; align-items:center; gap:14px; padding:52px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.settings-back { background:none; border:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+.settings-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--paper); }
+.settings-body { padding:0 0 80px; }
+.set-sec-lbl { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--rust); margin-bottom:4px; margin-top:22px; padding:0 20px; }
+.set-row { background:var(--surface); border-top:1px solid rgba(255,255,255,0.04); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.15s; }
+.set-row:hover { background:var(--surface2); }
+.set-row-lbl { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--aged); }
+.set-row-val { font-family:'Space Mono',monospace; font-size:0.52rem; color:var(--faded); }
 </style>
 </head>
 <body>
@@ -429,15 +459,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div><div class="s-num" id="s-num">0</div><div class="s-sub">Day Streak</div></div>
     <div class="s-right">
       <div class="s-best">Best: <span id="s-best">0</span></div>
-      <div class="freeze-counter" onclick="showFreezeInfo()" title="Streak freezes">
-        <span id="freeze-count">0</span> 🧊
-      </div>
     </div>
-  </div>
-  <div class="read-time-bar">
-    <div class="rt-stat"><div class="rt-n" id="rt-tonight">— min</div><div class="rt-l">Tonight</div></div>
-    <div class="rt-divider"></div>
-    <div class="rt-stat"><div class="rt-n" id="rt-lifetime">— hrs</div><div class="rt-l">Lifetime</div></div>
   </div>
   <div class="week-row" id="week-row"></div>
   <div class="prog-wrap">
@@ -607,53 +629,94 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <h1 style="font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:700;color:var(--paper);margin-bottom:3px">Your Notes</h1>
       <div style="font-family:'Space Mono',monospace;font-size:0.54rem;color:var(--faded);text-transform:uppercase;letter-spacing:0.1em">Tap delete to remove</div>
     </div>
-    <button onclick="showScreen('settings')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">← Back</button>
+    <button onclick="showScreen('profile')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">← Back</button>
   </div>
   <div id="notes-list" style="padding:0 22px 80px"></div>
 </div>
 
-<!-- SETTINGS -->
-<div id="screen-settings" class="screen safe-bottom">
-  <div class="set-hdr"><h1 class="set-ttl">Settings</h1></div>
-  <div class="set-body">
-    <div class="set-sec-lbl">Your Preferences</div>
-    <div class="set-row" onclick="editDuration()" style="cursor:pointer"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
-    <div class="set-row" onclick="editCounts()" style="cursor:pointer"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
-    <div class="set-row" onclick="editThemes()" style="cursor:pointer"><span class="set-row-lbl">Themes</span><span class="set-row-val">Edit →</span></div>
-    <div class="set-sec-lbl">Your Notes</div>
-    <div class="set-row" onclick="navTo('notes')" style="cursor:pointer"><span class="set-row-lbl">View & Delete Notes</span><span class="set-row-val">→</span></div>
-    <div class="set-sec-lbl">Reminders</div>
-    <div class="set-row" style="cursor:default;">
+<!-- PROFILE -->
+<div id="screen-profile" class="screen safe-bottom">
+  <div class="prof-hdr-bar">
+    <div style="display:flex;align-items:center;gap:13px">
+      <div class="prof-av" id="prof-av">—</div>
       <div>
-        <div class="set-row-lbl">Reading Reminder</div>
-        <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;" id="reminder-status">Off</div>
+        <div class="prof-name" id="prof-name">—</div>
+        <div class="prof-sub" id="prof-sub">—</div>
       </div>
-      <button onclick="toggleReminder()" id="reminder-toggle" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;background:rgba(255,255,255,0.1);">
-        <div id="reminder-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
-      </button>
     </div>
-    <div class="set-row" onclick="setReminderTime()" style="cursor:pointer" id="reminder-time-row" style="display:none">
-      <span class="set-row-lbl">Reminder Time</span><span class="set-row-val" id="reminder-time-val">9:00 PM</span>
+    <button class="gear-btn" onclick="openSettingsSlide()" title="Settings">⚙</button>
+  </div>
+
+  <div class="prof-stat-grid">
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-streak">0</div><div class="prof-stat-l">Day<br>Streak</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-total">0</div><div class="prof-stat-l">Readings<br>Completed</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-best">0</div><div class="prof-stat-l">Longest<br>Streak</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-tonight">—</div><div class="prof-stat-l">Tonight's<br>Queue</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-lifetime">—</div><div class="prof-stat-l">Lifetime<br>Read</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="prof-day">Day 1</div><div class="prof-stat-l">Of<br><span id="prof-goal">1,000</span></div></div>
+  </div>
+
+  <div class="prof-freeze-row" onclick="showFreezeInfo()">
+    <div style="font-size:1.4rem;line-height:1">🧊</div>
+    <div style="flex:1">
+      <div class="prof-freeze-n" id="prof-freeze-n">0 freezes</div>
+      <div class="prof-freeze-l">Streak Freezes</div>
     </div>
-    <div class="set-row" style="cursor:default;">
-      <div>
-        <div class="set-row-lbl">Reading Feedback</div>
-        <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;">Rate readings after completion</div>
+    <div class="prof-freeze-tip">Earn 1 for every<br>5-day streak →</div>
+  </div>
+
+  <div class="prof-body">
+    <div class="prof-sec-lbl">Badges</div>
+    <div class="badge-grid" id="profile-badges"></div>
+
+    <div class="prof-sec-lbl">★ Five-Star Favorites</div>
+    <div id="prof-favs"></div>
+  </div>
+
+  <!-- Slide-in settings -->
+  <div id="settings-slide" class="settings-slide">
+    <div class="settings-slide-hdr">
+      <button class="settings-back" onclick="closeSettingsSlide()">← Back</button>
+      <div class="settings-title">Settings</div>
+    </div>
+    <div class="settings-body">
+      <div class="set-sec-lbl">Your Preferences</div>
+      <div class="set-row" onclick="editDuration()" style="cursor:pointer"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
+      <div class="set-row" onclick="editCounts()" style="cursor:pointer"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
+      <div class="set-row" onclick="editThemes()" style="cursor:pointer"><span class="set-row-lbl">Themes</span><span class="set-row-val">Edit →</span></div>
+      <div class="set-sec-lbl">Your Notes</div>
+      <div class="set-row" onclick="closeSettingsSlide();navTo('notes')" style="cursor:pointer"><span class="set-row-lbl">View & Delete Notes</span><span class="set-row-val">→</span></div>
+      <div class="set-sec-lbl">Reminders</div>
+      <div class="set-row" style="cursor:default;">
+        <div>
+          <div class="set-row-lbl">Reading Reminder</div>
+          <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;" id="reminder-status">Off</div>
+        </div>
+        <button onclick="toggleReminder()" id="reminder-toggle" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;background:rgba(255,255,255,0.1);">
+          <div id="reminder-knob" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
+        </button>
       </div>
-      <button id="feedback-toggle" onclick="toggleFeedbackPref()" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;">
-        <div id="feedback-knob" style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
-      </button>
+      <div class="set-row" onclick="setReminderTime()" style="cursor:pointer" id="reminder-time-row">
+        <span class="set-row-lbl">Reminder Time</span><span class="set-row-val" id="reminder-time-val">9:00 PM</span>
+      </div>
+      <div class="set-sec-lbl">Reading Experience</div>
+      <div class="set-row" style="cursor:default;">
+        <div>
+          <div class="set-row-lbl">Reading Feedback</div>
+          <div style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.68rem;color:var(--faded);margin-top:3px;">Rate readings after completion</div>
+        </div>
+        <button id="feedback-toggle" onclick="toggleFeedbackPref()" style="width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;">
+          <div id="feedback-knob" style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
+        </button>
+      </div>
+      <div class="set-sec-lbl">Account</div>
+      <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
+      <div class="set-row" onclick="changeUsername()" style="cursor:pointer"><span class="set-row-lbl">Change Username</span><span class="set-row-val">→</span></div>
+      <div class="set-row" onclick="changePassword()" style="cursor:pointer"><span class="set-row-lbl">Change Password</span><span class="set-row-val">→</span></div>
+      <div class="set-row" onclick="removeFriendFlow()" style="cursor:pointer"><span class="set-row-lbl">Remove a Friend</span><span class="set-row-val">→</span></div>
+      <div class="set-row" onclick="signOut()" style="cursor:pointer"><span class="set-row-lbl">Sign Out</span><span class="set-row-val">→</span></div>
+      <div class="set-row" onclick="deleteAccount()" style="cursor:pointer"><span class="set-row-lbl" style="color:var(--rust)">Delete Account</span><span class="set-row-val" style="color:var(--rust)">→</span></div>
     </div>
-    <div class="set-sec-lbl">Badges</div>
-    <div class="badge-grid" id="settings-badges" style="padding-bottom:8px"></div>
-    <div class="set-sec-lbl">Account</div>
-    <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
-    <div class="set-row"><span class="set-row-lbl">Longest Streak</span><span class="set-row-val" id="set-best">0 days</span></div>
-    <div class="set-row" onclick="changeUsername()" style="cursor:pointer"><span class="set-row-lbl">Change Username</span><span class="set-row-val">→</span></div>
-    <div class="set-row" onclick="changePassword()" style="cursor:pointer"><span class="set-row-lbl">Change Password</span><span class="set-row-val">→</span></div>
-    <div class="set-row" onclick="removeFriendFlow()" style="cursor:pointer"><span class="set-row-lbl">Remove a Friend</span><span class="set-row-val">→</span></div>
-    <div class="set-row" onclick="signOut()" style="cursor:pointer"><span class="set-row-lbl">Sign Out</span><span class="set-row-val">→</span></div>
-    <div class="set-row" onclick="deleteAccount()" style="cursor:pointer"><span class="set-row-lbl" style="color:var(--rust)">Delete Account</span><span class="set-row-val" style="color:var(--rust)">→</span></div>
   </div>
 </div>
 
@@ -664,7 +727,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <button class="nav-btn" data-s="completed" onclick="navTo('completed')"><span class="nav-icon">◎</span><span class="nav-label">Completed</span></button>
   <button class="nav-btn" data-s="browse" onclick="navTo('browse')"><span class="nav-icon">◇</span><span class="nav-label">Browse</span></button>
   <button class="nav-btn" data-s="friends" onclick="navTo('friends')"><span class="nav-icon">◉</span><span class="nav-label">Friends</span></button>
-  <button class="nav-btn" data-s="settings" onclick="navTo('settings')"><span class="nav-icon">○</span><span class="nav-label">Settings</span></button>
+  <button class="nav-btn" data-s="profile" onclick="navTo('profile')"><span class="nav-icon">○</span><span class="nav-label">Profile</span></button>
   <button class="nav-btn" data-s="admin" id="admin-nav-btn" onclick="navTo('admin')" style="display:none"><span class="nav-icon">⚑</span><span class="nav-label">Admin</span></button>
 </nav>
 
@@ -762,7 +825,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('screen-'+name);
   if(s) s.classList.add('active');
-  const main=['home','completed','browse','friends','settings','admin','notes'];
+  const main=['home','completed','browse','friends','profile','admin','notes'];
   const nav=document.getElementById('bottom-nav');
   nav.classList.toggle('visible',main.includes(name));
   if(main.includes(name)) document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===name));
@@ -773,6 +836,7 @@ function navTo(name){
   if(name==='home') refreshHome();
   if(name==='completed') loadCompleted();
   if(name==='notes') loadNotes();
+  if(name==='profile') loadProfileScreen();
   if(name==='browse') loadBrowse();
   if(name==='friends') loadFriends();
   if(name==='settings') loadSettings();
@@ -885,7 +949,6 @@ async function refreshHome(){
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
   document.getElementById('day-badge').textContent=`Day ${dayNum()}`;
-  document.getElementById('freeze-count').textContent=profile.streak_freezes||0;
   await renderWeek(); await loadQueue();
 }
 function dayNum(){
@@ -928,7 +991,6 @@ async function loadQueue(){
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   if(!q||q.length===0){await generateQueue(today);({data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false));}
   renderQueue(q||[]);
-  loadReadTime(q||[]);
 }
 async function generateQueue(date){
   const counts={poem:profile.counts_poems||1,story:profile.counts_stories||1,essay:profile.counts_essays||1};
@@ -1282,19 +1344,67 @@ async function markLinkFixed(id){
   loadAdmin();
 }
 
-// SETTINGS
-async function loadSettings(){
+// PROFILE SCREEN
+async function loadProfileScreen(){
   await loadProfile();
-  if(!profile)return;
+  if(!profile) return;
+  // Header
+  const initials=(profile.username||'?').slice(0,2).toUpperCase();
+  document.getElementById('prof-av').textContent=initials;
+  document.getElementById('prof-name').textContent=profile.username||'—';
+  const joined=new Date(profile.created_at).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  document.getElementById('prof-sub').textContent=`Member since ${joined}`;
+  // Stats
+  document.getElementById('prof-streak').textContent=`🔥 ${profile.streak_current||0}`;
+  document.getElementById('prof-best').textContent=profile.streak_best||0;
+  document.getElementById('prof-day').textContent=`Day ${dayNum()}`;
+  document.getElementById('prof-goal').textContent=profile.duration_goal||1000;
+  // Freeze
+  const fc=profile.streak_freezes||0;
+  document.getElementById('prof-freeze-n').textContent=`${fc} freeze${fc!==1?'s':''}`;
+  // Total completed
+  const {count}=await sb.from('completed_readings').select('*',{count:'exact',head:true}).eq('user_id',user.id);
+  document.getElementById('prof-total').textContent=count||0;
+  // Read time
+  const {data:done}=await sb.from('completed_readings').select('readings(read_time_minutes)').eq('user_id',user.id);
+  const lifetimeMins=(done||[]).reduce((s,d)=>s+(d.readings?.read_time_minutes||0),0);
+  document.getElementById('prof-lifetime').textContent=lifetimeMins<60?`${lifetimeMins}m`:`${(lifetimeMins/60).toFixed(1)}h`;
+  // Tonight
+  const today=new Date().toISOString().split('T')[0];
+  const {data:tq}=await sb.from('daily_queue').select('completed,readings(read_time_minutes)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
+  const tonightMins=(tq||[]).filter(q=>!q.completed).reduce((s,q)=>s+(q.readings?.read_time_minutes||0),0);
+  document.getElementById('prof-tonight').textContent=tonightMins>0?`${tonightMins}m`:'Done ✓';
+  // Badges
+  await loadBadgesUI(user.id,'profile-badges');
+  // Five-star favorites
+  const {data:favs}=await sb.from('completed_readings')
+    .select('reading_id,readings(id,title,author)')
+    .eq('user_id',user.id).eq('rating',5)
+    .order('completed_at',{ascending:false}).limit(5);
+  const favsEl=document.getElementById('prof-favs');
+  if(!favs||favs.length===0){
+    favsEl.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.82rem;padding:8px 0">No five-star reads yet.</div>';
+  } else {
+    favsEl.innerHTML=favs.map(f=>`
+      <div class="prof-fav" onclick="openReadingDirect('${f.readings?.id}')">
+        <div class="prof-fav-title">${f.readings?.title||'—'}</div>
+        <div class="prof-fav-author">${f.readings?.author||''}</div>
+        <div class="prof-fav-stars">★★★★★</div>
+      </div>`).join('');
+  }
+  // Settings slide values
   document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
   document.getElementById('set-counts').textContent=`${profile.counts_poems||1} poem · ${profile.counts_stories||1} story · ${profile.counts_essays||1} essay`;
   document.getElementById('set-username').textContent=profile.username||'—';
-  document.getElementById('set-best').textContent=`${profile.streak_best||0} days`;
-  // Feedback toggle
   const enabled=localStorage.getItem('feedbackEnabled')!=='false';
   updateFeedbackToggle(enabled);
   loadReminderUI();
-  await loadBadgesUI(user.id,'settings-badges');
+}
+function openSettingsSlide(){
+  document.getElementById('settings-slide').classList.add('open');
+}
+function closeSettingsSlide(){
+  document.getElementById('settings-slide').classList.remove('open');
 }
 function updateFeedbackToggle(enabled){
   const btn=document.getElementById('feedback-toggle');
