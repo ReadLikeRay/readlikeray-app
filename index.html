@@ -125,6 +125,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .wd { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); }
 .wd.done { background:rgba(90,122,90,0.22); border-color:var(--sage); color:var(--sage); }
 .wd.today { border-color:var(--rust); background:rgba(181,69,27,0.1); color:var(--rust); }
+.wd.missed { border-color:rgba(255,255,255,0.08); color:rgba(255,255,255,0.15); }
 .prog-wrap { margin:0 20px 18px; }
 .prog-hdr { display:flex; justify-content:space-between; margin-bottom:7px; }
 .prog-track { height:3px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
@@ -570,7 +571,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="set-body">
     <div class="set-sec-lbl">Your Preferences</div>
     <div class="set-row"><span class="set-row-lbl">Duration Goal</span><span class="set-row-val" id="set-duration">1,000 nights</span></div>
-    <div class="set-row"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
+    <div class="set-row" onclick="editCounts()" style="cursor:pointer"><span class="set-row-lbl">Per Night</span><span class="set-row-val" id="set-counts">1 · 1 · 1</span></div>
+    <div class="set-row" onclick="editThemes()" style="cursor:pointer"><span class="set-row-lbl">Themes</span><span class="set-row-val">Edit →</span></div>
     <div class="set-sec-lbl">Reading Experience</div>
     <div class="set-row" style="cursor:default;">
       <div>
@@ -766,19 +768,41 @@ async function refreshHome(){
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
   document.getElementById('day-badge').textContent=`Day ${dayNum()}`;
-  renderWeek(); await loadQueue();
+  await renderWeek(); await loadQueue();
 }
 function dayNum(){
   if(!profile)return 1;
   const diff=Math.floor((new Date()-new Date(profile.created_at))/(1000*60*60*24));
   return diff+1;
 }
-function renderWeek(){
+async function renderWeek(){
   const days=['S','M','T','W','T','F','S'];
-  const dow=new Date().getDay();
+  const now=new Date();
+  const dow=now.getDay();
+  // Get start of this week (Sunday)
+  const weekStart=new Date(now);
+  weekStart.setDate(now.getDate()-dow);
+  weekStart.setHours(0,0,0,0);
+  // Fetch completed queue dates this week
+  const weekStartStr=weekStart.toISOString().split('T')[0];
+  const todayStr=now.toISOString().split('T')[0];
+  const {data:weekQ}=await sb.from('daily_queue')
+    .select('queued_date,completed')
+    .eq('user_id',user.id)
+    .gte('queued_date',weekStartStr)
+    .lte('queued_date',todayStr);
+  // Build a set of dates where at least one reading was completed
+  const readDates=new Set();
+  (weekQ||[]).forEach(q=>{ if(q.completed) readDates.add(q.queued_date); });
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
-    const cls=i===dow?'today':i<dow?'done':'';
-    return `<div class="wc"><span class="wn">${d}</span><div class="wd ${cls}">${i<dow?'✓':i===dow?'·':''}</div></div>`;
+    const dayDate=new Date(weekStart);
+    dayDate.setDate(weekStart.getDate()+i);
+    const dateStr=dayDate.toISOString().split('T')[0];
+    const isToday=i===dow;
+    const isPast=i<dow;
+    const didRead=readDates.has(dateStr);
+    const cls=isToday?'today':isPast&&didRead?'done':isPast&&!didRead?'missed':'';
+    return `<div class="wc"><span class="wn">${d}</span><div class="wd ${cls}">${isPast?(didRead?'✓':'·'):isToday?'·':''}</div></div>`;
   }).join('');
 }
 async function loadQueue(){
@@ -1285,6 +1309,35 @@ async function addFriend(){
 
 
 // SETTINGS ACTIONS
+async function editCounts(){
+  const poems=prompt(`Poems per night (current: ${profile.counts_poems||1}):`,profile.counts_poems||1);
+  if(poems===null) return;
+  const stories=prompt(`Stories per night (current: ${profile.counts_stories||1}):`,profile.counts_stories||1);
+  if(stories===null) return;
+  const essays=prompt(`Essays per night (current: ${profile.counts_essays||1}):`,profile.counts_essays||1);
+  if(essays===null) return;
+  const p=Math.min(3,Math.max(0,parseInt(poems)||0));
+  const s=Math.min(3,Math.max(0,parseInt(stories)||0));
+  const e=Math.min(3,Math.max(0,parseInt(essays)||0));
+  await sb.from('profiles').update({counts_poems:p,counts_stories:s,counts_essays:e}).eq('id',user.id);
+  profile.counts_poems=p; profile.counts_stories=s; profile.counts_essays=e;
+  document.getElementById('set-counts').textContent=`${p} poem · ${s} story · ${e} essay`;
+  toast('Updated ✓');
+}
+async function editThemes(){
+  // Load current themes and show a prompt listing all options
+  const {data:current}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
+  const currentIds=new Set((current||[]).map(t=>t.theme));
+  const list=THEMES.map((t,i)=>`${i+1}. ${t.name}${currentIds.has(t.id)?' ✓':''}`).join('\n');
+  const input=prompt(`Your themes (enter numbers separated by commas):\n\n${list}\n\nCurrent selections marked ✓`);
+  if(input===null) return;
+  const nums=input.split(',').map(n=>parseInt(n.trim())-1).filter(n=>n>=0&&n<THEMES.length);
+  if(nums.length===0){toast('No valid themes entered.'); return;}
+  const newThemes=nums.map(n=>THEMES[n].id);
+  await sb.from('user_themes').delete().eq('user_id',user.id);
+  await sb.from('user_themes').insert(newThemes.map(t=>({user_id:user.id,theme:t})));
+  toast('Themes updated ✓');
+}
 async function changeUsername(){
   const newName=prompt('Enter new username:');
   if(!newName||!newName.trim()) return;
