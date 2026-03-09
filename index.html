@@ -406,8 +406,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="step-lbl">Welcome</div>
     <h2 class="step-ttl">Read Like<br><em style="color:var(--rust)">Ray</em></h2>
     <p class="step-dsc" style="margin-bottom:18px">Ray Bradbury educated himself entirely at the library — one short story, one poem, and one essay every night for 1,000 nights.</p>
-    <p class="step-dsc" style="margin-bottom:18px">This app is his method, made into a daily habit. Every night you'll get a small queue of handpicked public-domain writing drawn from the themes you care about.</p>
-    <p class="step-dsc">Rate what you read, track your streak, and see what your friends are finishing. It takes 15–30 minutes a night.</p>
+    <p class="step-dsc" style="margin-bottom:18px">This app is his method, made into a daily habit. Every day you'll get a small queue of handpicked writing drawn from the themes you care about.</p>
+    <p class="step-dsc">Rate what you read, track your streak, earn badges, and see what your friends are finishing. You decide how much time to commit each night.</p>
     <div style="margin-top:auto;padding-top:28px">
       <button class="btn btn-primary" onclick="goStep(0,1)">Get Started →</button>
     </div>
@@ -417,7 +417,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="step-pips"><div class="pip on"></div><div class="pip"></div><div class="pip"></div></div>
     <div class="step-lbl">Step 1 of 3</div>
     <h2 class="step-ttl">How long will you commit?</h2>
-    <p class="step-dsc">Bradbury said 1,000 nights. Any commitment is worth keeping.</p>
+    <p class="step-dsc">Choose a week, six months or something in between. Any commitment is worth keeping.</p>
     <div class="dur-grid">
       <div class="dur-card" data-v="7" onclick="selDur(7,this)"><div class="dur-n">7</div><div class="dur-u">Days</div></div>
       <div class="dur-card" data-v="30" onclick="selDur(30,this)"><div class="dur-n">30</div><div class="dur-u">Days</div></div>
@@ -444,7 +444,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="step-pips"><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div></div>
     <div class="step-lbl">Step 3 of 3</div>
     <h2 class="step-ttl">How much per night?</h2>
-    <p class="step-dsc">Bradbury did one of each. Start lighter — you can change this anytime.</p>
+    <p class="step-dsc">Bradbury did one of each. Start at your own pace — you can change this anytime.</p>
     <div class="count-rows">
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--sage)"></div><span class="cname">Poems</span></div><div class="stepper"><button class="stbtn" onclick="adj('poems',-1)">−</button><span class="stval" id="cv-poems">1</span><button class="stbtn" onclick="adj('poems',1)">+</button></div></div>
       <div class="count-row"><div class="count-lbl"><div class="cdot" style="background:var(--blue)"></div><span class="cname">Stories</span></div><div class="stepper"><button class="stbtn" onclick="adj('stories',-1)">−</button><span class="stval" id="cv-stories">1</span><button class="stbtn" onclick="adj('stories',1)">+</button></div></div>
@@ -1299,9 +1299,9 @@ function renderCompleted(){
     const r=c.readings; if(!r)return'';
     const color=TYPE_COLORS[r.type]||'var(--faded)';
     const date=new Date(c.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    const stars=[1,2,3,4,5].map(i=>`<span class="cr-star" style="color:${i<=(c.rating||0)?'var(--gold)':'rgba(255,255,255,0.12)'}"'>★</span>`).join('');
-    const noteHtml=c.note_body?`<div class="cr-note-expand">▼ note</div><div class="cr-note-body" style="display:none">"${c.note_body}"</div>`:'';
-    return `<div class="cr-card" style="border-left-color:${color}" onclick="openCompletedReading('${r.id}',event,this)">
+    const stars=[1,2,3,4,5].map(i=>`<span class="cr-star" style="color:${i<=(c.rating||0)?'var(--gold)':'rgba(255,255,255,0.12)'}">★</span>`).join('');
+    const noteHtml=c.note_body?`<button onclick="event.stopPropagation();toggleCRNoteById('note-${r.id}')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;padding:6px 0 0;text-align:left">▼ note</button><div id="note-${r.id}" style="display:none;font-style:italic;font-size:0.75rem;color:var(--faded);padding:6px 0 0;line-height:1.6">"${c.note_body}"</div>`:'';
+    return `<div class="cr-card" style="border-left-color:${color};cursor:pointer" onclick="openReadingDirect('${r.id}')">
       <div class="cr-card-top">
         <div style="flex:1;min-width:0">
           <div class="cr-meta">
@@ -1310,15 +1310,20 @@ function renderCompleted(){
           </div>
           <div class="cr-title">${r.title}</div>
           <div class="cr-author">${r.author}${r.year?' — '+r.year:''}</div>
+          ${noteHtml}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
           <div class="cr-stars">${stars}</div>
           <div style="font-family:'Space Mono',monospace;font-size:0.38rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--faded)">Open →</div>
         </div>
       </div>
-      ${noteHtml}
     </div>`;
   }).join('');
+}
+function toggleCRNoteById(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.style.display=el.style.display==='none'?'block':'none';
 }
 function toggleCRNote(card){
   const noteBody=card.querySelector('.cr-note-body');
