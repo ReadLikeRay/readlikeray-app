@@ -293,6 +293,24 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .rec-add { background:var(--rust); color:white; }
 .rec-skip { background:rgba(255,255,255,0.06); color:var(--faded); border:1px solid rgba(255,255,255,0.08); }
 
+/* ── FREEZE / READ TIME ── */
+.freeze-counter { font-family:'Space Mono',monospace; font-size:0.52rem; color:#6a9abf; margin-top:4px; cursor:pointer; letter-spacing:0.04em; }
+.read-time-bar { margin:0 20px 16px; display:flex; background:var(--surface); border:1px solid rgba(255,255,255,0.06); }
+.rt-stat { flex:1; padding:10px 14px; text-align:center; }
+.rt-n { font-family:'Space Mono',monospace; font-size:0.9rem; font-weight:700; color:var(--gold); line-height:1; margin-bottom:3px; }
+.rt-l { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); }
+.rt-divider { width:1px; background:rgba(255,255,255,0.06); }
+
+/* ── BADGES ── */
+.badge-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:0 0 8px; }
+.badge { display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 4px; background:var(--surface); border:1px solid rgba(255,255,255,0.07); cursor:default; }
+.badge.earned { border-color:rgba(201,146,42,0.35); background:rgba(201,146,42,0.06); }
+.badge-icon { font-size:1.3rem; line-height:1; }
+.badge.locked .badge-icon { filter:grayscale(1); opacity:0.22; }
+.badge-name { font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--faded); text-align:center; line-height:1.3; }
+.badge.earned .badge-name { color:var(--gold); }
+.badge-date { font-family:'Space Mono',monospace; font-size:0.32rem; color:var(--faded); opacity:0.55; }
+
 /* ── NOTES ── */
 .note-card { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:14px 15px; margin-bottom:6px; }
 .note-reading { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--rust); margin-bottom:6px; }
@@ -409,7 +427,17 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="streak-bar">
     <div class="s-flame">🔥</div>
     <div><div class="s-num" id="s-num">0</div><div class="s-sub">Day Streak</div></div>
-    <div class="s-right"><div class="s-best">Best: <span id="s-best">0</span></div></div>
+    <div class="s-right">
+      <div class="s-best">Best: <span id="s-best">0</span></div>
+      <div class="freeze-counter" onclick="showFreezeInfo()" title="Streak freezes">
+        <span id="freeze-count">0</span> 🧊
+      </div>
+    </div>
+  </div>
+  <div class="read-time-bar">
+    <div class="rt-stat"><div class="rt-n" id="rt-tonight">— min</div><div class="rt-l">Tonight</div></div>
+    <div class="rt-divider"></div>
+    <div class="rt-stat"><div class="rt-n" id="rt-lifetime">— hrs</div><div class="rt-l">Lifetime</div></div>
   </div>
   <div class="week-row" id="week-row"></div>
   <div class="prog-wrap">
@@ -516,7 +544,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <div id="screen-friends" class="screen safe-bottom">
   <div class="fr-hdr">
     <h1 class="fr-ttl">Friends</h1>
-    <div class="fr-sub">Reading together</div>
+    <div class="fr-sub">Streak Leaderboard</div>
   </div>
   <div class="fr-list" id="fr-list"></div>
   <button class="add-fr-btn" onclick="addFriend()">+ Add a Friend</button>
@@ -540,8 +568,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <div class="fp-stat"><div class="fp-stat-n" id="fp-total">—</div><div class="fp-stat-l">Readings<br>Completed</div></div>
       <div class="fp-stat"><div class="fp-stat-n" id="fp-longest">—</div><div class="fp-stat-l">Longest<br>Streak</div></div>
     </div>
-    <div class="fp-sec-lbl">★ Five-Star Favorites</div>
+    <div class="fp-sec-lbl" style="margin-top:0">★ Five-Star Favorites</div>
     <div id="fp-favs"></div>
+    <div class="fp-sec-lbl">Badges</div>
+    <div id="fp-badges" class="badge-grid"></div>
   </div>
 </div>
 
@@ -614,6 +644,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
         <div id="feedback-knob" style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left 0.2s;"></div>
       </button>
     </div>
+    <div class="set-sec-lbl">Badges</div>
+    <div class="badge-grid" id="settings-badges" style="padding-bottom:8px"></div>
     <div class="set-sec-lbl">Account</div>
     <div class="set-row"><span class="set-row-lbl">Username</span><span class="set-row-val" id="set-username">—</span></div>
     <div class="set-row"><span class="set-row-lbl">Longest Streak</span><span class="set-row-val" id="set-best">0 days</span></div>
@@ -658,6 +690,51 @@ const THEMES = [
   {id:'death',icon:'◆',name:'Death & Grief'},
 ];
 const TYPE_COLORS = {poem:'#5a7a5a',story:'#4a6a9a',essay:'#7a5a8a'};
+
+const BADGES = [
+  // Streak
+  {id:'first_flame',icon:'🔥',name:'First Flame',desc:'Complete your first day'},
+  {id:'week_warrior',icon:'📅',name:'Week Warrior',desc:'7-day streak'},
+  {id:'monthly_reader',icon:'🌙',name:'Monthly Reader',desc:'30-day streak'},
+  {id:'century',icon:'💯',name:'Century',desc:'100-day streak'},
+  {id:'bradbury',icon:'📚',name:'Bradbury',desc:'1,000-day streak'},
+  // Readings completed
+  {id:'first_page',icon:'📄',name:'First Page',desc:'Complete first reading'},
+  {id:'bookworm',icon:'🐛',name:'Bookworm',desc:'10 readings completed'},
+  {id:'voracious',icon:'🦁',name:'Voracious',desc:'50 readings completed'},
+  {id:'century_club',icon:'🏛️',name:'Century Club',desc:'100 readings completed'},
+  {id:'thousander',icon:'🌟',name:'Thousander',desc:'1,000 readings completed'},
+  // Type-specific
+  {id:'versed',icon:'🌸',name:'Versed',desc:'First poem'},
+  {id:'storyteller',icon:'🎭',name:'Storyteller',desc:'First story'},
+  {id:'essayist',icon:'✍️',name:'Essayist',desc:'First essay'},
+  {id:'poets_corner',icon:'🌿',name:"Poet's Corner",desc:'25 poems read'},
+  {id:'stacks',icon:'📖',name:'Stacks',desc:'25 stories read'},
+  {id:'the_canon',icon:'🏺',name:'The Canon',desc:'25 essays read'},
+  // Ratings
+  {id:'critic',icon:'⭐',name:'Critic',desc:'First 5-star rating'},
+  {id:'harsh_critic',icon:'💀',name:'Harsh Critic',desc:'First 1-star rating'},
+  {id:'discerning',icon:'🔍',name:'Discerning',desc:'Rated 50 readings'},
+  {id:'perfectionist',icon:'✨',name:'Perfectionist',desc:'10 five-star ratings'},
+  // Time of day
+  {id:'night_owl',icon:'🦉',name:'Night Owl',desc:'Read at 9 PM or later'},
+  {id:'early_bird',icon:'🐦',name:'Early Bird',desc:'Read midnight to 7 AM'},
+  {id:'lunch_break',icon:'☀️',name:'Lunch Break',desc:'Read noon to 1 PM'},
+  // Social
+  {id:'not_alone',icon:'🤝',name:'Not Alone',desc:'Added first friend'},
+  {id:'book_club',icon:'👥',name:'Book Club',desc:'3 or more friends'},
+  // Behavior
+  {id:'honest_reader',icon:'🚩',name:'Honest Reader',desc:'First DNF'},
+  {id:'streak_saver',icon:'🧊',name:'Streak Saver',desc:'Used a streak freeze'},
+  {id:'dedicated',icon:'⚡',name:'Dedicated',desc:'Used short queue swap'},
+  {id:'completionist',icon:'🏆',name:'Completionist',desc:"Finished a full night's queue"},
+  {id:'explorer',icon:'🗺️',name:'Explorer',desc:'Read outside your usual themes'},
+  // Milestones
+  {id:'half_year',icon:'📆',name:'Half a Year',desc:'180 days since joining'},
+  {id:'old_soul',icon:'🕯️',name:'Old Soul',desc:'365 days since joining'},
+  // Streak freeze
+  {id:'preserver',icon:'❄️',name:'Preserver',desc:'Earned your first streak freeze'},
+];
 
 let user=null, profile=null, currentReading=null, currentQueueId=null, currentRating=0;
 let allCompleted=[], crFilter='all', crSort='date';
@@ -789,13 +866,16 @@ async function goHome(){
 }
 async function refreshHome(){
   if(!user||!profile)return;
-  // Check if streak should be reset
   const today=new Date().toISOString().split('T')[0];
   const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
   const last=profile.streak_last_date;
-  if(last&&last!==today&&last!==yesterday){
-    await sb.from('profiles').update({streak_current:0}).eq('id',user.id);
-    profile.streak_current=0;
+  if(last&&last!==today&&last!==yesterday&&last!==profile.streak_freeze_used_date){
+    // Missed a day — offer freeze before resetting
+    const saved=await offerStreakFreeze();
+    if(!saved){
+      await sb.from('profiles').update({streak_current:0}).eq('id',user.id);
+      profile.streak_current=0;
+    }
   }
   const now=new Date();
   const h=now.getHours();
@@ -805,6 +885,7 @@ async function refreshHome(){
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
   document.getElementById('day-badge').textContent=`Day ${dayNum()}`;
+  document.getElementById('freeze-count').textContent=profile.streak_freezes||0;
   await renderWeek(); await loadQueue();
 }
 function dayNum(){
@@ -847,6 +928,7 @@ async function loadQueue(){
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   if(!q||q.length===0){await generateQueue(today);({data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false));}
   renderQueue(q||[]);
+  loadReadTime(q||[]);
 }
 async function generateQueue(date){
   const counts={poem:profile.counts_poems||1,story:profile.counts_stories||1,essay:profile.counts_essays||1};
@@ -883,7 +965,7 @@ function renderQueue(queue){
   // Hide short-time button if all done or already swapped
   const shortBtn=document.querySelector('.short-time-btn');
   if(shortBtn) shortBtn.style.display=(done===total&&total>0)?'none':'block';
-  if(total===0){document.getElementById('queue-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">You\'ve read everything in your queue.<br><span style="font-size:0.75rem">Browse to find more readings, or adjust your themes in Settings.</span></div>';return;}
+  if(total===0){document.getElementById('queue-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem;line-height:1.7">You\'ve read everything in your queue.<br><span style="font-size:0.75rem">Try Browse to find more readings, or adjust your themes in Settings.</span></div>';return;}
   document.getElementById('queue-list').innerHTML=queue.map(q=>{
     const r=q.readings; if(!r)return'';
     const color=TYPE_COLORS[r.type]||'var(--faded)';
@@ -928,6 +1010,7 @@ async function switchToShortQueue(){
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
   toast('Queue swapped ✓');
   btn.style.display='none';
+  await checkBadges({usedShortQueue:true});
   await loadQueue();
 }
 
@@ -958,17 +1041,16 @@ function setRating(n){
   if(currentQueueId) sb.from('daily_queue').update({rating:n}).eq('id',currentQueueId);
 }
 async function markComplete(){
-  const now=new Date().toISOString();
+  const now=new Date();
+  const nowISO=now.toISOString();
   const note=document.getElementById('rd-note').value.trim();
-  // If opened from queue, update the queue row
   if(currentQueueId){
-    await sb.from('daily_queue').update({completed:true,completed_at:now,rating:currentRating}).eq('id',currentQueueId);
+    await sb.from('daily_queue').update({completed:true,completed_at:nowISO,rating:currentRating}).eq('id',currentQueueId);
     await updateStreak();
   }
-  // Always save to completed_readings
   await sb.from('completed_readings').upsert({
     user_id:user.id, reading_id:currentReading.id,
-    completed_at:now, rating:currentRating,
+    completed_at:nowISO, rating:currentRating,
     note_body:note||null
   },{onConflict:'user_id,reading_id'});
   if(note){
@@ -976,7 +1058,30 @@ async function markComplete(){
   }
   document.getElementById('done-btn').textContent='✓ Complete';
   document.getElementById('done-btn').classList.add('complete');
-  // Show feedback if enabled (only for queued reads — direct reads skip feedback)
+  // Badge checks
+  const {data:doneAll}=await sb.from('completed_readings').select('readings(type)').eq('user_id',user.id);
+  const totalCompleted=(doneAll||[]).length;
+  const totalByType={poem:0,story:0,essay:0};
+  (doneAll||[]).forEach(d=>{ if(d.readings?.type) totalByType[d.readings.type]++; });
+  const {data:ratedAll}=await sb.from('completed_readings').select('rating').eq('user_id',user.id).not('rating','is',null);
+  const totalRated=(ratedAll||[]).length;
+  const totalFiveStars=(ratedAll||[]).filter(r=>r.rating===5).length;
+  const {data:allFriends}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+  const friendCount=(allFriends||[]).length;
+  const {data:userThemes}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
+  const myThemes=new Set((userThemes||[]).map(t=>t.theme));
+  const explorerTheme=currentReading.themes&&currentReading.themes.length>0&&!currentReading.themes.some(t=>myThemes.has(t));
+  const daysSinceJoin=Math.floor((Date.now()-new Date(profile.created_at))/(1000*60*60*24));
+  // Check queue completion
+  const today=new Date().toISOString().split('T')[0];
+  const {data:todayQ}=await sb.from('daily_queue').select('completed').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
+  const completedFullQueue=todayQ&&todayQ.length>0&&todayQ.every(q=>q.completed);
+  await checkBadges({
+    rating:currentRating, type:currentReading.type,
+    hour:now.getHours(), totalCompleted, totalByType,
+    totalRated, totalFiveStars, streak:profile.streak_current||0,
+    friendCount, explorerTheme, daysSinceJoin, completedFullQueue
+  });
   if(currentQueueId){
     const fbPref=localStorage.getItem('feedbackEnabled');
     if(fbPref!=='false') showFeedback();
@@ -989,6 +1094,8 @@ async function markDNF(){
   if(!currentQueueId)return;
   await sb.from('daily_queue').update({dnf:true}).eq('id',currentQueueId);
   await sb.from('dnf_readings').upsert({user_id:user.id,reading_id:currentReading.id},{onConflict:'user_id,reading_id'});
+  // Badge: honest reader
+  await checkBadges({usedDNF:true});
   const today=new Date().toISOString().split('T')[0];
   const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
@@ -1029,6 +1136,9 @@ async function updateStreak(){
   const best=Math.max(streak,profile.streak_best||0);
   await sb.from('profiles').update({streak_current:streak,streak_best:best,streak_last_date:today}).eq('id',user.id);
   profile.streak_current=streak; profile.streak_best=best; profile.streak_last_date=today;
+  document.getElementById('s-num').textContent=streak;
+  document.getElementById('s-best').textContent=best;
+  await checkStreakFreeze();
 }
 async function saveNote(){
   const note=document.getElementById('rd-note').value.trim();
@@ -1184,6 +1294,7 @@ async function loadSettings(){
   const enabled=localStorage.getItem('feedbackEnabled')!=='false';
   updateFeedbackToggle(enabled);
   loadReminderUI();
+  await loadBadgesUI(user.id,'settings-badges');
 }
 function updateFeedbackToggle(enabled){
   const btn=document.getElementById('feedback-toggle');
@@ -1218,8 +1329,10 @@ async function loadFriends(){
     return;
   }
   const {data:friends}=await sb.from('profiles').select('id,username,streak_current').in('id',ids);
-  frList.innerHTML=(friends||[]).map(f=>`
+  const sorted=(friends||[]).sort((a,b)=>(b.streak_current||0)-(a.streak_current||0));
+  frList.innerHTML=sorted.map((f,i)=>`
     <div class="fr-card" onclick="openFriendProfile('${f.id}','${f.username}')" style="cursor:pointer">
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:${i===0?'var(--gold)':i===1?'var(--faded)':i===2?'#b87333':'var(--faded)'};width:18px;flex-shrink:0;text-align:center">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`}</div>
       <div class="fr-av" style="background:${frColor(f.username)}">${f.username.slice(0,2).toUpperCase()}</div>
       <div><div class="fr-name">${f.username}</div></div>
       <div class="fr-streak"><div class="fr-snum">🔥${f.streak_current||0}</div><div class="fr-slbl">streak</div></div>
@@ -1295,14 +1408,17 @@ async function openFriendProfile(friendId, username){
     .limit(5);
   const favsEl=document.getElementById('fp-favs');
   if(!favs||favs.length===0){
-    favsEl.innerHTML='<div class="fp-empty">No five-star reads yet.</div>'; return;
+    favsEl.innerHTML='<div class="fp-empty">No five-star reads yet.</div>';
+  } else {
+    favsEl.innerHTML=favs.map(f=>`
+      <div class="fp-fav" onclick="openReadingDirect('${f.readings?.id}')">
+        <div class="fp-fav-title">${f.readings?.title||'—'}</div>
+        <div class="fp-fav-author">${f.readings?.author||''}</div>
+        <div class="fp-fav-stars">★★★★★</div>
+      </div>`).join('');
   }
-  favsEl.innerHTML=favs.map(f=>`
-    <div class="fp-fav" onclick="openReadingDirect('${f.readings?.id}')">
-      <div class="fp-fav-title">${f.readings?.title||'—'}</div>
-      <div class="fp-fav-author">${f.readings?.author||''}</div>
-      <div class="fp-fav-stars">★★★★★</div>
-    </div>`).join('');
+  // Badges
+  await loadBadgesUI(friendId,'fp-badges');
 }
 
 async function openReadingDirect(readingId){
@@ -1342,7 +1458,10 @@ async function addFriend(){
     {user_id:user.id,friend_id:found.id},
     {user_id:found.id,friend_id:user.id}
   ]);
-  toast('Friend added ✓'); loadFriends();
+  toast('Friend added ✓');
+  const {data:allFs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+  await checkBadges({friendCount:(allFs||[]).length});
+  loadFriends();
 }
 
 
@@ -1577,6 +1696,132 @@ async function deleteNote(id){
   await sb.from('annotations').delete().eq('id',id);
   document.getElementById('note-'+id)?.remove();
   toast('Note deleted.');
+}
+
+// ── BADGES ──
+async function awardBadge(badgeId){
+  try{
+    await sb.from('user_badges').insert({user_id:user.id,badge_id:badgeId});
+    const badge=BADGES.find(b=>b.id===badgeId);
+    if(badge) toast(`🏅 Badge unlocked: ${badge.name}`);
+  }catch(e){/* already earned — unique constraint */}
+}
+async function checkBadges(context={}){
+  // context: {rating, type, hour, totalCompleted, totalByType, totalRated, totalFiveStars, streak, friendCount, usedDNF, usedFreeze, usedShortQueue, completedFullQueue, explorerTheme, daysSinceJoin, streakFreezeEarned}
+  const {data:earned}=await sb.from('user_badges').select('badge_id').eq('user_id',user.id);
+  const has=new Set((earned||[]).map(b=>b.badge_id));
+  const award=id=>{ if(!has.has(id)){ has.add(id); awardBadge(id); } };
+  // Streak
+  if(context.streak>=1) award('first_flame');
+  if(context.streak>=7) award('week_warrior');
+  if(context.streak>=30) award('monthly_reader');
+  if(context.streak>=100) award('century');
+  if(context.streak>=1000) award('bradbury');
+  // Readings
+  if(context.totalCompleted>=1) award('first_page');
+  if(context.totalCompleted>=10) award('bookworm');
+  if(context.totalCompleted>=50) award('voracious');
+  if(context.totalCompleted>=100) award('century_club');
+  if(context.totalCompleted>=1000) award('thousander');
+  // Type
+  if(context.type==='poem'||context.totalByType?.poem>=1) award('versed');
+  if(context.type==='story'||context.totalByType?.story>=1) award('storyteller');
+  if(context.type==='essay'||context.totalByType?.essay>=1) award('essayist');
+  if(context.totalByType?.poem>=25) award('poets_corner');
+  if(context.totalByType?.story>=25) award('stacks');
+  if(context.totalByType?.essay>=25) award('the_canon');
+  // Ratings
+  if(context.rating===5) award('critic');
+  if(context.rating===1) award('harsh_critic');
+  if(context.totalRated>=50) award('discerning');
+  if(context.totalFiveStars>=10) award('perfectionist');
+  // Time of day
+  const h=context.hour??new Date().getHours();
+  if(h>=21||h<0) award('night_owl');
+  if(h>=0&&h<7) award('early_bird');
+  if(h>=12&&h<13) award('lunch_break');
+  // Social
+  if(context.friendCount>=1) award('not_alone');
+  if(context.friendCount>=3) award('book_club');
+  // Behavior
+  if(context.usedDNF) award('honest_reader');
+  if(context.usedFreeze) award('streak_saver');
+  if(context.usedShortQueue) award('dedicated');
+  if(context.completedFullQueue) award('completionist');
+  if(context.explorerTheme) award('explorer');
+  // Milestones
+  if(context.daysSinceJoin>=180) award('half_year');
+  if(context.daysSinceJoin>=365) award('old_soul');
+  // Freeze earned
+  if(context.streakFreezeEarned) award('preserver');
+}
+async function loadBadgesUI(userId, elementId){
+  const {data:earned}=await sb.from('user_badges').select('badge_id,earned_at').eq('user_id',userId);
+  const earnedMap=Object.fromEntries((earned||[]).map(b=>[b.badge_id,b.earned_at]));
+  const el=document.getElementById(elementId);
+  if(!el) return;
+  el.innerHTML=BADGES.map(b=>{
+    const isEarned=!!earnedMap[b.id];
+    const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return `<div class="badge ${isEarned?'earned':'locked'}" title="${b.desc}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      ${isEarned?`<div class="badge-date">${date}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── STREAK FREEZE ──
+function showFreezeInfo(){
+  const count=profile?.streak_freezes||0;
+  const msg=count===0
+    ? '🧊 No streak freezes.\n\nEarn one for every 5-day streak you complete. When you miss a day, the app will ask if you want to use one.'
+    : `🧊 You have ${count} streak freeze${count!==1?'s':''}.\n\nEarned for every 5-day streak completed. If you miss a day, the app will ask if you want to use one to protect your streak.`;
+  alert(msg);
+}
+async function checkStreakFreeze(){
+  // Called after streak update — award a freeze every 5 days
+  const streak=profile.streak_current||0;
+  if(streak>0&&streak%5===0){
+    const newCount=(profile.streak_freezes||0)+1;
+    await sb.from('profiles').update({streak_freezes:newCount}).eq('id',user.id);
+    profile.streak_freezes=newCount;
+    document.getElementById('freeze-count').textContent=newCount;
+    toast(`🧊 Streak freeze earned! You have ${newCount}.`);
+    await checkBadges({streakFreezeEarned:true});
+  }
+}
+async function offerStreakFreeze(){
+  // Called when user missed a day and has freezes
+  const count=profile?.streak_freezes||0;
+  if(count<=0) return false;
+  const use=confirm(`You missed a day! Use a streak freeze to protect your ${profile.streak_current}-day streak?\n\nYou have ${count} freeze${count!==1?'s':''}.`);
+  if(!use) return false;
+  const today=new Date().toISOString().split('T')[0];
+  await sb.from('profiles').update({
+    streak_freezes:count-1,
+    streak_freeze_used_date:today,
+    streak_last_date:today
+  }).eq('id',user.id);
+  profile.streak_freezes=count-1;
+  profile.streak_freeze_used_date=today;
+  profile.streak_last_date=today;
+  document.getElementById('freeze-count').textContent=profile.streak_freezes;
+  toast('🧊 Streak freeze used. Streak preserved!');
+  await checkBadges({usedFreeze:true});
+  return true;
+}
+
+// ── READ TIME ──
+async function loadReadTime(queue){
+  // Tonight
+  const tonightMins=(queue||[]).filter(q=>!q.completed).reduce((sum,q)=>sum+(q.readings?.read_time_minutes||0),0);
+  document.getElementById('rt-tonight').textContent=tonightMins>0?`${tonightMins} min`:'Done ✓';
+  // Lifetime — from completed_readings joined with readings
+  const {data:done}=await sb.from('completed_readings').select('readings(read_time_minutes)').eq('user_id',user.id);
+  const lifetimeMins=(done||[]).reduce((sum,d)=>sum+(d.readings?.read_time_minutes||0),0);
+  const hrs=(lifetimeMins/60).toFixed(1);
+  document.getElementById('rt-lifetime').textContent=lifetimeMins<60?`${lifetimeMins} min`:`${hrs} hrs`;
 }
 
 // TOAST
