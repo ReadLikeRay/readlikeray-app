@@ -1025,8 +1025,10 @@ async function renderWeek(){
 }
 async function loadQueue(){
   const today=new Date().toISOString().split('T')[0];
+  // Check if ANY queue rows exist for today (including completed/DNF) — if so, don't regenerate
+  let {data:all}=await sb.from('daily_queue').select('id').eq('user_id',user.id).eq('queued_date',today);
+  if(!all||all.length===0){await generateQueue(today);}
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
-  if(!q||q.length===0){await generateQueue(today);({data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false));}
   renderQueue(q||[]);
 }
 async function generateQueue(date){
