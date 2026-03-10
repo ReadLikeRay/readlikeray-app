@@ -222,6 +222,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .fb-reasons { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
 .fb-reason { background:var(--surface2); border:1px solid rgba(255,255,255,0.07); color:var(--aged); padding:11px 14px; text-align:left; font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.07em; cursor:pointer; transition:border-color 0.15s; }
 .fb-reason:hover { border-color:var(--rust); }
+.fb-reason.selected { border-color:var(--rust); background:rgba(181,69,27,0.18); color:var(--paper); }
 .fb-confirm { text-align:center; }
 .fb-confirm-icon { font-size:2rem; margin-bottom:12px; }
 .fb-confirm-msg { font-family:'Playfair Display',serif; font-style:italic; font-size:0.92rem; color:var(--aged); line-height:1.65; margin-bottom:20px; }
@@ -576,16 +577,16 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div id="fb-reasons-view" style="display:none">
       <div class="fb-title">What didn't you like?</div>
       <div class="fb-reasons">
-        <button class="fb-reason" onclick="feedbackReason('too_long')">Too long</button>
-        <button class="fb-reason" onclick="feedbackReason('too_slow')">Too slow</button>
-        <button class="fb-reason" onclick="feedbackReason('hard_to_follow')">Hard to follow</button>
-        <button class="fb-reason" onclick="feedbackReason('writing_style')">Didn't like the writing style</button>
-        <button class="fb-reason" onclick="feedbackReason('subject')">Not interested in the subject</button>
-        <button class="fb-reason" onclick="feedbackReason('not_for_me')">Just not for me</button>
+        <button class="fb-reason" onclick="toggleReason(this,'too_long')">Too long</button>
+        <button class="fb-reason" onclick="toggleReason(this,'too_slow')">Too slow</button>
+        <button class="fb-reason" onclick="toggleReason(this,'hard_to_follow')">Hard to follow</button>
+        <button class="fb-reason" onclick="toggleReason(this,'writing_style')">Didn't like the writing style</button>
+        <button class="fb-reason" onclick="toggleReason(this,'subject')">Not interested in the subject</button>
+        <button class="fb-reason" onclick="toggleReason(this,'not_for_me')">Just not for me</button>
       </div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="submitFeedbackReasons()">Submit</button>
       <button class="fb-skip" onclick="closeFeedback()">Skip</button>
     </div>
-    <div id="fb-confirm-view" style="display:none" class="fb-confirm">
       <div class="fb-confirm-icon" id="fb-confirm-icon"></div>
       <div class="fb-confirm-msg" id="fb-confirm-msg"></div>
       <button class="fb-done-btn" onclick="closeFeedback()">Done</button>
@@ -1002,8 +1003,7 @@ async function refreshHome(){
 }
 function dayNum(){
   if(!profile)return 1;
-  const diff=Math.floor((new Date()-new Date(profile.created_at))/(1000*60*60*24));
-  return diff+1;
+  return profile.streak_current||1;
 }
 async function renderWeek(){
   const days=['S','M','T','W','T','F','S'];
@@ -1183,11 +1183,11 @@ async function markComplete(){
   const nowISO=now.toISOString();
   const note=document.getElementById('rd-note').value.trim();
   if(currentQueueId){
-    await sb.from('daily_queue').update({completed:true,completed_at:nowISO,rating:currentRating}).eq('id',currentQueueId);
+    await sb.from('daily_queue').update({completed:true,completed_at:nowISO,rating:currentRating||null}).eq('id',currentQueueId);
   }
   await sb.from('completed_readings').upsert({
     user_id:user.id, reading_id:currentReading.id,
-    completed_at:nowISO, rating:currentRating,
+    completed_at:nowISO, rating:currentRating||null,
     note_body:note||null
   },{onConflict:'user_id,reading_id'});
   if(note){
@@ -1389,6 +1389,24 @@ async function feedbackThumbUp(){
   document.getElementById('fb-thumbs-view').style.display='none';
   document.getElementById('fb-confirm-icon').textContent='👍';
   document.getElementById('fb-confirm-msg').textContent='Expect more like this in the future.';
+  document.getElementById('fb-confirm-view').style.display='block';
+}
+let selectedReasons=new Set();
+function toggleReason(btn,reason){
+  if(selectedReasons.has(reason)){selectedReasons.delete(reason);btn.classList.remove('selected');}
+  else{selectedReasons.add(reason);btn.classList.add('selected');}
+}
+async function submitFeedbackReasons(){
+  if(selectedReasons.size===0){closeFeedback();return;}
+  if(currentReading){
+    const inserts=[...selectedReasons].map(reason=>({user_id:user.id,reading_id:currentReading.id,signal:'down',reason,themes:currentReading.themes,read_time:currentReading.read_time_minutes}));
+    await sb.from('reading_feedback').insert(inserts);
+  }
+  selectedReasons=new Set();
+  document.querySelectorAll('.fb-reason').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('fb-reasons-view').style.display='none';
+  document.getElementById('fb-confirm-icon').textContent='👎';
+  document.getElementById('fb-confirm-msg').textContent='Understood. Expect fewer readings like this one in the future.';
   document.getElementById('fb-confirm-view').style.display='block';
 }
 async function feedbackReason(reason){
