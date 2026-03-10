@@ -1042,13 +1042,15 @@ async function renderWeek(){
 }
 async function loadQueue(){
   const today=new Date().toISOString().split('T')[0];
-  // Check if ANY queue rows exist for today (including completed/DNF) — if so, don't regenerate
-  let {data:all}=await sb.from('daily_queue').select('id').eq('user_id',user.id).eq('queued_date',today);
-  if(!all||all.length===0){await generateQueue(today);}
+  const expected=(profile.counts_poems||1)+(profile.counts_stories||1)+(profile.counts_essays||1);
+  // Fetch all existing rows for today (including manually queued, completed, DNF)
+  let {data:all}=await sb.from('daily_queue').select('id,reading_id,readings(type)').eq('user_id',user.id).eq('queued_date',today);
+  // Top up if fewer rows than expected (covers fresh day AND partial pre-queued slots)
+  if(!all||all.length<expected){await generateQueue(today,all||[]);}
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   renderQueue(q||[]);
 }
-async function generateQueue(date){
+async function generateQueue(date,existingRows=[]){
   const counts={poem:profile.counts_poems||1,story:profile.counts_stories||1,essay:profile.counts_essays||1};
   const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
   const thIds=th?th.map(t=>t.theme):[];
@@ -1056,23 +1058,31 @@ async function generateQueue(date){
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
   const {data:dnfd}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
   const doneIds=new Set([...(done||[]).map(d=>d.reading_id),...(dnfd||[]).map(d=>d.reading_id)]);
+  // Count how many of each type are already queued today (including pre-queued slots)
+  const alreadyByType={poem:0,story:0,essay:0};
+  const alreadyIds=new Set();
+  for(const row of existingRows){
+    const t=row.readings?.type; if(t&&alreadyByType[t]!==undefined) alreadyByType[t]++;
+    alreadyIds.add(row.reading_id);
+  }
   const inserts=[];
   for(const [type,count] of Object.entries(counts)){
+    const need=count-(alreadyByType[type]||0);
+    if(need<=0) continue;
     // Try themed first, then fall back to all of that type
     let pool=[];
     if(thIds.length>0){
       const {data}=await sb.from('readings').select('id').eq('type',type).overlaps('themes',thIds).limit(100);
-      pool=(data||[]).filter(r=>!doneIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+      pool=(data||[]).filter(r=>!doneIds.has(r.id)&&!alreadyIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
     }
-    if(pool.length<count){
+    if(pool.length<need){
       const {data}=await sb.from('readings').select('id').eq('type',type).limit(100);
-      const fallback=(data||[]).filter(r=>!doneIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
-      // Merge, deduplicate
+      const fallback=(data||[]).filter(r=>!doneIds.has(r.id)&&!alreadyIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
       const poolIds=new Set(pool.map(p=>p.id));
       pool=[...pool,...fallback.filter(r=>!poolIds.has(r.id))];
     }
     if(pool.length===0) continue;
-    pool.sort(()=>Math.random()-0.5).slice(0,count).forEach(r=>inserts.push({user_id:user.id,reading_id:r.id,queued_date:date}));
+    pool.sort(()=>Math.random()-0.5).slice(0,need).forEach(r=>inserts.push({user_id:user.id,reading_id:r.id,queued_date:date}));
   }
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
 }
