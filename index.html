@@ -1667,6 +1667,9 @@ async function addFriend(){
   if(!username)return;
   const {data:found}=await sb.from('profiles').select('id').eq('username',username).single();
   if(!found){toast('User not found.');return;}
+  if(found.id===user.id){toast("You can't add yourself.");return;}
+  const {data:existing}=await sb.from('friendships').select('id').eq('user_id',user.id).eq('friend_id',found.id).maybeSingle();
+  if(existing){toast('Already friends.');return;}
   await sb.from('friendships').insert([
     {user_id:user.id,friend_id:found.id},
     {user_id:found.id,friend_id:user.id}
