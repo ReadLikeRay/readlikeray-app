@@ -64,7 +64,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .wt-tip-step { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--gold); margin-bottom:6px; }
 .wt-tip-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); margin-bottom:6px; line-height:1.2; }
 .wt-tip-body { font-size:0.76rem; line-height:1.65; color:#a09070; margin-bottom:14px; }
-.wt-tip-arrow { position:absolute; font-size:1.1rem; color:var(--gold); animation:wtpulse 1.2s ease-in-out infinite; z-index:501; pointer-events:none; }
+.wt-tip-arrow { position:absolute; font-size:1.1rem; color:var(--gold); animation:wtpulse 1.2s ease-in-out infinite; z-index:501; pointer-events:none; display:none; }
 @keyframes wtpulse { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0.5;transform:translateY(3px)} }
 .wt-actions { display:flex; align-items:center; justify-content:space-between; }
 .wt-pips { display:flex; gap:4px; }
@@ -153,6 +153,71 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 /* confetti */
 .confetti-piece { position:fixed; width:8px; height:8px; top:-10px; animation:confetti-fall linear forwards; pointer-events:none; z-index:1000; border-radius:1px; }
 @keyframes confetti-fall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+
+/* ── FRIENDS TABS ── */
+.fr-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:0; }
+.fr-tab { flex:1; font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.09em; padding:10px 4px 9px; background:none; border:none; color:var(--faded); cursor:pointer; border-bottom:2px solid transparent; }
+.fr-tab.active { color:var(--rust); border-bottom-color:var(--rust); }
+.fr-tab-panel { display:none; }
+.fr-tab-panel.active { display:block; }
+
+/* ── ACTIVITY FEED ── */
+.act-item { display:flex; align-items:flex-start; gap:10px; padding:13px 20px; border-bottom:1px solid rgba(255,255,255,0.04); }
+.act-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.act-content { flex:1; min-width:0; }
+.act-text { font-size:0.8rem; color:var(--aged); line-height:1.55; margin-bottom:3px; }
+.act-text strong { color:var(--paper); font-weight:normal; }
+.act-time { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); }
+.act-pill { display:inline-block; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:4px 9px; margin-top:5px; font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--faded); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.act-day-lbl { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--faded); padding:14px 20px 6px; }
+
+/* ── CHALLENGES ── */
+.chal-card { margin:0 16px 10px; background:var(--surface); border:1px solid rgba(255,255,255,0.06); }
+.chal-top { padding:14px 16px 12px; }
+.chal-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+.chal-type { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--rust); }
+.chal-deadline { font-family:'Space Mono',monospace; font-size:0.42rem; color:var(--faded); }
+.chal-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--paper); margin-bottom:10px; line-height:1.25; }
+.chal-players { display:flex; gap:12px; margin-bottom:4px; }
+.chal-player { flex:1; }
+.chal-p-name { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-bottom:5px; display:flex; align-items:center; gap:5px; }
+.chal-track { height:6px; background:rgba(255,255,255,0.06); margin-bottom:3px; }
+.chal-fill { height:100%; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+.chal-prog { font-family:'Space Mono',monospace; font-size:0.42rem; color:var(--faded); }
+.chal-prog span { color:var(--paper); }
+.chal-bottom { border-top:1px solid rgba(255,255,255,0.06); padding:9px 16px; }
+.chal-status { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); }
+.new-chal-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 32px); margin:4px 16px 16px; padding:14px; background:rgba(90,122,90,0.1); border:1px dashed rgba(90,122,90,0.35); color:var(--sage); font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+/* create challenge sheet */
+.chal-sheet-bg { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+.chal-sheet-bg.show { display:flex; }
+.chal-sheet { background:var(--surface2); width:100%; max-width:390px; padding:28px 22px 44px; border-top:1px solid rgba(255,255,255,0.08); }
+.chal-sheet-ttl { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--paper); margin-bottom:20px; }
+.chal-field { margin-bottom:16px; }
+.chal-field-lbl { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:7px; }
+.chal-opts { display:flex; gap:8px; flex-wrap:wrap; }
+.chal-opt { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.06em; padding:7px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:var(--faded); cursor:pointer; transition:all 0.15s; }
+.chal-opt.sel { background:var(--rust); border-color:var(--rust); color:var(--paper); }
+.chal-friend-opt { display:flex; align-items:center; gap:8px; }
+.chal-submit { display:block; width:100%; padding:15px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.12em; border:none; cursor:pointer; margin-top:20px; }
+.chal-cancel { display:block; width:100%; padding:11px; background:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.1em; border:1px solid rgba(255,255,255,0.07); cursor:pointer; margin-top:8px; }
+
+/* ── WE BOTH READ ── */
+.wbr-empty { font-family:'Libre Baskerville',serif; font-style:italic; font-size:0.82rem; color:var(--faded); padding:24px 20px; }
+.wbr-card { margin:0 16px 10px; background:var(--surface); border:1px solid rgba(255,255,255,0.06); border-left:3px solid #6b3a5a; padding:14px 16px; cursor:pointer; }
+.wbr-eyebrow { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.12em; color:#8a5a7a; margin-bottom:6px; }
+.wbr-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.wbr-author { font-size:0.66rem; color:var(--faded); font-style:italic; margin-bottom:10px; }
+.wbr-ratings { display:flex; gap:16px; margin-bottom:0; }
+.wbr-rating { display:flex; align-items:center; gap:7px; }
+.wbr-rating-name { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); }
+.wbr-stars { font-size:0.7rem; color:var(--gold); }
+.wbr-detail { display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); }
+.wbr-detail.open { display:block; }
+.wbr-note-box { background:rgba(255,255,255,0.03); border-left:2px solid rgba(107,58,90,0.5); padding:10px 12px; margin-bottom:8px; }
+.wbr-note-who { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-bottom:4px; }
+.wbr-note-text { font-size:0.78rem; color:var(--aged); line-height:1.6; font-style:italic; }
 
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
@@ -704,13 +769,38 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <div id="screen-friends" class="screen safe-bottom">
   <div class="fr-hdr">
     <h1 class="fr-ttl">Friends</h1>
-    <div class="fr-sub">Streak Leaderboard</div>
   </div>
-  <div class="fr-list" id="fr-list"></div>
-  <button class="add-fr-btn" onclick="addFriend()">+ Add a Friend</button>
-  <div class="feed-sec">
-    <div class="feed-lbl">Friends' Recent Reads</div>
-    <div id="friend-feed"></div>
+  <!-- Tab bar -->
+  <div class="fr-tabs">
+    <button class="fr-tab active" onclick="frTab('leaderboard',this)">Leaderboard</button>
+    <button class="fr-tab" onclick="frTab('activity',this)">Activity</button>
+    <button class="fr-tab" onclick="frTab('challenges',this)">Challenges</button>
+    <button class="fr-tab" onclick="frTab('bothread',this)">We Both Read</button>
+  </div>
+  <!-- Leaderboard -->
+  <div class="fr-tab-panel active" id="fr-panel-leaderboard">
+    <div style="height:12px;"></div>
+    <div class="fr-list" id="fr-list"></div>
+    <button class="add-fr-btn" onclick="addFriend()">+ Add a Friend</button>
+    <div class="feed-sec">
+      <div class="feed-lbl">Friends' Recent Reads</div>
+      <div id="friend-feed"></div>
+    </div>
+  </div>
+  <!-- Activity -->
+  <div class="fr-tab-panel" id="fr-panel-activity">
+    <div id="fr-activity-list"></div>
+  </div>
+  <!-- Challenges -->
+  <div class="fr-tab-panel" id="fr-panel-challenges">
+    <div style="height:12px;"></div>
+    <div id="fr-challenges-list"></div>
+    <button class="new-chal-btn" onclick="openChallengeSheet()">+ Challenge a Friend</button>
+  </div>
+  <!-- We Both Read -->
+  <div class="fr-tab-panel" id="fr-panel-bothread">
+    <div style="height:12px;"></div>
+    <div id="fr-bothread-list"></div>
   </div>
 </div>
 
@@ -1424,6 +1514,8 @@ async function markComplete(){
   const {data:todayQ}=await sb.from('daily_queue').select('completed').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   const completedFullQueue=todayQ&&todayQ.length>0&&todayQ.every(q=>q.completed);
   if(completedFullQueue) await updateStreak();
+  // Increment challenge counts for any active challenges matching this reading type
+  await updateChallengeProgress(currentReading?.type);
   await checkBadges({
     rating:currentRating, type:currentReading.type,
     hour:now.getHours(), totalCompleted, totalByType,
@@ -2448,11 +2540,11 @@ function wtShow(){
   const leftPos=Math.min(Math.max(rect.left,12),window.innerWidth-tipW-12);
   if(step.pos==='below'){
     tip.style.cssText=`top:${rect.bottom+pad+margin}px;left:${leftPos}px`;
-    arrow.style.cssText=`top:${rect.bottom+pad+margin-20}px;left:${rect.left+rect.width/2-8}px`;
+    arrow.style.cssText=`display:block;top:${rect.bottom+pad+margin-20}px;left:${rect.left+rect.width/2-8}px`;
     arrow.textContent='↓';
   } else {
     tip.style.cssText=`top:${rect.top-pad-margin-tipH}px;left:${leftPos}px`;
-    arrow.style.cssText=`top:${rect.top-pad-margin+4}px;left:${rect.left+rect.width/2-8}px`;
+    arrow.style.cssText=`display:block;top:${rect.top-pad-margin+4}px;left:${rect.left+rect.width/2-8}px`;
     arrow.textContent='↑';
   }
   document.getElementById('wt-step-lbl').textContent=`Step ${wtIdx+1} of ${wtSteps.length}`;
@@ -2649,6 +2741,344 @@ function retLaunchConfetti(){
   }
 }
 
+
+// ── FRIENDS TABS ──
+let frCurrentTab = 'leaderboard';
+function frTab(name, btn){
+  document.querySelectorAll('.fr-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.fr-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fr-panel-'+name).classList.add('active');
+  frCurrentTab = name;
+  if(name==='activity') loadFrActivity();
+  if(name==='challenges') loadChallenges();
+  if(name==='bothread') loadBothRead();
+}
+
+// ── ACTIVITY FEED ──
+async function loadFrActivity(){
+  const el=document.getElementById('fr-activity-list');
+  el.innerHTML='<div class="act-day-lbl" style="padding-top:20px;">Loading...</div>';
+  const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+  const friendIds=(fs||[]).map(f=>f.friend_id);
+  if(friendIds.length===0){
+    el.innerHTML='<div class="wbr-empty">Add friends to see their activity.</div>'; return;
+  }
+  const {data:profs}=await sb.from('profiles')
+    .select('id,username,streak_current,streak_best,streak_last_date,created_at')
+    .in('id',friendIds);
+  const profMap=Object.fromEntries((profs||[]).map(p=>[p.id,p]));
+
+  // Completions (last 20)
+  const {data:comps}=await sb.from('completed_readings')
+    .select('user_id,reading_id,completed_at,rating,readings(title,type)')
+    .in('user_id',friendIds)
+    .order('completed_at',{ascending:false})
+    .limit(20);
+
+  // Wishlist additions (last 10)
+  const {data:wishes}=await sb.from('reading_wishlist')
+    .select('user_id,reading_id,created_at,readings(title)')
+    .in('user_id',friendIds)
+    .order('created_at',{ascending:false})
+    .limit(10);
+
+  // Build unified event list
+  const events=[];
+  // Group completions by user+date for "finished tonight's queue" events
+  const queueDoneMap={};
+  for(const c of (comps||[])){
+    const dateKey=c.completed_at?.slice(0,10);
+    const key=c.user_id+'|'+dateKey;
+    if(!queueDoneMap[key]) queueDoneMap[key]={user_id:c.user_id,date:dateKey,readings:[],at:c.completed_at,hasHighRating:false};
+    queueDoneMap[key].readings.push(c.readings?.title||'—');
+    if(c.rating>=5) queueDoneMap[key].hasHighRating=true;
+    if(c.rating>=5){
+      events.push({type:'five_star',user_id:c.user_id,at:c.completed_at,title:c.readings?.title,dot:'#c9922a'});
+    }
+  }
+  for(const k of Object.values(queueDoneMap)){
+    events.push({type:'queue_done',user_id:k.user_id,at:k.at,readings:k.readings,dot:'#b5451b'});
+  }
+  // Streak milestones — check if streak_current is a milestone number
+  const milestones=[7,14,30,50,100,365];
+  for(const p of (profs||[])){
+    if(milestones.includes(p.streak_current)&&p.streak_last_date===localDate()){
+      events.push({type:'streak',user_id:p.id,at:new Date().toISOString(),streak:p.streak_current,dot:'#c9922a'});
+    }
+  }
+  // Wishlist
+  const wishByUser={};
+  for(const w of (wishes||[])){
+    const dk=w.user_id+'|'+w.created_at?.slice(0,10);
+    if(!wishByUser[dk]) wishByUser[dk]={user_id:w.user_id,at:w.created_at,count:0};
+    wishByUser[dk].count++;
+  }
+  for(const w of Object.values(wishByUser)){
+    events.push({type:'wishlist',user_id:w.user_id,at:w.at,count:w.count,dot:'#5a7a5a'});
+  }
+
+  events.sort((a,b)=>new Date(b.at)-new Date(a.at));
+
+  if(events.length===0){
+    el.innerHTML='<div class="wbr-empty">No recent activity from friends.</div>'; return;
+  }
+
+  // Render grouped by day
+  const dayGroups={};
+  for(const ev of events){
+    const d=ev.at?.slice(0,10)||'';
+    if(!dayGroups[d]) dayGroups[d]=[];
+    dayGroups[d].push(ev);
+  }
+  const todayStr=localDate();
+  const yesterdayStr=localDateOffset(-86400000);
+  let html='';
+  for(const [day,evs] of Object.entries(dayGroups)){
+    const lbl=day===todayStr?'Today':day===yesterdayStr?'Yesterday':new Date(day+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+    html+=`<div class="act-day-lbl">${lbl}</div>`;
+    for(const ev of evs){
+      const p=profMap[ev.user_id];
+      const name=p?.username||'Friend';
+      const av=`<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${frColor(name)};font-family:'Space Mono',monospace;font-size:0.38rem;font-weight:700;color:white;text-align:center;line-height:18px;margin-right:4px;vertical-align:middle;">${name.slice(0,2).toUpperCase()}</span>`;
+      let text='', pill='';
+      if(ev.type==='queue_done'){
+        text=`<strong>${name}</strong> finished tonight's queue`;
+        pill=`<div class="act-pill">${ev.readings.join(' · ')}</div>`;
+      } else if(ev.type==='five_star'){
+        text=`<strong>${name}</strong> gave <em>${ev.title}</em> five stars ★`;
+      } else if(ev.type==='streak'){
+        text=`<strong>${name}</strong> hit a ${ev.streak}-day streak 🔥`;
+      } else if(ev.type==='wishlist'){
+        text=`<strong>${name}</strong> added ${ev.count} thing${ev.count!==1?'s':''} to their wishlist`;
+      }
+      html+=`<div class="act-item">
+        <div class="act-dot" style="background:${ev.dot};margin-top:7px;"></div>
+        <div class="act-content">
+          <div class="act-text">${text}</div>
+          ${pill}
+          <div class="act-time">${timeAgo(ev.at)}</div>
+        </div>
+      </div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+
+// ── CHALLENGES ──
+let chalSelections={type:'Poems',goal:'5',days:'7 days',friendId:null};
+
+function openChallengeSheet(){
+  // Populate friend options
+  const {data:_}=(async()=>{
+    const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+    const ids=(fs||[]).map(f=>f.friend_id);
+    if(ids.length===0){ toast('Add a friend first.'); return; }
+    const {data:profs}=await sb.from('profiles').select('id,username').in('id',ids);
+    chalSelections.friendId=(profs||[])[0]?.id||null;
+    const el=document.getElementById('chal-opt-friend');
+    el.innerHTML=(profs||[]).map((p,i)=>`
+      <div class="chal-opt chal-friend-opt ${i===0?'sel':''}" onclick="chalSelFriend(this,'${p.id}')">
+        <div style="width:20px;height:20px;border-radius:50%;background:${frColor(p.username)};display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.4rem;font-weight:700;color:white;flex-shrink:0;">${p.username.slice(0,2).toUpperCase()}</div>
+        ${p.username}
+      </div>`).join('');
+  })();
+  document.getElementById('chal-sheet-bg').classList.add('show');
+}
+function closeChallengeSheet(){
+  document.getElementById('chal-sheet-bg').classList.remove('show');
+}
+function chalSel(el,group){
+  el.closest('.chal-opts').querySelectorAll('.chal-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  chalSelections[group]=el.textContent.trim();
+}
+function chalSelFriend(el,id){
+  el.closest('.chal-opts').querySelectorAll('.chal-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  chalSelections.friendId=id;
+}
+async function submitChallenge(){
+  if(!chalSelections.friendId){ toast('Pick a friend first.'); return; }
+  const typeMap={'Poems':'poem','Stories':'story','Essays':'essay','Any':null};
+  const daysMap={'3 days':3,'7 days':7,'14 days':14,'30 days':30};
+  const goal=parseInt(chalSelections.goal)||5;
+  const days=daysMap[chalSelections.days]||7;
+  const rtype=typeMap[chalSelections.type];
+  const endsAt=new Date(Date.now()+days*86400000).toISOString();
+  await sb.from('reading_challenges').insert({
+    challenger_id:user.id,
+    challenged_id:chalSelections.friendId,
+    reading_type:rtype,
+    goal_count:goal,
+    ends_at:endsAt,
+    challenger_count:0,
+    challenged_count:0,
+    status:'active'
+  });
+  toast('Challenge sent ✓');
+  closeChallengeSheet();
+  loadChallenges();
+}
+async function loadChallenges(){
+  const el=document.getElementById('fr-challenges-list');
+  el.innerHTML='';
+  const {data:chal}=await sb.from('reading_challenges')
+    .select('*,challenger:profiles!challenger_id(username),challenged:profiles!challenged_id(username)')
+    .or(`challenger_id.eq.${user.id},challenged_id.eq.${user.id}`)
+    .eq('status','active')
+    .order('created_at',{ascending:false});
+  if(!chal||chal.length===0){
+    el.innerHTML='<div class="wbr-empty">No active challenges. Start one below.</div>'; return;
+  }
+  const now=new Date();
+  el.innerHTML=(chal||[]).map(c=>{
+    const iAmChallenger=c.challenger_id===user.id;
+    const me=iAmChallenger?c.challenger:c.challenged;
+    const them=iAmChallenger?c.challenged:c.challenger;
+    const myCount=iAmChallenger?c.challenger_count:c.challenged_count;
+    const theirCount=iAmChallenger?c.challenged_count:c.challenger_count;
+    const myPct=Math.min(100,Math.round((myCount/c.goal_count)*100));
+    const theirPct=Math.min(100,Math.round((theirCount/c.goal_count)*100));
+    const daysLeft=Math.max(0,Math.ceil((new Date(c.ends_at)-now)/86400000));
+    const typeLabel=c.reading_type?c.reading_type+'s':'any type';
+    const typeEmoji=c.reading_type==='poem'?'📜':c.reading_type==='story'?'📖':c.reading_type==='essay'?'✍️':'📚';
+    const leading=myCount>theirCount?`${them?.username} needs to catch up 👀`
+      :theirCount>myCount?`${them?.username} is ahead — keep reading 👀`
+      :'Tied so far.';
+    return `<div class="chal-card">
+      <div class="chal-top">
+        <div class="chal-meta">
+          <div class="chal-type">${typeEmoji} ${c.reading_type||'Any'}</div>
+          <div class="chal-deadline">${daysLeft>0?daysLeft+' day'+( daysLeft!==1?'s':'')+' left':'Ends today'}</div>
+        </div>
+        <div class="chal-name">Read ${c.goal_count} ${typeLabel} ${daysLeft>0?'before time\'s up':'today'}</div>
+        <div class="chal-players">
+          <div class="chal-player">
+            <div class="chal-p-name">
+              <div style="width:18px;height:18px;border-radius:50%;background:${frColor(me?.username||'?')};display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.38rem;font-weight:700;color:white;flex-shrink:0;">${(me?.username||'?').slice(0,2).toUpperCase()}</div>
+              You
+            </div>
+            <div class="chal-track"><div class="chal-fill" style="width:${myPct}%;background:var(--rust);"></div></div>
+            <div class="chal-prog"><span>${myCount}</span> / ${c.goal_count}</div>
+          </div>
+          <div class="chal-player">
+            <div class="chal-p-name">
+              <div style="width:18px;height:18px;border-radius:50%;background:${frColor(them?.username||'?')};display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.38rem;font-weight:700;color:white;flex-shrink:0;">${(them?.username||'?').slice(0,2).toUpperCase()}</div>
+              ${them?.username||'Friend'}
+            </div>
+            <div class="chal-track"><div class="chal-fill" style="width:${theirPct}%;background:var(--sage);"></div></div>
+            <div class="chal-prog"><span>${theirCount}</span> / ${c.goal_count}</div>
+          </div>
+        </div>
+      </div>
+      <div class="chal-bottom"><div class="chal-status">${leading}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── WE BOTH READ ──
+async function loadBothRead(){
+  const el=document.getElementById('fr-bothread-list');
+  el.innerHTML='';
+  const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+  const friendIds=(fs||[]).map(f=>f.friend_id);
+  if(friendIds.length===0){ el.innerHTML='<div class="wbr-empty">Add friends to see shared readings.</div>'; return; }
+  // My completed readings
+  const {data:mine}=await sb.from('completed_readings')
+    .select('reading_id,rating,readings(id,title,author,type)')
+    .eq('user_id',user.id);
+  const myMap=Object.fromEntries((mine||[]).map(m=>[m.reading_id,m]));
+  const myIds=Object.keys(myMap);
+  if(myIds.length===0){ el.innerHTML='<div class="wbr-empty">Complete some readings first.</div>'; return; }
+  // Friends who also completed any of my readings
+  const {data:theirs}=await sb.from('completed_readings')
+    .select('user_id,reading_id,rating,readings(id,title,author)')
+    .in('user_id',friendIds)
+    .in('reading_id',myIds);
+  if(!theirs||theirs.length===0){ el.innerHTML='<div class="wbr-empty">No shared readings yet. Keep reading — you\'ll overlap eventually.</div>'; return; }
+  // Get friend profiles
+  const uids=[...new Set(theirs.map(t=>t.user_id))];
+  const {data:profs}=await sb.from('profiles').select('id,username').in('id',uids);
+  const profMap=Object.fromEntries((profs||[]).map(p=>[p.id,p]));
+  // Get my annotations for these readings
+  const sharedReadingIds=[...new Set(theirs.map(t=>t.reading_id))];
+  const {data:myNotes}=await sb.from('annotations')
+    .select('reading_id,note_body')
+    .eq('user_id',user.id)
+    .in('reading_id',sharedReadingIds);
+  const myNoteMap=Object.fromEntries((myNotes||[]).map(n=>[n.reading_id,n.note_body]));
+  // Group by reading_id
+  const grouped={};
+  for(const t of theirs){
+    if(!grouped[t.reading_id]) grouped[t.reading_id]={reading:t.readings||myMap[t.reading_id]?.readings,friends:[]};
+    grouped[t.reading_id].friends.push({profile:profMap[t.user_id],rating:t.rating});
+  }
+  const cards=Object.entries(grouped).map(([rid,g])=>{
+    const r=g.reading; if(!r) return '';
+    const myRating=myMap[rid]?.rating||0;
+    const myNote=myNoteMap[rid];
+    const idx=Object.keys(grouped).indexOf(rid);
+    const ratingStars=(n)=>n?'★'.repeat(n)+'<span style="color:rgba(255,255,255,0.12);">'+('★'.repeat(5-n))+'</span>':'—';
+    const friendRatings=g.friends.map(f=>`
+      <div class="wbr-rating">
+        <div style="width:22px;height:22px;border-radius:50%;background:${frColor(f.profile?.username||'?')};display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.42rem;font-weight:700;color:white;flex-shrink:0;">${(f.profile?.username||'?').slice(0,2).toUpperCase()}</div>
+        <div>
+          <div class="wbr-rating-name">${f.profile?.username||'Friend'}</div>
+          <div class="wbr-stars">${ratingStars(f.rating)}</div>
+        </div>
+      </div>`).join('');
+    const noteBoxes=[
+      myNote?`<div class="wbr-note-box"><div class="wbr-note-who">Your note</div><div class="wbr-note-text">"${myNote}"</div></div>`:'',
+    ].filter(Boolean).join('');
+    return `<div class="wbr-card" onclick="toggleWbrDetail('wbrd-${idx}')">
+      <div class="wbr-eyebrow">◈ You & ${g.friends.map(f=>f.profile?.username||'Friend').join(', ')}</div>
+      <div class="wbr-title">${r.title||'—'}</div>
+      <div class="wbr-author">${r.author||''}</div>
+      <div class="wbr-ratings">
+        <div class="wbr-rating">
+          <div style="width:22px;height:22px;border-radius:50%;background:${frColor(profile?.username||'?')};display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.42rem;font-weight:700;color:white;flex-shrink:0;">${(profile?.username||'?').slice(0,2).toUpperCase()}</div>
+          <div>
+            <div class="wbr-rating-name">You</div>
+            <div class="wbr-stars">${ratingStars(myRating)}</div>
+          </div>
+        </div>
+        ${friendRatings}
+      </div>
+      <div class="wbr-detail" id="wbrd-${idx}">${noteBoxes||'<div style="font-size:0.75rem;color:var(--faded);font-style:italic;">No notes on this one yet.</div>'}</div>
+    </div>`;
+  }).filter(Boolean).join('');
+  el.innerHTML=cards||'<div class="wbr-empty">No shared readings found.</div>';
+}
+function toggleWbrDetail(id){
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+// ── CHALLENGE SHEET OPT SELECT ──
+// (chalSel already handles type/goal/days above)
+
+
+async function updateChallengeProgress(readingType){
+  if(!readingType) return;
+  // Find active challenges involving me where the type matches
+  const {data:chals}=await sb.from('reading_challenges')
+    .select('id,challenger_id,challenged_id,reading_type,challenger_count,challenged_count')
+    .or(`challenger_id.eq.${user.id},challenged_id.eq.${user.id}`)
+    .eq('status','active');
+  for(const c of (chals||[])){
+    if(c.reading_type && c.reading_type!==readingType) continue; // type-specific challenge
+    const iAmChallenger=c.challenger_id===user.id;
+    const field=iAmChallenger?'challenger_count':'challenged_count';
+    const newCount=(iAmChallenger?c.challenger_count:c.challenged_count)+1;
+    await sb.from('reading_challenges').update({[field]:newCount}).eq('id',c.id);
+    // Mark complete if goal reached
+    const goal=c.goal_count||5;
+    if(newCount>=goal){
+      await sb.from('reading_challenges').update({status:'completed'}).eq('id',c.id);
+      toast('🏆 Challenge complete!');
+    }
+  }
+}
 </script>
 
 <!-- WALKTHROUGH OVERLAY -->
@@ -2763,6 +3193,47 @@ function retLaunchConfetti(){
       <button class="btn-share" onclick="retShareMilestone()">↑ Share this moment</button>
       <button class="ret-btn-ghost" onclick="retCloseMilestone()">Keep going →</button>
     </div>
+  </div>
+</div>
+
+
+<!-- CHALLENGE SHEET -->
+<div class="chal-sheet-bg" id="chal-sheet-bg">
+  <div class="chal-sheet">
+    <div class="chal-sheet-ttl">New Challenge</div>
+    <div class="chal-field">
+      <div class="chal-field-lbl">Reading type</div>
+      <div class="chal-opts" id="chal-opt-type">
+        <div class="chal-opt sel" onclick="chalSel(this,'type')">Poems</div>
+        <div class="chal-opt" onclick="chalSel(this,'type')">Stories</div>
+        <div class="chal-opt" onclick="chalSel(this,'type')">Essays</div>
+        <div class="chal-opt" onclick="chalSel(this,'type')">Any</div>
+      </div>
+    </div>
+    <div class="chal-field">
+      <div class="chal-field-lbl">Goal</div>
+      <div class="chal-opts" id="chal-opt-goal">
+        <div class="chal-opt" onclick="chalSel(this,'goal')">3</div>
+        <div class="chal-opt sel" onclick="chalSel(this,'goal')">5</div>
+        <div class="chal-opt" onclick="chalSel(this,'goal')">7</div>
+        <div class="chal-opt" onclick="chalSel(this,'goal')">10</div>
+      </div>
+    </div>
+    <div class="chal-field">
+      <div class="chal-field-lbl">Timeframe</div>
+      <div class="chal-opts" id="chal-opt-days">
+        <div class="chal-opt" onclick="chalSel(this,'days')">3 days</div>
+        <div class="chal-opt sel" onclick="chalSel(this,'days')">7 days</div>
+        <div class="chal-opt" onclick="chalSel(this,'days')">14 days</div>
+        <div class="chal-opt" onclick="chalSel(this,'days')">30 days</div>
+      </div>
+    </div>
+    <div class="chal-field">
+      <div class="chal-field-lbl">Challenge</div>
+      <div class="chal-opts" id="chal-opt-friend" style="flex-direction:column;gap:6px;"></div>
+    </div>
+    <button class="chal-submit" onclick="submitChallenge()">Send Challenge →</button>
+    <button class="chal-cancel" onclick="closeChallengeSheet()">Cancel</button>
   </div>
 </div>
 
