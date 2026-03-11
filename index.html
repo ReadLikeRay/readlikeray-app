@@ -677,15 +677,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 <!-- FEEDBACK OVERLAY -->
 <div id="feedback-overlay">
   <div class="fb-sheet">
-    <div id="fb-thumbs-view">
-      <div class="fb-title">How was it?</div>
-      <div class="fb-thumbs">
-        <button class="fb-thumb fb-thumb-up" onclick="feedbackThumbUp()">👍</button>
-        <button class="fb-thumb fb-thumb-down" onclick="showFeedbackReasons()">👎</button>
-      </div>
-      <button class="fb-skip" onclick="closeFeedback()">Skip</button>
-    </div>
-    <div id="fb-reasons-view" style="display:none">
+    <div id="fb-reasons-view">
       <div class="fb-title">What didn't you like?</div>
       <div class="fb-reasons">
         <button class="fb-reason" onclick="toggleReason(this,'too_long')">Too long</button>
@@ -1335,6 +1327,18 @@ function setRating(n){
   currentRating=n;
   document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
   if(currentQueueId) sb.from('daily_queue').update({rating:n}).eq('id',currentQueueId);
+  // Show "what didn't you like?" for 1-2 stars; hide for 3+
+  const overlay=document.getElementById('feedback-overlay');
+  if(n<=2){
+    document.getElementById('fb-reasons-view').style.display='block';
+    document.getElementById('fb-confirm-view').style.display='none';
+    overlay.classList.add('show');
+  } else {
+    // Reset any selected reasons and hide
+    selectedReasons=new Set();
+    document.querySelectorAll('.fb-reason').forEach(b=>b.classList.remove('selected'));
+    overlay.classList.remove('show');
+  }
 }
 async function markComplete(){
   const now=new Date();
@@ -1378,13 +1382,16 @@ async function markComplete(){
     totalRated, totalFiveStars, streak:profile.streak_current||0,
     friendCount, explorerTheme, daysSinceJoin, completedFullQueue
   });
-  if(currentQueueId){
-    const fbPref=localStorage.getItem('feedbackEnabled');
-    if(fbPref!=='false') showFeedback();
-    else { toast('Reading marked complete ✓'); setTimeout(closeReader,800); }
-  } else {
-    toast('Reading saved ✓'); setTimeout(closeReader,800);
+  // Silently submit any low-star feedback reasons that were selected
+  if(selectedReasons.size>0 && currentReading){
+    const inserts=[...selectedReasons].map(reason=>({user_id:user.id,reading_id:currentReading.id,signal:'down',reason,themes:currentReading.themes,read_time:currentReading.read_time_minutes}));
+    await sb.from('reading_feedback').insert(inserts);
+    selectedReasons=new Set();
+    document.querySelectorAll('.fb-reason').forEach(b=>b.classList.remove('selected'));
   }
+  document.getElementById('feedback-overlay').classList.remove('show');
+  toast('Reading marked complete ✓');
+  setTimeout(closeReader,800);
 }
 async function markDNF(){
   if(!currentQueueId) return;
@@ -1526,47 +1533,23 @@ function toggleCRNote(card){
 }
 
 // FEEDBACK
-function showFeedback(){
-  document.getElementById('fb-thumbs-view').style.display='block';
-  document.getElementById('fb-reasons-view').style.display='none';
-  document.getElementById('fb-confirm-view').style.display='none';
-  document.getElementById('feedback-overlay').classList.add('show');
-}
+// showFeedback removed — triggers via setRating now
 function closeFeedback(){
   document.getElementById('feedback-overlay').classList.remove('show');
-  closeReader();
 }
 function showFeedbackReasons(){
   document.getElementById('fb-thumbs-view').style.display='none';
   document.getElementById('fb-reasons-view').style.display='block';
 }
-async function feedbackThumbUp(){
-  if(currentReading){
-    await sb.from('reading_feedback').insert({user_id:user.id,reading_id:currentReading.id,signal:'up',themes:currentReading.themes,read_time:currentReading.read_time_minutes});
-  }
-  document.getElementById('fb-reasons-view').style.display='none';
-  document.getElementById('fb-thumbs-view').style.display='none';
-  document.getElementById('fb-confirm-icon').textContent='👍';
-  document.getElementById('fb-confirm-msg').textContent='Expect more like this in the future.';
-  document.getElementById('fb-confirm-view').style.display='block';
-}
+// feedbackThumbUp removed — thumb replaced by star rating
 let selectedReasons=new Set();
 function toggleReason(btn,reason){
   if(selectedReasons.has(reason)){selectedReasons.delete(reason);btn.classList.remove('selected');}
   else{selectedReasons.add(reason);btn.classList.add('selected');}
 }
 async function submitFeedbackReasons(){
-  if(selectedReasons.size===0){closeFeedback();return;}
-  if(currentReading){
-    const inserts=[...selectedReasons].map(reason=>({user_id:user.id,reading_id:currentReading.id,signal:'down',reason,themes:currentReading.themes,read_time:currentReading.read_time_minutes}));
-    await sb.from('reading_feedback').insert(inserts);
-  }
-  selectedReasons=new Set();
-  document.querySelectorAll('.fb-reason').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('fb-reasons-view').style.display='none';
-  document.getElementById('fb-confirm-icon').textContent='👎';
-  document.getElementById('fb-confirm-msg').textContent='Understood. Expect fewer readings like this one in the future.';
-  document.getElementById('fb-confirm-view').style.display='block';
+  // Reasons are now submitted at markComplete time; this just closes the panel
+  document.getElementById('feedback-overlay').classList.remove('show');
 }
 
 // FRIEND RATINGS ON READER
