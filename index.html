@@ -2477,9 +2477,11 @@ function wtNext(){
 function endWalkthrough(){
   document.getElementById('wt-overlay').classList.remove('active');
   document.getElementById('wt-tip').classList.remove('show');
-  // Collapse the spot so the gold border doesn't linger
   const spot=document.getElementById('wt-spot');
   spot.style.cssText='left:0;top:0;width:0;height:0;border:none;box-shadow:none;';
+  const arrow=document.getElementById('wt-arrow');
+  arrow.textContent='';
+  arrow.style.cssText='display:none';
 }
 
 
