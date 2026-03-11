@@ -574,6 +574,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div id="wt-streak-box"><div class="s-num" id="s-num">0</div><div class="s-sub">Day Streak</div></div>
     <div class="s-right" id="freeze-counter-wrap">
       <div class="s-best">Best: <span id="s-best">0</span></div>
+      <div class="freeze-counter" id="freeze-count" onclick="showFreezeInfo()">🧊 <span id="freeze-count-num">0</span> freeze<span id="freeze-count-plural">s</span></div>
     </div>
   </div>
   <div class="week-row" id="week-row"></div>
@@ -1113,6 +1114,11 @@ async function refreshHome(){
   document.getElementById('home-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
+  const fc=profile.streak_freezes||0;
+  const fcNum=document.getElementById('freeze-count-num');
+  const fcPlural=document.getElementById('freeze-count-plural');
+  if(fcNum) fcNum.textContent=fc;
+  if(fcPlural) fcPlural.textContent=fc===1?'':'s';
   document.getElementById('day-badge').textContent=`Day ${dayNum()}`;
   await renderWeek(); await loadQueue();
 }
@@ -1258,7 +1264,8 @@ async function switchToShortQueue(){
     .select('*,readings(type)')
     .eq('user_id',user.id)
     .eq('queued_date',today)
-    .eq('completed',false);
+    .eq('completed',false)
+    .eq('dnf',false);
   if(!incomplete||incomplete.length===0){
     toast('Nothing left to swap.'); btn.disabled=false; btn.textContent='Short on time? Swap for shorter readings →'; return;
   }
@@ -2346,7 +2353,7 @@ init();
 const WT_STEPS = {
   home: [
     { target:'wt-streak-box', title:'Your Streak', body:'Every day you complete your queue, your streak grows. Miss a day and it resets — unless you have a freeze.', pos:'below' },
-    { target:'freeze-counter-wrap', title:'Streak Freezes', body:'Complete a 5-day streak and you earn a freeze. If you miss a night, the freeze saves your streak automatically.', pos:'below' },
+    { target:'freeze-count', title:'Streak Freezes', body:'Complete a 5-day streak and you earn a freeze. If you miss a night, the freeze saves your streak automatically.', pos:'below' },
     { target:'wt-short-btn', title:'Short on Time?', body:"Swap tonight's queue for shorter readings — same genres, less time. Handy for busy nights.", pos:'above' },
   ],
   reader: [
@@ -2429,6 +2436,9 @@ function wtNext(){
 function endWalkthrough(){
   document.getElementById('wt-overlay').classList.remove('active');
   document.getElementById('wt-tip').classList.remove('show');
+  // Collapse the spot so the gold border doesn't linger
+  const spot=document.getElementById('wt-spot');
+  spot.style.cssText='left:0;top:0;width:0;height:0;border:none;box-shadow:none;';
 }
 
 
