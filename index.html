@@ -1192,7 +1192,8 @@ async function renderWeek(){
 async function loadQueue(){
   const today=localDate();
   const expected=(profile.counts_poems||1)+(profile.counts_stories||1)+(profile.counts_essays||1);
-  let {data:all}=await sb.from('daily_queue').select('id,reading_id,readings(type)').eq('user_id',user.id).eq('queued_date',today);
+  // Only count non-DNF rows toward expected — DNF rows are dead slots, not filled slots
+  let {data:all}=await sb.from('daily_queue').select('id,reading_id,readings(type)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   if(!all||all.length<expected){await generateQueue(today,all||[]);}
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   renderQueue(q||[]);
@@ -1268,9 +1269,9 @@ async function switchToShortQueue(){
   const btn=document.querySelector('.short-time-btn');
   btn.disabled=true; btn.textContent='Swapping...';
   const today=localDate();
-  // Get incomplete queue items for today
+  // Delete ALL incomplete non-DNF items for today
   const {data:incomplete}=await sb.from('daily_queue')
-    .select('*,readings(type)')
+    .select('id')
     .eq('user_id',user.id)
     .eq('queued_date',today)
     .eq('completed',false)
@@ -1278,32 +1279,58 @@ async function switchToShortQueue(){
   if(!incomplete||incomplete.length===0){
     toast('Nothing left to swap.'); btn.disabled=false; btn.textContent='Short on time? Swap for shorter readings →'; return;
   }
-  // Delete incomplete items
-  const ids=incomplete.map(q=>q.id);
-  await sb.from('daily_queue').delete().in('id',ids);
-  // Get already-used reading ids today to avoid duplicates
-  const {data:used}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
-  const usedIds=used?used.map(u=>u.reading_id):[];
-  // Build replacement inserts — one per incomplete item, ≤10 min, same type
+  await sb.from('daily_queue').delete().in('id',incomplete.map(q=>q.id));
+  // Build exclusion list: completed items remaining today + all-time history
+  const {data:remaining}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
+  const {data:doneHist}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  const {data:dnfHist}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
+  const usedIds=new Set([
+    ...(remaining||[]).map(u=>u.reading_id),
+    ...(doneHist||[]).map(d=>d.reading_id),
+    ...(dnfHist||[]).map(d=>d.reading_id),
+  ]);
+  // Count what's already completed today (non-DNF) to know exactly how many of each type to insert
+  const {data:completedToday}=await sb.from('daily_queue')
+    .select('reading_id,readings(type)')
+    .eq('user_id',user.id)
+    .eq('queued_date',today)
+    .eq('completed',true)
+    .eq('dnf',false);
+  const completedByType={poem:0,story:0,essay:0};
+  (completedToday||[]).forEach(q=>{ const t=q.readings?.type; if(t) completedByType[t]++; });
+  // Insert exactly (profile count - already completed) short readings per type
+  const targets={
+    poem:(profile.counts_poems||1)-completedByType.poem,
+    story:(profile.counts_stories||1)-completedByType.story,
+    essay:(profile.counts_essays||1)-completedByType.essay,
+  };
   const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
   const thIds=th?th.map(t=>t.theme):[];
   const inserts=[];
-  for(const q of incomplete){
-    const type=q.readings?.type; if(!type) continue;
+  for(const [type,need] of Object.entries(targets)){
+    if(need<=0) continue;
     let query=sb.from('readings').select('id').eq('type',type).lte('read_time_minutes',10);
     if(thIds.length>0) query=query.overlaps('themes',thIds);
-    const {data:pool}=await query.limit(50);
-    const available=(pool||[]).filter(r=>!usedIds.includes(r.id)&&!inserts.find(i=>i.reading_id===r.id));
-    if(available.length===0) continue;
-    const pick=available[Math.floor(Math.random()*available.length)];
-    inserts.push({user_id:user.id,reading_id:pick.id,queued_date:today});
-    usedIds.push(pick.id);
+    const {data:pool}=await query.limit(100);
+    let available=(pool||[]).filter(r=>!usedIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+    if(available.length===0){
+      // Fallback: no theme filter
+      const {data:fallback}=await sb.from('readings').select('id').eq('type',type).lte('read_time_minutes',10).limit(100);
+      available=(fallback||[]).filter(r=>!usedIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
+    }
+    available.sort(()=>Math.random()-0.5);
+    for(let i=0;i<Math.min(need,available.length);i++){
+      inserts.push({user_id:user.id,reading_id:available[i].id,queued_date:today});
+      usedIds.add(available[i].id);
+    }
   }
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
   toast('Queue swapped ✓');
   btn.style.display='none';
   await checkBadges({usedShortQueue:true});
-  await loadQueue();
+  // Re-render directly — skip the top-up since we just set the queue correctly
+  const {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
+  renderQueue(q||[]);
 }
 
 // READER
