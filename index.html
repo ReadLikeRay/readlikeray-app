@@ -58,7 +58,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 #wt-overlay { position:fixed; inset:0; z-index:500; pointer-events:none; }
 #wt-overlay.active { pointer-events:all; }
 .wt-spot { position:absolute; border-radius:4px; box-shadow:0 0 0 9999px rgba(0,0,0,0.45); transition:all 0.4s cubic-bezier(0.32,0.72,0,1); pointer-events:none; border:1.5px solid rgba(201,146,42,0.5); }
-.wt-tip { position:absolute; background:var(--surface2,#2a2015); border:1px solid rgba(201,146,42,0.35); padding:16px 18px; max-width:270px; min-width:220px; transition:all 0.35s cubic-bezier(0.32,0.72,0,1); opacity:0; pointer-events:all; z-index:501; }
+.wt-tip { position:absolute; background:var(--surface2,#2a2015); border:1px solid rgba(201,146,42,0.35); padding:16px 18px; max-width:270px; min-width:220px; transition:all 0.35s cubic-bezier(0.32,0.72,0,1); opacity:0; pointer-events:none; z-index:501; }
+.wt-tip.show { pointer-events:all; }
 .wt-tip.show { opacity:1; }
 .wt-tip-step { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--gold); margin-bottom:6px; }
 .wt-tip-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); margin-bottom:6px; line-height:1.2; }
