@@ -74,6 +74,85 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .wt-next-btn { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.1em; background:var(--rust); color:var(--paper); border:none; padding:8px 14px; cursor:pointer; }
 .wt-next-btn.done { background:var(--sage); }
 
+
+/* ── RETENTION MODALS ── */
+.ret-modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.75); display:flex; align-items:flex-end; justify-content:center; z-index:850; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+.ret-modal-bg.show { opacity:1; pointer-events:all; }
+.ret-modal-sheet { background:var(--surface2,#2a2015); width:100%; max-width:390px; padding:32px 28px 48px; transform:translateY(40px); transition:transform 0.35s cubic-bezier(0.32,0.72,0,1); border-top:1px solid rgba(255,255,255,0.08); }
+.ret-modal-bg.show .ret-modal-sheet { transform:translateY(0); }
+/* milestone is centered, not bottom-sheet */
+#ret-milestone-bg { align-items:center; background:rgba(0,0,0,0.88); }
+#ret-milestone-bg .ret-modal-sheet { padding:0; transform:scale(0.9); transition:all 0.45s cubic-bezier(0.175,0.885,0.32,1.275); border-top:none; }
+#ret-milestone-bg.show .ret-modal-sheet { transform:scale(1); }
+
+.ret-eyebrow { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--gold); margin-bottom:10px; }
+.ret-headline { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--paper); line-height:1.25; margin-bottom:12px; }
+.ret-sub { font-size:0.82rem; color:#9a8070; line-height:1.7; margin-bottom:24px; }
+.ret-divider { height:1px; background:rgba(255,255,255,0.06); margin-bottom:20px; }
+.ret-btn-primary { display:block; width:100%; padding:16px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.14em; border:none; cursor:pointer; text-align:center; transition:background 0.2s; margin-bottom:10px; }
+.ret-btn-primary:hover { background:#9a3a15; }
+.ret-btn-ghost { display:block; width:100%; padding:12px; background:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.1em; border:1px solid rgba(255,255,255,0.08); cursor:pointer; text-align:center; }
+.ret-btn-ice { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; background:rgba(106,154,191,0.07); border:1px solid rgba(106,154,191,0.35); color:#6a9abf; font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; margin-bottom:10px; }
+
+/* missed day */
+.missed-streak-num { font-family:'Playfair Display',serif; font-size:3.8rem; font-weight:900; color:rgba(255,255,255,0.1); line-height:1; position:relative; display:inline-block; }
+.missed-streak-num::after { content:'✕'; position:absolute; top:-4px; right:-10px; font-size:1rem; color:var(--rust); font-family:'Space Mono',monospace; }
+.missed-quote-lbl { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--rust); margin-bottom:6px; }
+.missed-quote { font-family:'Playfair Display',serif; font-size:1.05rem; font-style:italic; color:var(--aged); line-height:1.5; margin-bottom:28px; }
+.ret-no-freeze-msg { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); text-align:center; margin-bottom:10px; display:none; }
+
+/* weekly digest */
+.digest-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.digest-day-lbl { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; color:var(--faded); width:18px; flex-shrink:0; }
+.digest-track { flex:1; height:6px; background:rgba(255,255,255,0.06); }
+.digest-fill { height:100%; background:var(--rust); width:0; transition:width 0.9s cubic-bezier(0.4,0,0.2,1); }
+.digest-fill.done { background:var(--sage); }
+.digest-stat-row { display:flex; border:1px solid rgba(255,255,255,0.07); margin-bottom:24px; }
+.digest-stat { flex:1; padding:14px 12px; text-align:center; border-right:1px solid rgba(255,255,255,0.07); }
+.digest-stat:last-child { border-right:none; }
+.digest-stat-n { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; color:var(--gold); }
+.digest-stat-l { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-top:3px; }
+.digest-quote { font-size:0.8rem; color:#9a8070; line-height:1.65; margin-bottom:22px; font-style:italic; }
+
+/* welcome back */
+.wb-last-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-left:3px solid var(--sage); padding:13px 15px; margin-bottom:24px; }
+.wb-last-lbl { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:5px; }
+.wb-last-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--paper); margin-bottom:1px; }
+.wb-last-author { font-size:0.68rem; color:var(--faded); font-style:italic; }
+.wb-last-stars { color:var(--gold); font-size:0.7rem; margin-top:4px; }
+.wb-dismiss-note { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); text-align:center; margin-top:10px; }
+
+/* milestone */
+.milestone-bg { background:linear-gradient(160deg,#2a1a05 0%,#1a1108 40%,#0d1a0d 100%); padding:52px 28px 32px; text-align:center; position:relative; overflow:hidden; }
+.milestone-glow { position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:280px; height:280px; background:radial-gradient(ellipse, rgba(201,146,42,0.18) 0%, transparent 70%); pointer-events:none; }
+.milestone-ring { width:110px; height:110px; border-radius:50%; border:2px solid rgba(201,146,42,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 24px; box-shadow:0 0 40px rgba(201,146,42,0.15); animation:m-pulse 2.5s ease-in-out infinite; }
+@keyframes m-pulse { 0%,100%{box-shadow:0 0 40px rgba(201,146,42,0.15)} 50%{box-shadow:0 0 70px rgba(201,146,42,0.35)} }
+.milestone-ring-icon { font-size:3rem; line-height:1; }
+.milestone-rays { position:absolute; inset:-10px; animation:m-spin 14s linear infinite; pointer-events:none; top:0; left:0; width:100%; height:260px; }
+@keyframes m-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.milestone-eyebrow { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.22em; color:var(--gold); margin-bottom:10px; }
+.milestone-headline { font-family:'Playfair Display',serif; font-size:2.1rem; font-weight:900; color:var(--paper); line-height:1.1; margin-bottom:8px; }
+.milestone-sub { font-size:0.82rem; color:#9a8070; line-height:1.65; }
+.milestone-stats { display:flex; border-top:1px solid rgba(255,255,255,0.06); }
+.milestone-stat { flex:1; padding:18px 12px; text-align:center; border-right:1px solid rgba(255,255,255,0.06); }
+.milestone-stat:last-child { border-right:none; }
+.milestone-stat-n { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; color:var(--gold); }
+.milestone-stat-l { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-top:3px; }
+.milestone-actions { padding:20px 28px 40px; background:var(--surface); border-top:1px solid rgba(255,255,255,0.06); }
+.btn-share { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:16px; background:var(--gold); color:var(--ink); font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.14em; border:none; cursor:pointer; margin-bottom:10px; }
+
+/* notification pill */
+.ret-notif-pill { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-120px); max-width:370px; width:calc(100% - 32px); background:var(--surface2); border:1px solid rgba(201,146,42,0.3); padding:13px 16px; display:flex; align-items:flex-start; gap:12px; z-index:900; transition:transform 0.5s cubic-bezier(0.32,0.72,0,1); box-shadow:0 8px 32px rgba(0,0,0,0.4); cursor:pointer; }
+.ret-notif-pill.show { transform:translateX(-50%) translateY(0); }
+.ret-notif-icon { font-size:1.4rem; flex-shrink:0; margin-top:1px; }
+.ret-notif-body { flex:1; }
+.ret-notif-app { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--gold); margin-bottom:3px; }
+.ret-notif-text { font-size:0.8rem; color:var(--aged); line-height:1.45; }
+
+/* confetti */
+.confetti-piece { position:fixed; width:8px; height:8px; top:-10px; animation:confetti-fall linear forwards; pointer-events:none; z-index:1000; border-radius:1px; }
+@keyframes confetti-fall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -1025,14 +1104,16 @@ async function refreshHome(){
   const today=localDate();
   const yesterday=localDateOffset(-86400000);
   const last=profile.streak_last_date;
-  if(last&&last!==today&&last!==yesterday&&last!==profile.streak_freeze_used_date){
-    // Missed a day — offer freeze before resetting
-    const saved=await offerStreakFreeze();
-    if(!saved){
-      await sb.from('profiles').update({streak_current:0}).eq('id',user.id);
-      profile.streak_current=0;
-    }
+  // Check welcome-back (dormant 3+ days)
+  if(last && last<localDateOffset(-2*86400000)){
+    await retShowWelcomeBack(last);
   }
+  if(last&&last!==today&&last!==yesterday&&last!==profile.streak_freeze_used_date){
+    // Missed a day — show modal; modal handles reset or freeze
+    await offerStreakFreeze();
+  }
+  // Check weekly digest (Sunday, once per week)
+  retMaybeShowDigest();
   const now=new Date();
   const h=now.getHours();
   document.getElementById('home-greet').textContent=h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening';
@@ -1368,6 +1449,7 @@ async function updateStreak(){
   document.getElementById('s-num').textContent=streak;
   document.getElementById('s-best').textContent=best;
   await checkStreakFreeze();
+  retMaybeShowMilestone(streak);
 }
 async function saveNote(){
   const note=document.getElementById('rd-note').value.trim();
@@ -2205,25 +2287,51 @@ async function checkStreakFreeze(){
     await checkBadges({streakFreezeEarned:true});
   }
 }
-async function offerStreakFreeze(){
-  // Called when user missed a day and has freezes
-  const count=profile?.streak_freezes||0;
-  if(count<=0) return false;
-  const use=confirm(`You missed a day! Use a streak freeze to protect your ${profile.streak_current}-day streak?\n\nYou have ${count} freeze${count!==1?'s':''}.`);
-  if(!use) return false;
+// offerStreakFreeze now delegates to the missed-day modal (returns Promise)
+let _retMissedResolve=null;
+function offerStreakFreeze(){
+  return new Promise(resolve=>{
+    _retMissedResolve=resolve;
+    const streakNum=profile.streak_current||0;
+    const count=profile.streak_freezes||0;
+    document.getElementById('ret-missed-num').textContent=streakNum;
+    const readings=streakNum*(((profile.counts_poems||1)+(profile.counts_stories||1)+(profile.counts_essays||1)));
+    document.getElementById('ret-missed-sub').textContent=`${streakNum} day${streakNum!==1?'s':''} of reading. That's ${readings} piece${readings!==1?'s':''} of writing you finished. None of that disappears.`;
+    const freezeBtn=document.getElementById('ret-freeze-btn');
+    const noFreezeMsg=document.getElementById('ret-no-freeze-msg');
+    if(count>0){
+      freezeBtn.style.opacity='1'; freezeBtn.style.pointerEvents='auto';
+      freezeBtn.textContent=`🧊 Save My Streak (${count} freeze${count!==1?'s':''} left)`;
+      noFreezeMsg.style.display='none';
+    } else {
+      freezeBtn.style.opacity='0.4'; freezeBtn.style.pointerEvents='none';
+      freezeBtn.textContent='🧊 Save My Streak';
+    }
+    document.getElementById('ret-missed-bg').classList.add('show');
+  });
+}
+async function retUseFreezeFromModal(){
+  const count=profile.streak_freezes||0;
+  if(count<=0){
+    document.getElementById('ret-no-freeze-msg').style.display='block';
+    return;
+  }
   const today=localDate();
-  await sb.from('profiles').update({
-    streak_freezes:count-1,
-    streak_freeze_used_date:today,
-    streak_last_date:today
-  }).eq('id',user.id);
-  profile.streak_freezes=count-1;
-  profile.streak_freeze_used_date=today;
-  profile.streak_last_date=today;
-  document.getElementById('freeze-count').textContent=profile.streak_freezes;
+  await sb.from('profiles').update({streak_freezes:count-1,streak_freeze_used_date:today,streak_last_date:today}).eq('id',user.id);
+  profile.streak_freezes=count-1; profile.streak_freeze_used_date=today; profile.streak_last_date=today;
+  if(document.getElementById('freeze-count')) document.getElementById('freeze-count').textContent=profile.streak_freezes;
   toast('🧊 Streak freeze used. Streak preserved!');
   await checkBadges({usedFreeze:true});
-  return true;
+  document.getElementById('ret-missed-bg').classList.remove('show');
+  if(_retMissedResolve){ _retMissedResolve(true); _retMissedResolve=null; }
+}
+async function retMissedConfirm(){
+  // User chose Start Day 1 — reset streak
+  await sb.from('profiles').update({streak_current:0}).eq('id',user.id);
+  profile.streak_current=0;
+  document.getElementById('ret-missed-bg').classList.remove('show');
+  document.getElementById('s-num').textContent=0;
+  if(_retMissedResolve){ _retMissedResolve(false); _retMissedResolve=null; }
 }
 
 // ── READ TIME ──
@@ -2340,6 +2448,171 @@ function endWalkthrough(){
   document.getElementById('wt-tip').classList.remove('show');
 }
 
+
+// ── RETENTION SYSTEM ──
+
+// --- Welcome Back ---
+async function retShowWelcomeBack(lastDate){
+  const key='rlr_wb_shown';
+  if(localStorage.getItem(key)===lastDate) return; // already shown for this absence
+  localStorage.setItem(key, lastDate);
+  // Calculate days away
+  const msAway=Date.now()-new Date(lastDate).getTime();
+  const daysAway=Math.floor(msAway/86400000);
+  document.getElementById('ret-wb-headline').textContent=`You've been away\nfor ${daysAway} day${daysAway!==1?'s':''}.`;
+  // Format last date nicely
+  const d=new Date(lastDate+'T12:00:00');
+  document.getElementById('ret-wb-last-date').textContent=`Last read · ${d.toLocaleDateString('en-US',{month:'long',day:'numeric'})}`;
+  // Try to fetch their last completed reading
+  const {data:last}=await sb.from('completed_readings')
+    .select('reading_id,rating,readings(title,author)')
+    .eq('user_id',user.id)
+    .order('completed_at',{ascending:false})
+    .limit(1)
+    .maybeSingle();
+  if(last?.readings){
+    document.getElementById('ret-wb-title').textContent=last.readings.title;
+    document.getElementById('ret-wb-author').textContent=last.readings.author;
+    document.getElementById('ret-wb-stars').textContent=last.rating?'★'.repeat(last.rating)+'☆'.repeat(5-last.rating):'';
+    document.getElementById('ret-wb-last-box').style.display='block';
+  }
+  document.getElementById('ret-welcome-bg').classList.add('show');
+}
+function retCloseWelcome(){
+  document.getElementById('ret-welcome-bg').classList.remove('show');
+}
+
+// --- Weekly Digest ---
+function retMaybeShowDigest(){
+  const now=new Date();
+  if(now.getDay()!==0) return; // Sundays only
+  const thisWeek=localDate(new Date(now.setDate(now.getDate()-now.getDay())));
+  const key='rlr_digest_'+thisWeek;
+  if(localStorage.getItem(key)) return; // already shown this week
+  localStorage.setItem(key,'1');
+  setTimeout(retShowDigestNotif, 2000);
+}
+async function retShowDigestNotif(){
+  // Gather this week's data
+  const now=new Date();
+  const weekStart=new Date(now);
+  weekStart.setDate(now.getDate()-now.getDay());
+  weekStart.setHours(0,0,0,0);
+  const weekStartStr=localDate(weekStart);
+  const todayStr=localDate(now);
+  const {data:weekQ}=await sb.from('daily_queue')
+    .select('queued_date,completed')
+    .eq('user_id',user.id)
+    .gte('queued_date',weekStartStr)
+    .lte('queued_date',todayStr);
+  const dateMap={};
+  (weekQ||[]).forEach(q=>{
+    if(!dateMap[q.queued_date]) dateMap[q.queued_date]={total:0,done:0};
+    dateMap[q.queued_date].total++;
+    if(q.completed) dateMap[q.queued_date].done++;
+  });
+  const daysRead=Object.values(dateMap).filter(v=>v.total>0&&v.done===v.total).length;
+  const best=profile.streak_best||0;
+  // Store for modal
+  window._retDigestData={weekQ:weekQ||[],daysRead,best,weekStartStr,dateMap};
+  const pillTxt=`You read ${daysRead} of 7 days this week. Your best week was ${best}. This week?`;
+  document.getElementById('ret-digest-pill-txt').textContent=pillTxt;
+  document.getElementById('ret-digest-pill').classList.add('show');
+  setTimeout(()=>document.getElementById('ret-digest-pill').classList.remove('show'), 6000);
+}
+function retShowDigestModal(){
+  document.getElementById('ret-digest-pill').classList.remove('show');
+  const {daysRead,best,weekStartStr,dateMap}=window._retDigestData||{daysRead:0,best:0,weekStartStr:'',dateMap:{}};
+  // Eyebrow: date range
+  const ws=new Date(weekStartStr+'T12:00:00');
+  const we=new Date(ws); we.setDate(ws.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('ret-digest-eyebrow').textContent=`Weekly Digest · ${fmt(ws)}–${fmt(we)}`;
+  document.getElementById('ret-digest-headline').textContent=`${daysRead} of 7 nights.\nYour best was ${best}.`;
+  // Stat row
+  const {data:totalReadings}=window._retDigestData?.weekQ ? {data:window._retDigestData.weekQ} : {data:[]};
+  const readingsCount=(window._retDigestData?.weekQ||[]).filter(q=>q.completed).length;
+  document.getElementById('ret-digest-stats').innerHTML=`
+    <div class="digest-stat"><div class="digest-stat-n">${readingsCount}</div><div class="digest-stat-l">Readings</div></div>
+    <div class="digest-stat"><div class="digest-stat-n">${daysRead}</div><div class="digest-stat-l">Days Read</div></div>
+    <div class="digest-stat"><div class="digest-stat-n">${best}</div><div class="digest-stat-l">Best Streak</div></div>`;
+  // Day bars
+  const days=['S','M','T','W','T','F','S'];
+  const ws2=new Date(weekStartStr+'T12:00:00');
+  document.getElementById('ret-digest-bars').innerHTML=days.map((d,i)=>{
+    const dt=new Date(ws2); dt.setDate(ws2.getDate()+i);
+    const ds=localDate(dt);
+    const v=dateMap[ds];
+    const done=v&&v.total>0&&v.done===v.total;
+    return `<div class="digest-bar-row"><div class="digest-day-lbl">${d}</div><div class="digest-track"><div class="digest-fill${done?' done':''}" id="dbar-${i}"></div></div></div>`;
+  }).join('');
+  document.getElementById('ret-digest-bg').classList.add('show');
+  setTimeout(()=>{
+    days.forEach((_,i)=>{
+      const dt=new Date(ws2); dt.setDate(ws2.getDate()+i);
+      const ds=localDate(dt);
+      const v=dateMap[ds];
+      const done=v&&v.total>0&&v.done===v.total;
+      setTimeout(()=>{ const el=document.getElementById(`dbar-${i}`); if(el) el.style.width=done?'100%':'0'; },i*80);
+    });
+  },200);
+}
+function retCloseDigest(){
+  document.getElementById('ret-digest-bg').classList.remove('show');
+}
+
+// --- Milestone ---
+const RET_MILESTONES=[7,14,30,50,100,365];
+function retMaybeShowMilestone(streak){
+  if(!RET_MILESTONES.includes(streak)) return;
+  const key=`rlr_ms_${streak}`;
+  if(localStorage.getItem(key)) return;
+  localStorage.setItem(key,'1');
+  setTimeout(()=>retShowMilestone(streak), 600);
+}
+function retShowMilestone(streak){
+  const subs={
+    7:"Seven nights of showing up. A week of reading is harder than it sounds.",
+    14:"Two weeks. You're building something real.",
+    30:"A month of reading. Most people quit in the first week.",
+    50:"Fifty days. You're a reader now.",
+    100:"One hundred nights. That's a life lived on the page.",
+    365:"A full year. Ray would be proud.",
+  };
+  document.getElementById('ret-ms-headline').textContent=`${streak} Days.\nYou showed up.`;
+  document.getElementById('ret-ms-sub').textContent=subs[streak]||`${streak} days of reading.`;
+  document.getElementById('ret-ms-streak').textContent=streak;
+  document.getElementById('ret-ms-freezes').textContent=`🧊${profile.streak_freezes||0}`;
+  document.getElementById('ret-milestone-bg').classList.add('show');
+  retLaunchConfetti();
+}
+function retCloseMilestone(){
+  document.getElementById('ret-milestone-bg').classList.remove('show');
+}
+function retShareMilestone(){
+  const streak=profile.streak_current||0;
+  const text=`${streak}-day reading streak on Read Like Ray 📖🔥`;
+  if(navigator.share){ navigator.share({text}); }
+  else { navigator.clipboard?.writeText(text); toast('Copied to clipboard!'); }
+  retCloseMilestone();
+}
+function retLaunchConfetti(){
+  const colors=['#c9922a','#b5451b','#5a7a5a','#f5f0e4','#6a9abf'];
+  for(let i=0;i<55;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration=(1.8+Math.random()*2)+'s';
+    el.style.animationDelay=(Math.random()*0.8)+'s';
+    el.style.width=(6+Math.random()*6)+'px';
+    el.style.height=(6+Math.random()*6)+'px';
+    el.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    document.body.appendChild(el);
+    el.addEventListener('animationend',()=>el.remove());
+  }
+}
+
 </script>
 
 <!-- WALKTHROUGH OVERLAY -->
@@ -2359,5 +2632,103 @@ function endWalkthrough(){
   </div>
   <div class="wt-tip-arrow" id="wt-arrow"></div>
 </div>
+
+<!-- ── RETENTION MODALS ── -->
+
+<!-- Missed Day -->
+<div class="ret-modal-bg" id="ret-missed-bg">
+  <div class="ret-modal-sheet">
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.46rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--faded);margin-bottom:6px;">Your streak</div>
+      <span class="missed-streak-num" id="ret-missed-num">0</span>
+      <span style="font-size:2rem;opacity:0.2;margin-left:12px;">🔥</span>
+    </div>
+    <div class="ret-headline">Your streak ended.<br>It happens.</div>
+    <div class="ret-sub" id="ret-missed-sub"></div>
+    <div class="ret-divider"></div>
+    <div class="missed-quote-lbl">But here's the thing —</div>
+    <div class="missed-quote">"Day 1 is how every streak started."</div>
+    <button class="ret-btn-ice" id="ret-freeze-btn" onclick="retUseFreezeFromModal()">🧊 Save My Streak</button>
+    <div class="ret-no-freeze-msg" id="ret-no-freeze-msg">No freezes left — earn one with a 5-day streak.</div>
+    <button class="ret-btn-primary" onclick="retMissedConfirm()">Start Day 1 →</button>
+  </div>
+</div>
+
+<!-- Weekly Digest notification pill -->
+<div class="ret-notif-pill" id="ret-digest-pill" onclick="retShowDigestModal()">
+  <div class="ret-notif-icon">📖</div>
+  <div class="ret-notif-body">
+    <div class="ret-notif-app">Read Like Ray</div>
+    <div class="ret-notif-text" id="ret-digest-pill-txt"></div>
+  </div>
+</div>
+
+<!-- Weekly Digest modal -->
+<div class="ret-modal-bg" id="ret-digest-bg">
+  <div class="ret-modal-sheet" style="border-top:3px solid var(--gold);">
+    <div class="ret-eyebrow" id="ret-digest-eyebrow"></div>
+    <div class="ret-headline" id="ret-digest-headline"></div>
+    <div id="ret-digest-bars" style="margin-bottom:18px;"></div>
+    <div class="digest-stat-row" id="ret-digest-stats"></div>
+    <div class="digest-quote">"A writer only begins a book. A reader finishes it." — Samuel Johnson</div>
+    <button class="ret-btn-ghost" onclick="retCloseDigest()">Dismiss</button>
+  </div>
+</div>
+
+<!-- Welcome Back -->
+<div class="ret-modal-bg" id="ret-welcome-bg">
+  <div class="ret-modal-sheet">
+    <div class="ret-eyebrow">Welcome back</div>
+    <div class="ret-headline" id="ret-wb-headline"></div>
+    <div class="ret-sub">It happens. Tonight's queue is ready when you are.</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--rust);margin-bottom:16px;" id="ret-wb-last-date"></div>
+    <div class="wb-last-box" id="ret-wb-last-box" style="display:none">
+      <div class="wb-last-lbl">Your last reading</div>
+      <div class="wb-last-title" id="ret-wb-title"></div>
+      <div class="wb-last-author" id="ret-wb-author"></div>
+      <div class="wb-last-stars" id="ret-wb-stars"></div>
+    </div>
+    <button class="ret-btn-primary" onclick="retCloseWelcome()">Pick up tonight's queue →</button>
+    <button class="ret-btn-ghost" onclick="retCloseWelcome()">Not tonight</button>
+    <div class="wb-dismiss-note">Your queue will be here when you come back.</div>
+  </div>
+</div>
+
+<!-- Milestone -->
+<div class="ret-modal-bg" id="ret-milestone-bg">
+  <div class="ret-modal-sheet">
+    <div class="milestone-bg">
+      <div class="milestone-glow"></div>
+      <svg class="milestone-rays" viewBox="0 0 390 260" style="position:absolute;top:0;left:0;width:100%;height:260px;">
+        <line x1="195" y1="130" x2="195" y2="10" stroke="rgba(201,146,42,0.25)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="310" y2="15" stroke="rgba(201,146,42,0.15)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="380" y2="130" stroke="rgba(201,146,42,0.25)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="310" y2="245" stroke="rgba(201,146,42,0.15)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="80" y2="245" stroke="rgba(201,146,42,0.15)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="10" y2="130" stroke="rgba(201,146,42,0.25)" stroke-width="1"/>
+        <line x1="195" y1="130" x2="80" y2="15" stroke="rgba(201,146,42,0.15)" stroke-width="1"/>
+      </svg>
+      <div class="milestone-ring"><div class="milestone-ring-icon">🔥</div></div>
+      <div class="milestone-eyebrow">Streak Milestone</div>
+      <div class="milestone-headline" id="ret-ms-headline"></div>
+      <div class="milestone-sub" id="ret-ms-sub"></div>
+    </div>
+    <div class="milestone-stats">
+      <div class="milestone-stat">
+        <div class="milestone-stat-n" id="ret-ms-streak"></div>
+        <div class="milestone-stat-l">Day Streak</div>
+      </div>
+      <div class="milestone-stat">
+        <div class="milestone-stat-n" id="ret-ms-freezes"></div>
+        <div class="milestone-stat-l">Freezes</div>
+      </div>
+    </div>
+    <div class="milestone-actions">
+      <button class="btn-share" onclick="retShareMilestone()">↑ Share this moment</button>
+      <button class="ret-btn-ghost" onclick="retCloseMilestone()">Keep going →</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
