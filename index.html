@@ -1055,6 +1055,11 @@ async function renderWeek(){
     if(q.completed) dateMap[q.queued_date].done++;
   });
   const readDates=new Set(Object.entries(dateMap).filter(([,v])=>v.total>0&&v.done===v.total).map(([k])=>k));
+  // Fall back to streak_last_date — if a past day has no queue rows but matches
+  // streak_last_date, the user completed that day (rows may have been deleted)
+  if(profile?.streak_last_date && profile.streak_last_date>=weekStartStr && profile.streak_last_date<=todayStr){
+    readDates.add(profile.streak_last_date);
+  }
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
     const dayDate=new Date(weekStart);
     dayDate.setDate(weekStart.getDate()+i);
