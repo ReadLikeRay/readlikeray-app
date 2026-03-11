@@ -984,6 +984,15 @@ async function loadProfile(){
 }
 
 function showScreen(name){
+  // Clear any in-progress walkthrough before switching screens
+  const spot=document.getElementById('wt-spot');
+  if(spot) spot.style.cssText='left:0;top:0;width:0;height:0;border:none;box-shadow:none;';
+  const tip=document.getElementById('wt-tip');
+  if(tip) tip.classList.remove('show');
+  const arrow=document.getElementById('wt-arrow');
+  if(arrow) arrow.style.cssText='display:none';
+  const overlay=document.getElementById('wt-overlay');
+  if(overlay) overlay.classList.remove('active');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('screen-'+name);
   if(s) s.classList.add('active');
