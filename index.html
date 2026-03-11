@@ -1155,13 +1155,14 @@ async function renderWeek(){
   const {data:weekQ}=await sb.from('daily_queue')
     .select('queued_date,completed')
     .eq('user_id',user.id)
+    .eq('dnf',false)
     .gte('queued_date',weekStartStr)
     .lte('queued_date',todayStr);
   // Build a set of dates where ALL readings were completed
   const dateMap={};
   (weekQ||[]).forEach(q=>{
     if(!dateMap[q.queued_date]) dateMap[q.queued_date]={total:0,done:0};
-    if(!q.completed===false||q.completed) dateMap[q.queued_date].total++;
+    dateMap[q.queued_date].total++;
     if(q.completed) dateMap[q.queued_date].done++;
   });
   const readDates=new Set(Object.entries(dateMap).filter(([,v])=>v.total>0&&v.done===v.total).map(([k])=>k));
@@ -1337,6 +1338,8 @@ async function switchToShortQueue(){
 async function openReader(qid){
   setTimeout(()=>maybeStartWalkthrough('reader'),600);
   readerReturnScreen='home';
+  // Always clear feedback overlay so it never blocks the back button
+  document.getElementById('feedback-overlay').classList.remove('show');
   const {data:qi}=await sb.from('daily_queue').select('*,readings(*)').eq('id',qid).single();
   if(!qi||!qi.readings)return;
   currentReading=qi.readings; currentQueueId=qid; currentRating=qi.rating||0;
@@ -1358,6 +1361,7 @@ async function openReader(qid){
 }
 let readerReturnScreen='home';
 function closeReader(){
+  document.getElementById('feedback-overlay').classList.remove('show');
   const target=readerReturnScreen||'home';
   showScreen(target);
   if(target==='home') refreshHome();
