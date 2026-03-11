@@ -51,6 +51,9 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .input::placeholder { color:rgba(255,255,255,0.2); }
 .section-label { font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--faded); }
 
+.browse-sort-wrap { position:relative; flex-shrink:0; }
+.browse-sort-select { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.06em; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:var(--aged); padding:6px 22px 6px 10px; cursor:pointer; appearance:none; -webkit-appearance:none; }
+.browse-sort-arrow { position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.5rem; color:var(--faded); pointer-events:none; }
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -653,13 +656,20 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div style="padding:52px 22px 18px;">
     <h1 style="font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:700;color:var(--paper);margin-bottom:8px">Browse</h1>
     <input class="input" id="browse-input" type="text" placeholder="Search titles, authors..." oninput="browseSearch(this.value)" style="margin-bottom:10px">
-    <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <button class="cr-fil active" id="bfil-all" onclick="setBrowseFilter('all',this)">All</button>
-      <button class="cr-fil" id="bfil-poem" onclick="setBrowseFilter('poem',this)">Poems</button>
-      <button class="cr-fil" id="bfil-story" onclick="setBrowseFilter('story',this)">Stories</button>
-      <button class="cr-fil" id="bfil-essay" onclick="setBrowseFilter('essay',this)">Essays</button>
-      <button class="cr-fil" id="bfil-unread" onclick="setBrowseFilter('unread',this)">Unread</button>
-      <button class="cr-fil" id="bfil-short" onclick="toggleBrowseSort(this)">Shortest First</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="cr-fil active" id="bfil-all" onclick="setBrowseFilter('all',this)">All</button>
+        <button class="cr-fil" id="bfil-poem" onclick="setBrowseFilter('poem',this)">Poems</button>
+        <button class="cr-fil" id="bfil-story" onclick="setBrowseFilter('story',this)">Stories</button>
+        <button class="cr-fil" id="bfil-essay" onclick="setBrowseFilter('essay',this)">Essays</button>
+      </div>
+      <div class="browse-sort-wrap">
+        <select class="browse-sort-select" onchange="setBrowseSort(this.value)">
+          <option value="abc">A → Z</option>
+          <option value="short">Shortest</option>
+        </select>
+        <div class="browse-sort-arrow">▾</div>
+      </div>
     </div>
   </div>
   <div id="browse-list" style="padding:0 22px 40px"></div>
@@ -1833,7 +1843,7 @@ async function deleteAccount(){
 }
 
 // BROWSE
-let browseAll=[], browseFilter='all', browseQuery='', browseSortShort=false;
+let browseAll=[], browseFilter='all', browseQuery='', browseSort='abc';
 let browseReadIds=new Set();
 let browseLastLoaded=0;
 async function loadBrowse(){
@@ -1854,23 +1864,18 @@ function setBrowseFilter(f,el){
   renderBrowse();
 }
 function browseSearch(q){ browseQuery=q.toLowerCase(); renderBrowse(); }
-function toggleBrowseSort(el){
-  browseSortShort=!browseSortShort;
-  el.classList.toggle('active', browseSortShort);
-  renderBrowse();
-}
+function setBrowseSort(v){ browseSort=v; renderBrowse(); }
 function renderBrowse(){
   let items=browseAll;
   if(browseFilter==='poem'||browseFilter==='story'||browseFilter==='essay') items=items.filter(r=>r.type===browseFilter);
-  if(browseFilter==='unread') items=items.filter(r=>!browseReadIds.has(r.id));
   if(browseQuery) items=items.filter(r=>r.title.toLowerCase().includes(browseQuery)||r.author.toLowerCase().includes(browseQuery));
   items=[...items].sort((a,b)=>{
     // Primary: unread before read
     const ad=browseReadIds.has(a.id), bd=browseReadIds.has(b.id);
     if(ad!==bd) return ad?1:-1;
-    // Secondary: if shortest-first active, sort by read time
-    if(browseSortShort) return (a.read_time_minutes||0)-(b.read_time_minutes||0);
-    return 0;
+    // Secondary: sort by selected option
+    if(browseSort==='short') return (a.read_time_minutes||0)-(b.read_time_minutes||0);
+    return a.title.localeCompare(b.title);
   });
   const list=document.getElementById('browse-list');
   if(items.length===0){list.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.85rem;padding:24px 0">No results.</div>'; return;}
