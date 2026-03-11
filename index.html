@@ -1431,13 +1431,16 @@ async function loadFriendRatings(readingId){
   const friendIds=(fs||[]).map(f=>f.friend_id);
   if(friendIds.length===0) return;
   const {data:ratings}=await sb.from('completed_readings')
-    .select('user_id,rating,profiles(username)')
+    .select('user_id,rating')
     .eq('reading_id',readingId)
     .in('user_id',friendIds)
     .not('rating','is',null);
   if(!ratings||ratings.length===0) return;
+  const uids=[...new Set(ratings.map(r=>r.user_id))];
+  const {data:profs}=await sb.from('profiles').select('id,username').in('id',uids);
+  const profMap=Object.fromEntries((profs||[]).map(p=>[p.id,p.username]));
   list.innerHTML=ratings.map(r=>{
-    const name=r.profiles?.username||'friend';
+    const name=profMap[r.user_id]||'friend';
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const bg=frColor(name);
     return `<div class="rd-friend-row">
