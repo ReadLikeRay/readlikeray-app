@@ -172,6 +172,12 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .rd-note-area { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:var(--aged); font-family:'Libre Baskerville',serif; font-size:0.88rem; padding:12px; resize:none; outline:none; min-height:80px; margin-bottom:10px; }
 .rd-note-area::placeholder { color:rgba(255,255,255,0.2); }
 .rd-note-save { font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--sage); background:rgba(90,122,90,0.15); border:1px solid var(--sage); padding:8px 16px; cursor:pointer; transition:all 0.15s; }
+.rd-friend-ratings { margin-bottom:24px; }
+.rd-friend-ratings-lbl { font-family:'Space Mono',monospace; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--faded); margin-bottom:8px; }
+.rd-friend-row { display:flex; align-items:center; gap:10px; padding:9px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); margin-bottom:5px; }
+.rd-fr-av { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:0.48rem; font-weight:700; color:var(--paper); flex-shrink:0; }
+.rd-fr-name { font-family:'Space Mono',monospace; font-size:0.56rem; color:var(--aged); flex:1; }
+.rd-fr-stars { color:var(--gold); font-size:0.75rem; letter-spacing:1px; }
 .rd-footer { position:fixed; bottom:0; left:0; right:0; background:var(--ink); border-top:1px solid rgba(255,255,255,0.08); padding:10px 18px max(18px,env(safe-area-inset-bottom)); display:flex; align-items:center; gap:9px; z-index:100; }
 .stars { display:flex; gap:2px; }
 .star { background:none; border:none; cursor:pointer; font-size:1.1rem; color:rgba(255,255,255,0.18); transition:color 0.1s; }
@@ -508,6 +514,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="rd-body">
     <div class="rd-context" id="rd-context"></div>
+    <div class="rd-friend-ratings" id="rd-friend-ratings" style="display:none">
+      <div class="rd-friend-ratings-lbl">Friends who read this</div>
+      <div id="rd-friend-ratings-list"></div>
+    </div>
     <a class="rd-open-btn" id="rd-link" href="#" target="_blank" rel="noopener">Open Full Text →</a>
     <button class="rd-broken-btn" onclick="reportBrokenLink()">Link not working?</button>
 
@@ -586,6 +596,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <button class="btn btn-primary" style="margin-top:12px" onclick="submitFeedbackReasons()">Submit</button>
       <button class="fb-skip" onclick="closeFeedback()">Skip</button>
     </div>
+    <div id="fb-confirm-view" style="display:none" class="fb-confirm">
       <div class="fb-confirm-icon" id="fb-confirm-icon"></div>
       <div class="fb-confirm-msg" id="fb-confirm-msg"></div>
       <button class="fb-done-btn" onclick="closeFeedback()">Done</button>
@@ -979,8 +990,8 @@ async function goHome(){
 }
 async function refreshHome(){
   if(!user||!profile)return;
-  const today=new Date().toISOString().split('T')[0];
-  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const today=localDate();
+  const yesterday=localDateOffset(-86400000);
   const last=profile.streak_last_date;
   if(last&&last!==today&&last!==yesterday&&last!==profile.streak_freeze_used_date){
     // Missed a day — offer freeze before resetting
@@ -1000,6 +1011,12 @@ async function refreshHome(){
   document.getElementById('day-badge').textContent=`Day ${dayNum()}`;
   await renderWeek(); await loadQueue();
 }
+function localDate(d=new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function localDateOffset(ms){
+  return localDate(new Date(Date.now()+ms));
+}
 function dayNum(){
   if(!profile)return 1;
   return profile.streak_current||1;
@@ -1013,8 +1030,8 @@ async function renderWeek(){
   weekStart.setDate(now.getDate()-dow);
   weekStart.setHours(0,0,0,0);
   // Fetch completed queue dates this week
-  const weekStartStr=weekStart.toISOString().split('T')[0];
-  const todayStr=now.toISOString().split('T')[0];
+  const weekStartStr=localDate(weekStart);
+  const todayStr=localDate(now);
   const {data:weekQ}=await sb.from('daily_queue')
     .select('queued_date,completed')
     .eq('user_id',user.id)
@@ -1031,7 +1048,7 @@ async function renderWeek(){
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
     const dayDate=new Date(weekStart);
     dayDate.setDate(weekStart.getDate()+i);
-    const dateStr=dayDate.toISOString().split('T')[0];
+    const dateStr=localDate(dayDate);
     const isToday=i===dow;
     const isPast=i<dow;
     const didRead=readDates.has(dateStr);
@@ -1040,11 +1057,9 @@ async function renderWeek(){
   }).join('');
 }
 async function loadQueue(){
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const expected=(profile.counts_poems||1)+(profile.counts_stories||1)+(profile.counts_essays||1);
-  // Fetch all existing rows for today (including manually queued, completed, DNF)
   let {data:all}=await sb.from('daily_queue').select('id,reading_id,readings(type)').eq('user_id',user.id).eq('queued_date',today);
-  // Top up if fewer rows than expected (covers fresh day AND partial pre-queued slots)
   if(!all||all.length<expected){await generateQueue(today,all||[]);}
   let {data:q}=await sb.from('daily_queue').select('*,readings(*)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   renderQueue(q||[]);
@@ -1053,11 +1068,9 @@ async function generateQueue(date,existingRows=[]){
   const counts={poem:profile.counts_poems||1,story:profile.counts_stories||1,essay:profile.counts_essays||1};
   const {data:th}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
   const thIds=th?th.map(t=>t.theme):[];
-  // Avoid readings already completed or DNF'd
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
   const {data:dnfd}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
   const doneIds=new Set([...(done||[]).map(d=>d.reading_id),...(dnfd||[]).map(d=>d.reading_id)]);
-  // Count how many of each type are already queued today (including pre-queued slots)
   const alreadyByType={poem:0,story:0,essay:0};
   const alreadyIds=new Set();
   for(const row of existingRows){
@@ -1068,7 +1081,6 @@ async function generateQueue(date,existingRows=[]){
   for(const [type,count] of Object.entries(counts)){
     const need=count-(alreadyByType[type]||0);
     if(need<=0) continue;
-    // Try themed first, then fall back to all of that type
     let pool=[];
     if(thIds.length>0){
       const {data}=await sb.from('readings').select('id').eq('type',type).overlaps('themes',thIds).limit(100);
@@ -1103,7 +1115,7 @@ function renderQueue(queue){
 async function switchToShortQueue(){
   const btn=document.querySelector('.short-time-btn');
   btn.disabled=true; btn.textContent='Swapping...';
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   // Get incomplete queue items for today
   const {data:incomplete}=await sb.from('daily_queue')
     .select('*,readings(type)')
@@ -1160,6 +1172,7 @@ async function openReader(qid){
   const db=document.getElementById('done-btn');
   db.textContent=qi.completed?'✓ Complete':'Mark Done';
   db.classList.toggle('complete',qi.completed);
+  loadFriendRatings(r.id);
   showScreen('reader');
 }
 let readerReturnScreen='home';
@@ -1209,7 +1222,7 @@ async function markComplete(){
   const explorerTheme=currentReading.themes&&currentReading.themes.length>0&&!currentReading.themes.some(t=>myThemes.has(t));
   const daysSinceJoin=Math.floor((Date.now()-new Date(profile.created_at))/(1000*60*60*24));
   // Check queue completion
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const {data:todayQ}=await sb.from('daily_queue').select('completed').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   const completedFullQueue=todayQ&&todayQ.length>0&&todayQ.every(q=>q.completed);
   if(completedFullQueue) await updateStreak();
@@ -1251,7 +1264,7 @@ async function confirmDNF(permanent){
     toast('Set aside — you\'ll see it again someday.');
   }
   // Replace with a new reading either way
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
   const {data:dnfd}=await sb.from('dnf_readings').select('reading_id').eq('user_id',user.id);
@@ -1278,8 +1291,8 @@ async function confirmDNF(permanent){
   setTimeout(closeReader,400);
 }
 async function updateStreak(){
-  const today=new Date().toISOString().split('T')[0];
-  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const today=localDate();
+  const yesterday=localDateOffset(-86400000);
   const last=profile.streak_last_date;
   let streak=profile.streak_current||0;
   if(last===yesterday) streak++;
@@ -1408,14 +1421,32 @@ async function submitFeedbackReasons(){
   document.getElementById('fb-confirm-msg').textContent='Understood. Expect fewer readings like this one in the future.';
   document.getElementById('fb-confirm-view').style.display='block';
 }
-async function feedbackReason(reason){
-  if(currentReading){
-    await sb.from('reading_feedback').insert({user_id:user.id,reading_id:currentReading.id,signal:'down',reason,themes:currentReading.themes,read_time:currentReading.read_time_minutes});
-  }
-  document.getElementById('fb-reasons-view').style.display='none';
-  document.getElementById('fb-confirm-icon').textContent='👎';
-  document.getElementById('fb-confirm-msg').textContent='Understood. Expect fewer readings like this one in the future.';
-  document.getElementById('fb-confirm-view').style.display='block';
+
+// FRIEND RATINGS ON READER
+async function loadFriendRatings(readingId){
+  const block=document.getElementById('rd-friend-ratings');
+  const list=document.getElementById('rd-friend-ratings-list');
+  block.style.display='none'; list.innerHTML='';
+  const {data:fs}=await sb.from('friendships').select('friend_id').eq('user_id',user.id);
+  const friendIds=(fs||[]).map(f=>f.friend_id);
+  if(friendIds.length===0) return;
+  const {data:ratings}=await sb.from('completed_readings')
+    .select('user_id,rating,profiles(username)')
+    .eq('reading_id',readingId)
+    .in('user_id',friendIds)
+    .not('rating','is',null);
+  if(!ratings||ratings.length===0) return;
+  list.innerHTML=ratings.map(r=>{
+    const name=r.profiles?.username||'friend';
+    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    const bg=frColor(name);
+    return `<div class="rd-friend-row">
+      <div class="rd-fr-av" style="background:${bg}">${name.slice(0,2).toUpperCase()}</div>
+      <div class="rd-fr-name">${name}</div>
+      <div class="rd-fr-stars">${stars}</div>
+    </div>`;
+  }).join('');
+  block.style.display='block';
 }
 
 // BROKEN LINK
@@ -1423,7 +1454,7 @@ async function reportBrokenLink(){
   if(!currentReading)return;
   await sb.from('link_reports').insert({reading_id:currentReading.id,title:currentReading.title,reported_at:new Date().toISOString(),fixed:false});
   // Load a replacement of same type directly in reader
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const {data:existing}=await sb.from('daily_queue').select('reading_id').eq('user_id',user.id).eq('queued_date',today);
   const usedIds=existing?existing.map(e=>e.reading_id):[];
   let q=sb.from('readings').select('id').eq('type',currentReading.type);
@@ -1485,7 +1516,7 @@ async function loadProfileScreen(){
   const lifetimeMins=(done||[]).reduce((s,d)=>s+(d.readings?.read_time_minutes||0),0);
   document.getElementById('prof-lifetime').textContent=lifetimeMins<60?`${lifetimeMins}m`:`${(lifetimeMins/60).toFixed(1)}h`;
   // Tonight
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const {data:tq}=await sb.from('daily_queue').select('completed,readings(read_time_minutes)').eq('user_id',user.id).eq('queued_date',today).eq('dnf',false);
   const tonightMins=(tq||[]).filter(q=>!q.completed).reduce((s,q)=>s+(q.readings?.read_time_minutes||0),0);
   document.getElementById('prof-tonight').textContent=tonightMins>0?`${tonightMins}m`:'Done ✓';
@@ -1672,6 +1703,7 @@ async function openReadingDirect(readingId, returnScreen='completed'){
       document.querySelectorAll('#stars .star').forEach((s,i)=>{ s.classList.toggle('active',i<currentRating); });
       if(existing.note_body) document.getElementById('rd-note').value=existing.note_body;
     }
+    loadFriendRatings(r.id);
     showScreen('reader');
   } catch(e) {
     toast('Could not load reading.');
@@ -1836,7 +1868,7 @@ function renderBrowse(){
 
 async function queueForTomorrow(readingId, title, e){
   e.stopPropagation();
-  const tomorrow=new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const tomorrow=localDateOffset(86400000);
   // Check not already queued tomorrow
   const {data:existing}=await sb.from('daily_queue').select('id').eq('user_id',user.id).eq('reading_id',readingId).eq('queued_date',tomorrow);
   if(existing&&existing.length>0){toast('Already in tomorrow\'s queue.'); return;}
@@ -2112,7 +2144,7 @@ async function offerStreakFreeze(){
   if(count<=0) return false;
   const use=confirm(`You missed a day! Use a streak freeze to protect your ${profile.streak_current}-day streak?\n\nYou have ${count} freeze${count!==1?'s':''}.`);
   if(!use) return false;
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   await sb.from('profiles').update({
     streak_freezes:count-1,
     streak_freeze_used_date:today,
