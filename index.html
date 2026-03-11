@@ -54,6 +54,26 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .browse-sort-wrap { position:relative; flex-shrink:0; }
 .browse-sort-select { font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.06em; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:var(--aged); padding:6px 22px 6px 10px; cursor:pointer; appearance:none; -webkit-appearance:none; }
 .browse-sort-arrow { position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.5rem; color:var(--faded); pointer-events:none; }
+/* WALKTHROUGH */
+#wt-overlay { position:fixed; inset:0; z-index:500; pointer-events:none; }
+#wt-overlay.active { pointer-events:all; }
+.wt-spot { position:absolute; border-radius:4px; box-shadow:0 0 0 9999px rgba(0,0,0,0.45); transition:all 0.4s cubic-bezier(0.32,0.72,0,1); pointer-events:none; border:1.5px solid rgba(201,146,42,0.5); }
+.wt-tip { position:absolute; background:var(--surface2,#2a2015); border:1px solid rgba(201,146,42,0.35); padding:16px 18px; max-width:270px; min-width:220px; transition:all 0.35s cubic-bezier(0.32,0.72,0,1); opacity:0; pointer-events:all; z-index:501; }
+.wt-tip.show { opacity:1; }
+.wt-tip-step { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--gold); margin-bottom:6px; }
+.wt-tip-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); margin-bottom:6px; line-height:1.2; }
+.wt-tip-body { font-size:0.76rem; line-height:1.65; color:#a09070; margin-bottom:14px; }
+.wt-tip-arrow { position:absolute; font-size:1.1rem; color:var(--gold); animation:wtpulse 1.2s ease-in-out infinite; z-index:501; pointer-events:none; }
+@keyframes wtpulse { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0.5;transform:translateY(3px)} }
+.wt-actions { display:flex; align-items:center; justify-content:space-between; }
+.wt-pips { display:flex; gap:4px; }
+.wt-pip { width:18px; height:2px; background:rgba(255,255,255,0.15); border-radius:2px; transition:background 0.2s; }
+.wt-pip.on { background:var(--gold); }
+.wt-btns { display:flex; gap:8px; align-items:center; }
+.wt-skip-btn { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); background:none; border:none; cursor:pointer; padding:6px; }
+.wt-next-btn { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.1em; background:var(--rust); color:var(--paper); border:none; padding:8px 14px; cursor:pointer; }
+.wt-next-btn.done { background:var(--sage); }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -472,8 +492,8 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
   <div class="streak-bar">
     <div class="s-flame">🔥</div>
-    <div><div class="s-num" id="s-num">0</div><div class="s-sub">Day Streak</div></div>
-    <div class="s-right">
+    <div id="wt-streak-box"><div class="s-num" id="s-num">0</div><div class="s-sub">Day Streak</div></div>
+    <div class="s-right" id="freeze-counter-wrap">
       <div class="s-best">Best: <span id="s-best">0</span></div>
     </div>
   </div>
@@ -485,7 +505,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   <div class="queue-sec">
     <div class="queue-hdr"><span class="section-label">Tonight's Reading</span><span class="day-badge" id="day-badge">Day 1</span></div>
     <div id="queue-list"><div style="padding:32px;text-align:center;color:var(--faded);font-style:italic;font-size:0.85rem">Loading your queue...</div></div>
-    <button class="short-time-btn" onclick="switchToShortQueue()">Short on time? Swap for shorter readings →</button>
+    <button class="short-time-btn" id="wt-short-btn" onclick="switchToShortQueue()">Short on time? Swap for shorter readings →</button>
   </div>
 </div>
 
@@ -510,7 +530,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
           <button class="star" onclick="setRating(4)">★</button>
           <button class="star" onclick="setRating(5)">★</button>
         </div>
-        <button class="dnf-btn" onclick="markDNF()">DNF</button>
+        <button class="dnf-btn" id="wt-dnf-btn" onclick="markDNF()">DNF</button>
         <button class="done-btn" id="done-btn" onclick="markComplete()" style="width:auto;padding:8px 12px;flex:none;font-size:0.52rem;">Done</button>
       </div>
     </div>
@@ -720,7 +740,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
   <div class="prof-body">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="prof-sec-lbl" style="margin:0">Badges</div>
+      <div class="prof-sec-lbl" style="margin:0" id="wt-badges-lbl">Badges</div>
       <button onclick="openBadgesSlide()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
     </div>
     <div class="badge-grid" id="profile-badges-preview"></div>
@@ -907,10 +927,11 @@ function navTo(name){
   if(name==='completed') loadCompleted();
   if(name==='notes') loadNotes();
   if(name==='profile') loadProfileScreen();
-  if(name==='browse') loadBrowse();
+  if(name==='browse') loadBrowse().then(()=>setTimeout(()=>maybeStartWalkthrough('browse'),400));
   if(name==='friends') loadFriends();
   if(name==='settings') loadSettings();
   if(name==='admin') loadAdmin();
+  if(name==='home'||name==='profile') setTimeout(()=>maybeStartWalkthrough(name),400);
 }
 
 // AUTH
@@ -999,6 +1020,7 @@ async function goHome(){
   await refreshHome();
 }
 async function refreshHome(){
+  setTimeout(()=>maybeStartWalkthrough('home'),800);
   if(!user||!profile)return;
   const today=localDate();
   const yesterday=localDateOffset(-86400000);
@@ -1197,6 +1219,7 @@ async function switchToShortQueue(){
 
 // READER
 async function openReader(qid){
+  setTimeout(()=>maybeStartWalkthrough('reader'),600);
   readerReturnScreen='home';
   const {data:qi}=await sb.from('daily_queue').select('*,readings(*)').eq('id',qid).single();
   if(!qi||!qi.readings)return;
@@ -2227,6 +2250,114 @@ const _savedSize=localStorage.getItem('textSize')||'medium';
 applyTextSize(_savedSize);
 
 init();
+
+// ── WALKTHROUGH ──
+const WT_STEPS = {
+  home: [
+    { target:'wt-streak-box', title:'Your Streak', body:'Every day you complete your queue, your streak grows. Miss a day and it resets — unless you have a freeze.', pos:'below' },
+    { target:'freeze-counter-wrap', title:'Streak Freezes', body:'Complete a 5-day streak and you earn a freeze. If you miss a night, the freeze saves your streak automatically.', pos:'below' },
+    { target:'wt-short-btn', title:'Short on Time?', body:"Swap tonight's queue for shorter readings — same genres, less time. Handy for busy nights.", pos:'above' },
+  ],
+  reader: [
+    { target:'stars', title:'Rate What You Read', body:'Give it 1–5 stars after reading. Five-star reads appear in your profile and are visible to friends.', pos:'below' },
+    { target:'wt-dnf-btn', title:'Did Not Finish', body:"Not feeling this one? Tap DNF to swap it out for something else.", pos:'below' },
+    { target:'done-btn', title:'Mark It Done', body:"Tap when you've finished. Once all your readings are done, your streak advances.", pos:'below' },
+  ],
+  browse: [
+    { target:'.wtr-btn', title:'Want to Read', body:'See something you want to come back to? Add it to your wishlist to queue it for a future read.', pos:'above' },
+  ],
+  profile: [
+    { target:'wt-badges-lbl', title:'Badges', body:'Earn badges for streaks, completions, time of day, and more.', pos:'below' },
+  ],
+};
+let wtSteps=[], wtIdx=0;
+const wtSeen=new Set(JSON.parse(localStorage.getItem('rlr_wt_seen')||'[]'));
+
+function maybeStartWalkthrough(screen){
+  if(wtSeen.has(screen)) return;
+  const steps=WT_STEPS[screen];
+  if(!steps||!steps.length) return;
+  // For browse, need at least one wtr-btn rendered
+  if(screen==='browse' && !document.querySelector('.wtr-btn')) return;
+  wtSeen.add(screen);
+  localStorage.setItem('rlr_wt_seen', JSON.stringify([...wtSeen]));
+  wtSteps=steps; wtIdx=0;
+  document.getElementById('wt-overlay').classList.add('active');
+  wtBuildPips(); wtShow();
+}
+
+function wtGetEl(target){
+  if(target.startsWith('.')) return document.querySelector(target);
+  return document.getElementById(target);
+}
+
+function wtBuildPips(){
+  document.getElementById('wt-pips').innerHTML=wtSteps.map((_,i)=>`<div class="wt-pip${i===wtIdx?' on':''}"></div>`).join('');
+}
+
+function wtShow(){
+  const step=wtSteps[wtIdx];
+  const el=wtGetEl(step.target);
+  if(!el){ wtNext(); return; }
+  const rect=el.getBoundingClientRect();
+  const pad=6, margin=14;
+  const spot=document.getElementById('wt-spot');
+  spot.style.cssText=`left:${rect.left-pad}px;top:${rect.top-pad}px;width:${rect.width+pad*2}px;height:${rect.height+pad*2}px`;
+  const tip=document.getElementById('wt-tip');
+  const arrow=document.getElementById('wt-arrow');
+  const tipW=260, tipH=170;
+  const leftPos=Math.min(Math.max(rect.left,12),window.innerWidth-tipW-12);
+  if(step.pos==='below'){
+    tip.style.cssText=`top:${rect.bottom+pad+margin}px;left:${leftPos}px`;
+    arrow.style.cssText=`top:${rect.bottom+pad+margin-20}px;left:${rect.left+rect.width/2-8}px`;
+    arrow.textContent='↓';
+  } else {
+    tip.style.cssText=`top:${rect.top-pad-margin-tipH}px;left:${leftPos}px`;
+    arrow.style.cssText=`top:${rect.top-pad-margin+4}px;left:${rect.left+rect.width/2-8}px`;
+    arrow.textContent='↑';
+  }
+  document.getElementById('wt-step-lbl').textContent=`Step ${wtIdx+1} of ${wtSteps.length}`;
+  document.getElementById('wt-ttl').textContent=step.title;
+  document.getElementById('wt-body').textContent=step.body;
+  const btn=document.getElementById('wt-next-btn');
+  const last=wtIdx===wtSteps.length-1;
+  btn.textContent=last?'Got it ✓':'Next →';
+  btn.classList.toggle('done',last);
+  setTimeout(()=>tip.classList.add('show'),50);
+  wtBuildPips();
+}
+
+function wtNext(){
+  document.getElementById('wt-tip').classList.remove('show');
+  setTimeout(()=>{
+    if(wtIdx<wtSteps.length-1){ wtIdx++; wtShow(); }
+    else endWalkthrough();
+  },200);
+}
+
+function endWalkthrough(){
+  document.getElementById('wt-overlay').classList.remove('active');
+  document.getElementById('wt-tip').classList.remove('show');
+}
+
 </script>
+
+<!-- WALKTHROUGH OVERLAY -->
+<div id="wt-overlay">
+  <div class="wt-spot" id="wt-spot"></div>
+  <div class="wt-tip" id="wt-tip">
+    <div class="wt-tip-step" id="wt-step-lbl"></div>
+    <div class="wt-tip-title" id="wt-ttl"></div>
+    <div class="wt-tip-body" id="wt-body"></div>
+    <div class="wt-actions">
+      <div class="wt-pips" id="wt-pips"></div>
+      <div class="wt-btns">
+        <button class="wt-skip-btn" onclick="endWalkthrough()">Skip</button>
+        <button class="wt-next-btn" id="wt-next-btn" onclick="wtNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+  <div class="wt-tip-arrow" id="wt-arrow"></div>
+</div>
 </body>
 </html>
