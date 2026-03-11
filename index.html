@@ -1055,12 +1055,18 @@ async function renderWeek(){
     if(q.completed) dateMap[q.queued_date].done++;
   });
   const readDates=new Set(Object.entries(dateMap).filter(([,v])=>v.total>0&&v.done===v.total).map(([k])=>k));
-  // Fall back to streak_last_date — if a past day has no queue rows but matches
-  // streak_last_date, mark it done (rows may have been deleted). Exclude today —
-  // streak_last_date is set to today on completion, but the dot should only fill
-  // once the queue rows confirm it.
-  if(profile?.streak_last_date && profile.streak_last_date>=weekStartStr && profile.streak_last_date<todayStr){
-    readDates.add(profile.streak_last_date);
+  // Fall back to streak_last_date when no queue rows exist for a completed day.
+  if(profile?.streak_last_date && profile.streak_current>0){
+    const sld=profile.streak_last_date;
+    if(sld>=weekStartStr && sld<todayStr){
+      // Normal case: streak_last_date is a past local date
+      readDates.add(sld);
+    } else if(sld===todayStr){
+      // UTC bleed: completed yesterday evening, but date written as today (UTC).
+      // Mark yesterday's dot instead.
+      const yesterday=localDateOffset(-86400000);
+      if(yesterday>=weekStartStr) readDates.add(yesterday);
+    }
   }
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
     const dayDate=new Date(weekStart);
