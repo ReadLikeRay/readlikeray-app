@@ -1077,25 +1077,44 @@ async function generateQueue(date,existingRows=[]){
     const t=row.readings?.type; if(t&&alreadyByType[t]!==undefined) alreadyByType[t]++;
     alreadyIds.add(row.reading_id);
   }
+  // Fetch wishlist ordered by save time
+  const {data:wishlist}=await sb.from('reading_wishlist')
+    .select('reading_id,readings(id,type)')
+    .eq('user_id',user.id)
+    .order('created_at',{ascending:true});
+  const wishByType={poem:[],story:[],essay:[]};
+  for(const w of (wishlist||[])){
+    const t=w.readings?.type;
+    if(t&&wishByType[t]&&!doneIds.has(w.reading_id)&&!alreadyIds.has(w.reading_id)) wishByType[t].push(w.reading_id);
+  }
   const inserts=[];
+  const wishlistUsed=[];
   for(const [type,count] of Object.entries(counts)){
     const need=count-(alreadyByType[type]||0);
     if(need<=0) continue;
+    // Drain wishlist first (FIFO)
+    const fromWishlist=wishByType[type].filter(id=>!inserts.find(i=>i.reading_id===id)).slice(0,need);
+    fromWishlist.forEach(id=>{ inserts.push({user_id:user.id,reading_id:id,queued_date:date}); wishlistUsed.push(id); });
+    const stillNeed=need-fromWishlist.length;
+    if(stillNeed<=0) continue;
+    // Fall back to random pool
     let pool=[];
     if(thIds.length>0){
       const {data}=await sb.from('readings').select('id').eq('type',type).overlaps('themes',thIds).limit(100);
       pool=(data||[]).filter(r=>!doneIds.has(r.id)&&!alreadyIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
     }
-    if(pool.length<need){
+    if(pool.length<stillNeed){
       const {data}=await sb.from('readings').select('id').eq('type',type).limit(100);
       const fallback=(data||[]).filter(r=>!doneIds.has(r.id)&&!alreadyIds.has(r.id)&&!inserts.find(i=>i.reading_id===r.id));
       const poolIds=new Set(pool.map(p=>p.id));
       pool=[...pool,...fallback.filter(r=>!poolIds.has(r.id))];
     }
     if(pool.length===0) continue;
-    pool.sort(()=>Math.random()-0.5).slice(0,need).forEach(r=>inserts.push({user_id:user.id,reading_id:r.id,queued_date:date}));
+    pool.sort(()=>Math.random()-0.5).slice(0,stillNeed).forEach(r=>inserts.push({user_id:user.id,reading_id:r.id,queued_date:date}));
   }
   if(inserts.length>0) await sb.from('daily_queue').insert(inserts);
+  // Remove used wishlist entries
+  if(wishlistUsed.length>0) await sb.from('reading_wishlist').delete().eq('user_id',user.id).in('reading_id',wishlistUsed);
 }
 function renderQueue(queue){
   const total=queue.length, done=queue.filter(q=>q.completed).length;
@@ -1863,20 +1882,24 @@ function renderBrowse(){
       <div style="flex:1;cursor:pointer" onclick="openReadingDirect('${r.id}','browse')"><div class="ri-type">${r.type}</div><div class="ri-title">${r.title}</div><div class="ri-author">${r.author}</div></div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         <div class="ri-time">${r.read_time_minutes||'?'} min</div>
-        <button onclick="queueForTomorrow('${r.id}','${r.title.replace(/'/g,"\\'")}',event)" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--faded);font-family:'Space Mono',monospace;font-size:0.4rem;text-transform:uppercase;letter-spacing:0.06em;padding:4px 7px;cursor:pointer;white-space:nowrap" title="Add to tomorrow's queue">+ Tomorrow</button>
+        <button onclick="queueForTomorrow('${r.id}','${r.title.replace(/'/g,"\\'")}',event,this)" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--faded);font-family:'Space Mono',monospace;font-size:0.4rem;text-transform:uppercase;letter-spacing:0.06em;padding:4px 7px;cursor:pointer;white-space:nowrap" title="Add to reading queue";transition:all 0.15s">Want to Read</button>
       </div>
     </div>`;
   }).join('');
 }
 
-async function queueForTomorrow(readingId, title, e){
+async function addToWishlist(readingId, title, e, btn){
   e.stopPropagation();
-  const tomorrow=localDateOffset(86400000);
-  // Check not already queued tomorrow
-  const {data:existing}=await sb.from('daily_queue').select('id').eq('user_id',user.id).eq('reading_id',readingId).eq('queued_date',tomorrow);
-  if(existing&&existing.length>0){toast('Already in tomorrow\'s queue.'); return;}
-  await sb.from('daily_queue').insert({user_id:user.id,reading_id:readingId,queued_date:tomorrow});
-  toast(`"${title}" added to tomorrow →`);
+  // Check not already wishlisted
+  const {data:existing}=await sb.from('reading_wishlist').select('id').eq('user_id',user.id).eq('reading_id',readingId).maybeSingle();
+  if(existing){toast('Already in your queue.'); return;}
+  // Check not already completed
+  if(browseReadIds.has(readingId)){toast('You\'ve already read this.'); return;}
+  await sb.from('reading_wishlist').insert({user_id:user.id,reading_id:readingId});
+  btn.textContent='✓ Saved';
+  btn.style.borderColor='var(--gold)';
+  btn.style.color='var(--gold)';
+  toast(`"${title}" added to your queue →`);
 }
 
 async function shareReading(){
