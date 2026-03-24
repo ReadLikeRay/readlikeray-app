@@ -899,14 +899,45 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <div class="fp-name" id="fp-name"></div>
     </div>
   </div>
+  <!-- Stats grid matching own profile -->
+  <div class="prof-stat-grid">
+    <div class="prof-stat"><div class="prof-stat-n" id="fp-streak">—</div><div class="prof-stat-l">Day<br>Streak</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="fp-total">—</div><div class="prof-stat-l">Readings<br>Completed</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="fp-longest">—</div><div class="prof-stat-l">Longest<br>Streak</div></div>
+    <div class="prof-stat"><div class="prof-stat-n" id="fp-lifetime">—</div><div class="prof-stat-l">Lifetime<br>Read</div></div>
+  </div>
   <div class="fp-body">
-    <div class="fp-stats">
-      <div class="fp-stat"><div class="fp-stat-n" id="fp-total">—</div><div class="fp-stat-l">Readings<br>Completed</div></div>
-      <div class="fp-stat"><div class="fp-stat-n" id="fp-longest">—</div><div class="fp-stat-l">Longest<br>Streak</div></div>
+    <!-- Taste profile -->
+    <div class="prof-sec-lbl" style="margin-top:18px;">Their Reading Life</div>
+    <div class="taste-block">
+      <div class="taste-lbl" id="fp-taste-lbl">Taste Profile</div>
+      <div class="taste-row">
+        <div class="taste-rname">Poems</div>
+        <div class="taste-track"><div class="taste-fill" id="fp-taste-bar-poem" style="width:0%;background:var(--sage);"></div></div>
+        <div class="taste-pct" id="fp-taste-pct-poem">—</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-rname">Stories</div>
+        <div class="taste-track"><div class="taste-fill" id="fp-taste-bar-story" style="width:0%;background:var(--rust);"></div></div>
+        <div class="taste-pct" id="fp-taste-pct-story">—</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-rname">Essays</div>
+        <div class="taste-track"><div class="taste-fill" id="fp-taste-bar-essay" style="width:0%;background:#6b3a5a;"></div></div>
+        <div class="taste-pct" id="fp-taste-pct-essay">—</div>
+      </div>
+      <div class="taste-tags" id="fp-taste-tags"></div>
     </div>
-    <div class="fp-sec-lbl" style="margin-top:0">★ Five-Star Favorites</div>
+    <!-- Five-star reads -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
+      <div class="prof-sec-lbl" style="margin:0;">★ Five-Star Reads</div>
+    </div>
     <div id="fp-favs"></div>
-    <div class="fp-sec-lbl">Badges</div>
+    <!-- Badges -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:10px;">
+      <div class="prof-sec-lbl" style="margin:0;">Badges</div>
+      <button id="fp-badges-see-all" onclick="fpToggleBadges()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
+    </div>
     <div id="fp-badges" class="badge-grid"></div>
   </div>
 </div>
@@ -2128,40 +2159,110 @@ async function loadFriendFeed(friendIds){
   }).join('');
 }
 
+let _fpBadgesExpanded=false;
+function fpToggleBadges(){
+  _fpBadgesExpanded=!_fpBadgesExpanded;
+  const grid=document.getElementById('fp-badges');
+  const btn=document.getElementById('fp-badges-see-all');
+  if(_fpBadgesExpanded){
+    grid.style.gridTemplateColumns='repeat(4,1fr)';
+    grid.querySelectorAll('.badge-item').forEach(b=>b.style.display='flex');
+    btn.textContent='Show Less ↑';
+  } else {
+    grid.style.gridTemplateColumns='repeat(4,1fr)';
+    grid.querySelectorAll('.badge-item').forEach((b,i)=>b.style.display=i<8?'flex':'none');
+    btn.textContent='See All →';
+  }
+}
+
 async function openFriendProfile(friendId, username){
+  _fpBadgesExpanded=false;
   showScreen('friend-profile');
   document.getElementById('fp-av').style.background=frColor(username);
   document.getElementById('fp-av').textContent=username.slice(0,2).toUpperCase();
   document.getElementById('fp-name').textContent=username;
-  document.getElementById('fp-total').textContent='…';
-  document.getElementById('fp-longest').textContent='…';
+  // Reset
+  ['fp-streak','fp-total','fp-longest','fp-lifetime'].forEach(id=>document.getElementById(id).textContent='…');
   document.getElementById('fp-favs').innerHTML='';
-  // Total completed
-  const {count}=await sb.from('completed_readings').select('*',{count:'exact',head:true}).eq('user_id',friendId);
+  document.getElementById('fp-badges').innerHTML='';
+  document.getElementById('fp-taste-tags').innerHTML='';
+  ['poem','story','essay'].forEach(t=>{
+    const b=document.getElementById('fp-taste-bar-'+t);
+    const p=document.getElementById('fp-taste-pct-'+t);
+    if(b) b.style.width='0%';
+    if(p) p.textContent='—';
+  });
+
+  // Fetch profile + all completed readings in parallel
+  const [{data:fp},{data:done},{count}] = await Promise.all([
+    sb.from('profiles').select('streak_current,streak_best').eq('id',friendId).single(),
+    sb.from('completed_readings').select('reading_id,completed_at,rating,readings(id,title,author,type,year,themes)').eq('user_id',friendId),
+    sb.from('completed_readings').select('*',{count:'exact',head:true}).eq('user_id',friendId),
+  ]);
+
+  // Stats
+  document.getElementById('fp-streak').textContent=`🔥 ${fp?.streak_current||0}`;
   document.getElementById('fp-total').textContent=count||0;
-  // Longest streak from profile
-  const {data:fp}=await sb.from('profiles').select('streak_best').eq('id',friendId).single();
   document.getElementById('fp-longest').textContent=fp?.streak_best||0;
-  // 5-star favorites (up to 5, most recent)
-  const {data:favs}=await sb.from('completed_readings')
-    .select('reading_id,completed_at,readings(id,title,author,type)')
-    .eq('user_id',friendId)
-    .eq('rating',5)
-    .order('completed_at',{ascending:false})
-    .limit(5);
+  const lifetimeMins=(done||[]).reduce((s,d)=>s+(d.readings?.read_time_minutes||0),0);
+  document.getElementById('fp-lifetime').textContent=lifetimeMins<60?`${lifetimeMins}m`:`${(lifetimeMins/60).toFixed(1)}h`;
+
+  // Taste profile bars (avg rating per type)
+  const ratingSum={poem:0,story:0,essay:0};
+  const ratingCount={poem:0,story:0,essay:0};
+  const themeCounts={};
+  for(const d of (done||[])){
+    const t=d.readings?.type;
+    if(t&&ratingSum[t]!==undefined&&d.rating){ ratingSum[t]+=d.rating; ratingCount[t]++; }
+    for(const th of (d.readings?.themes||[])){ themeCounts[th]=(themeCounts[th]||0)+1; }
+  }
+  document.getElementById('fp-taste-lbl').textContent=`Taste Profile · ${count||0} reading${count!==1?'s':''}`;
+  ['poem','story','essay'].forEach(t=>{
+    const avg=ratingCount[t]>0?(ratingSum[t]/ratingCount[t]):0;
+    const pct=Math.round((avg/5)*100);
+    const bar=document.getElementById('fp-taste-bar-'+t);
+    const pctEl=document.getElementById('fp-taste-pct-'+t);
+    if(bar) setTimeout(()=>bar.style.width=pct+'%',100);
+    if(pctEl) pctEl.textContent=avg>0?avg.toFixed(1)+'★':'—';
+  });
+  const topThemes=Object.entries(themeCounts).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([t])=>t);
+  const tagsEl=document.getElementById('fp-taste-tags');
+  if(tagsEl) tagsEl.innerHTML=topThemes.map(t=>`<div class="taste-tag">${t}</div>`).join('');
+
+  // Five-star reads with anthology style
+  const favs=(done||[]).filter(d=>d.rating===5).sort((a,b)=>new Date(b.completed_at)-new Date(a.completed_at)).slice(0,5);
+  const favIds=favs.map(f=>f.reading_id).filter(Boolean);
+  let noteMap={};
+  if(favIds.length>0){
+    const {data:notes}=await sb.from('annotations').select('reading_id,note_body').eq('user_id',friendId).in('reading_id',favIds).order('created_at',{ascending:false});
+    (notes||[]).forEach(n=>{ if(!noteMap[n.reading_id]) noteMap[n.reading_id]=n.note_body; });
+  }
   const favsEl=document.getElementById('fp-favs');
-  if(!favs||favs.length===0){
+  if(favs.length===0){
     favsEl.innerHTML='<div class="fp-empty">No five-star reads yet.</div>';
   } else {
-    favsEl.innerHTML=favs.map(f=>`
-      <div class="fp-fav" onclick="openReadingDirect('${f.readings?.id}')">
-        <div class="fp-fav-title">${f.readings?.title||'—'}</div>
-        <div class="fp-fav-author">${f.readings?.author||''}</div>
-        <div class="fp-fav-stars">★★★★★</div>
-      </div>`).join('');
+    favsEl.innerHTML=favs.map(f=>{
+      const r=f.readings; if(!r) return '';
+      const note=noteMap[f.reading_id];
+      const date=new Date(f.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const typeLabel=r.type?r.type.charAt(0).toUpperCase()+r.type.slice(1):'';
+      const meta=[typeLabel,r.author,r.year].filter(Boolean).join(' · ');
+      return `<div class="anth-entry" onclick="openReadingDirect('${r.id}','friend-profile')">
+        <div class="anth-entry-meta">${meta}</div>
+        <div class="anth-entry-title">${r.title||'—'}</div>
+        ${note?`<div class="anth-entry-note">"${note}"</div>`:''}
+        <div class="anth-entry-foot">
+          <div class="anth-entry-stars">★★★★★</div>
+          <div class="anth-entry-date">${date}</div>
+        </div>
+      </div>`;
+    }).filter(Boolean).join('');
   }
-  // Badges
+
+  // Badges (collapsed to 8, expandable)
   await loadBadgesUI(friendId,'fp-badges');
+  document.querySelectorAll('#fp-badges .badge-item').forEach((b,i)=>b.style.display=i<8?'flex':'none');
+  document.getElementById('fp-badges-see-all').textContent='See All →';
 }
 
 async function openReadingDirect(readingId, returnScreen='completed'){
