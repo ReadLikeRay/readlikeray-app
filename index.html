@@ -1270,13 +1270,10 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <div style="font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Earned</div>
       <button onclick="openProfileSheet('prof-badges-sheet')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
     </div>
-    <div class="badge-grid" id="profile-badges-preview" style="padding:10px 20px 0;"></div>
-
-    <div style="padding:18px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Rare &amp; Secret</div>
-    <div class="rare-grid" id="prof-rare-earned"></div>
+    <div class="rare-grid" id="prof-badges-earned" style="margin-top:8px;"></div>
 
     <div style="padding:14px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Locked</div>
-    <div class="rare-grid" id="prof-rare-locked"></div>
+    <div class="rare-grid" id="prof-badges-locked"></div>
 
     <div style="padding:14px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Unknown</div>
     <div class="rare-grid">
@@ -3976,7 +3973,7 @@ const ERAS=[
   {id:'contemporary',icon:'🌐',name:'Contemporary',dates:'1980s – present',authors:'Morrison, Oliver, Coates, Rankine'},
 ];
 
-const REGIONS=['American','African American','British','Irish','Latin American','Russian','French','Japanese','African','South Asian','Scandinavian','Middle Eastern','East Asian','Caribbean','Australian'];
+const REGIONS=['American','African American','British','Irish','European','Russian','French','Japanese','African','Latin American','South Asian','Scandinavian','Middle Eastern','East Asian','Caribbean','Australian'];
 
 // ── RARE BADGE DATA ──
 const RARE_BADGES=[
@@ -4085,27 +4082,17 @@ async function loadBadgesTab(){
   const {data:earned}=await sb.from('user_badges').select('badge_id,earned_at').eq('user_id',user.id);
   const earnedMap=Object.fromEntries((earned||[]).map(b=>[b.badge_id,b.earned_at]));
 
-  // Standard badges preview (earned-first, 8 shown)
-  const sorted=[...BADGES].sort((a,b)=>{
-    const ae=!!earnedMap[a.id],be=!!earnedMap[b.id];
-    return ae===be?0:ae?-1:1;
-  });
-  const previewEl=document.getElementById('profile-badges-preview');
-  if(previewEl) previewEl.innerHTML=sorted.slice(0,8).map(b=>{
-    const isEarned=!!earnedMap[b.id];
-    const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-    return `<div class="badge ${isEarned?'earned':'locked'}" onclick="showBadgeInfo('${b.id}')" style="cursor:pointer">
-      <div class="badge-icon">${b.icon}</div>
-      <div class="badge-name">${b.name}</div>
-      ${isEarned?`<div class="badge-date">${date}</div>`:''}
+  // Build all earned badges (standard + rare) sorted earned-first as unified rb cards
+  const mkStdCard=(b)=>{
+    const date=new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="rb earned">
+      <span class="rb-icon">${b.icon}</span>
+      <div class="rb-name">${b.name}</div>
+      <div class="rb-desc">${b.desc}</div>
+      <div class="rb-date">Earned ${date}</div>
     </div>`;
-  }).join('');
-
-  // Rare badges
-  const rareEarned=RARE_BADGES.filter(b=>earnedMap['rare_'+b.id]);
-  const rareLocked=RARE_BADGES.filter(b=>!earnedMap['rare_'+b.id]);
-
-  const mkRare=(b,isEarned)=>{
+  };
+  const mkRareCard=(b,isEarned)=>{
     const date=isEarned?new Date(earnedMap['rare_'+b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
     return `<div class="rb ${isEarned?'earned':'locked-rb'} ${b.rarity}">
       <div class="rb-rarity">${b.rarity.charAt(0).toUpperCase()+b.rarity.slice(1)}</div>
@@ -4116,19 +4103,31 @@ async function loadBadgesTab(){
     </div>`;
   };
 
-  document.getElementById('prof-rare-earned').innerHTML=rareEarned.length>0
-    ? rareEarned.map(b=>mkRare(b,true)).join('')
-    : '<div style="grid-column:span 2;font-family:\"Space Mono\",monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--faded);padding:8px 0;">None earned yet.</div>';
-
-  document.getElementById('prof-rare-locked').innerHTML=rareLocked.map(b=>mkRare(b,false)).join('');
-
-  // All earned badges sheet
-  const allEarned=sorted.filter(b=>!!earnedMap[b.id]);
+  const allStdEarned=BADGES.filter(b=>!!earnedMap[b.id])
+    .sort((a,b)=>new Date(earnedMap[b.id])-new Date(earnedMap[a.id]));
   const allRareEarned=RARE_BADGES.filter(b=>earnedMap['rare_'+b.id]);
+  const rareLocked=RARE_BADGES.filter(b=>!earnedMap['rare_'+b.id]);
+
+  // Earned grid: standard first, then rare (all as rb cards)
+  const earnedEl=document.getElementById('prof-badges-earned');
+  if(earnedEl){
+    const allEarnedCards=[
+      ...allStdEarned.map(mkStdCard),
+      ...allRareEarned.map(b=>mkRareCard(b,true))
+    ].join('');
+    earnedEl.innerHTML=allEarnedCards||
+      `<div style="grid-column:span 2;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--faded);padding:8px 0;">No badges earned yet.</div>`;
+  }
+
+  // Locked rare
+  const lockedEl=document.getElementById('prof-badges-locked');
+  if(lockedEl) lockedEl.innerHTML=rareLocked.map(b=>mkRareCard(b,false)).join('');
+
+  // All earned sheet
   let sheetHtml='';
-  if(allEarned.length>0){
+  if(allStdEarned.length>0){
     sheetHtml+=`<div class="ps-sub-lbl">Standard</div>`;
-    sheetHtml+=allEarned.map(b=>{
+    sheetHtml+=allStdEarned.map(b=>{
       const date=new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
       return `<div class="ps-badge-row e-b">
         <div class="ps-badge-icon">${b.icon}</div>
@@ -4160,12 +4159,12 @@ async function loadBadgesTab(){
   if(!sheetHtml) sheetHtml='<div style="color:var(--faded);font-style:italic;font-size:0.82rem;padding:8px 0;">No badges earned yet.</div>';
   document.getElementById('prof-badges-sheet-body').innerHTML=sheetHtml;
 
-  // Badge teaser on overview
+  // Badge teaser
   const teaserIcons=document.getElementById('prof-teaser-badge-icons');
   if(teaserIcons){
-    const show=sorted.filter(b=>!!earnedMap[b.id]).slice(0,6);
+    const show=[...allStdEarned,...allRareEarned].slice(0,6);
     teaserIcons.innerHTML=show.map(b=>`<span style="font-size:1.1rem;">${b.icon}</span>`).join('');
-    const total=allEarned.length+allRareEarned.length;
+    const total=allStdEarned.length+allRareEarned.length;
     document.getElementById('prof-teaser-badge-sub').textContent=`${total} earned${allRareEarned.length>0?' · '+allRareEarned.length+' rare':''}`;
   }
 }
