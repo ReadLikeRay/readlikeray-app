@@ -219,6 +219,83 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .wbr-note-who { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-bottom:4px; }
 .wbr-note-text { font-size:0.78rem; color:var(--aged); line-height:1.6; font-style:italic; }
 
+
+/* ── RATING PROMPT ── */
+#rating-prompt-bg { position:fixed; inset:0; background:rgba(0,0,0,0.72); z-index:860; display:none; align-items:flex-end; justify-content:center; }
+#rating-prompt-bg.show { display:flex; }
+.rp-sheet { background:var(--surface2); width:100%; max-width:390px; border-top:1px solid rgba(255,255,255,0.08); padding:32px 28px 52px; text-align:center; }
+.rp-star-row { display:flex; justify-content:center; gap:10px; margin-bottom:28px; }
+.rp-star { font-size:2.2rem; color:rgba(255,255,255,0.15); cursor:pointer; transition:color 0.15s, transform 0.1s; line-height:1; }
+.rp-star.lit { color:var(--gold); }
+.rp-star:active { transform:scale(0.88); }
+.rp-btn-primary { display:block; width:100%; padding:16px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.14em; border:none; cursor:pointer; margin-bottom:10px; opacity:0.4; transition:background 0.15s,opacity 0.15s; }
+.rp-btn-primary.enabled { opacity:1; }
+.rp-btn-secondary { display:block; width:100%; padding:12px; background:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.1em; border:1px solid rgba(255,255,255,0.08); cursor:pointer; margin-bottom:8px; }
+.rp-btn-ghost { display:block; width:100%; padding:10px; background:none; color:rgba(255,255,255,0.2); font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.08em; border:none; cursor:pointer; }
+.rp-feedback-area { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:var(--aged); font-family:'Libre Baskerville',serif; font-size:0.82rem; padding:12px; resize:none; outline:none; min-height:110px; line-height:1.65; margin-bottom:14px; }
+
+
+/* ── TASTE PROFILE ── */
+.taste-block { background:var(--surface); border:1px solid rgba(255,255,255,0.06); padding:16px; margin-bottom:3px; }
+.taste-lbl { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--faded); margin-bottom:14px; }
+.taste-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.taste-row:last-of-type { margin-bottom:0; }
+.taste-rname { font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--aged); width:72px; flex-shrink:0; }
+.taste-track { flex:1; height:5px; background:rgba(255,255,255,0.06); }
+.taste-fill { height:100%; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+.taste-pct { font-family:'Space Mono',monospace; font-size:0.4rem; color:var(--faded); width:28px; text-align:right; flex-shrink:0; }
+.taste-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:14px; padding-top:13px; border-top:1px solid rgba(255,255,255,0.06); }
+.taste-tag { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.06em; padding:4px 8px; background:rgba(201,146,42,0.08); border:1px solid rgba(201,146,42,0.22); color:var(--gold); }
+
+/* ── ANTHOLOGY ENTRIES ── */
+.anth-entry { background:var(--surface); border:1px solid rgba(255,255,255,0.05); border-left:3px solid var(--gold); padding:13px 15px; margin-bottom:3px; cursor:pointer; }
+.anth-entry-meta { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-bottom:4px; }
+.anth-entry-title { font-family:'Playfair Display',serif; font-size:0.92rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.anth-entry-auth { font-size:0.64rem; color:var(--faded); font-style:italic; margin-bottom:7px; }
+.anth-entry-note { font-size:0.74rem; color:#9a8070; line-height:1.65; font-style:italic; border-left:2px solid rgba(201,146,42,0.28); padding-left:9px; margin-bottom:7px; }
+.anth-entry-foot { display:flex; align-items:center; justify-content:space-between; }
+.anth-entry-stars { color:var(--gold); font-size:0.68rem; }
+.anth-entry-date { font-family:'Space Mono',monospace; font-size:0.37rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); }
+
+/* ── BROWSE RECOMMENDATION ── */
+.browse-rec { margin-bottom:16px; background:var(--surface2); border:1px solid rgba(201,146,42,0.25); border-left:3px solid var(--gold); }
+.browse-rec-top { padding:13px 15px 11px; }
+.browse-rec-eyebrow { font-family:'Space Mono',monospace; font-size:0.4rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--gold); margin-bottom:6px; }
+.browse-rec-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); margin-bottom:2px; }
+.browse-rec-author { font-size:0.65rem; color:var(--faded); font-style:italic; margin-bottom:8px; }
+.browse-rec-reason { font-size:0.75rem; color:#9a8070; line-height:1.65; font-style:italic; border-left:2px solid rgba(201,146,42,0.28); padding-left:9px; margin-bottom:9px; }
+.browse-rec-because { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--faded); margin-bottom:5px; }
+.browse-rec-pills { display:flex; gap:5px; flex-wrap:wrap; }
+.browse-rec-pill { font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.05em; padding:3px 7px; background:rgba(201,146,42,0.08); border:1px solid rgba(201,146,42,0.2); color:var(--gold); }
+.browse-rec-foot { border-top:1px solid rgba(255,255,255,0.06); padding:9px 15px; display:flex; gap:8px; }
+.browse-rec-add { flex:1; padding:9px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.1em; border:none; cursor:pointer; }
+.browse-rec-skip { padding:9px 12px; background:none; border:1px solid rgba(255,255,255,0.1); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.46rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+
+
+/* ── IN-APP READING ── */
+.rd-progress-wrap { height:2px; background:rgba(255,255,255,0.06); }
+.rd-progress-fill { height:100%; background:var(--rust); width:0%; transition:width 0.3s ease; }
+
+/* poem layout */
+.rd-poem { padding:28px 28px 220px; }
+.rd-poem-stanza { margin-bottom:26px; }
+.rd-poem-line { font-family:'Playfair Display',serif; font-size:1rem; font-style:italic; color:var(--paper); line-height:1.9; }
+.rd-poem-line.indent { padding-left:28px; }
+.rd-poem-line.emphasis { color:var(--gold); font-size:1.05rem; }
+.rd-poem-end { text-align:center; color:var(--faded); font-size:0.7rem; margin-top:28px; letter-spacing:0.2em; padding-bottom:40px; }
+
+/* prose layout (essay + story) */
+.rd-prose { padding:0 0 220px; }
+.rd-prose-lede { font-family:'Playfair Display',serif; font-size:1rem; font-style:italic; color:var(--paper); line-height:1.75; padding:22px 24px 20px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:0; }
+.rd-prose-body { padding:20px 24px 0; }
+.rd-prose-graf { font-size:0.88rem; color:var(--aged); line-height:1.9; margin-bottom:18px; }
+.rd-prose-graf.drop-cap::first-letter { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700; color:var(--rust); float:left; line-height:0.8; margin:6px 8px 0 0; }
+.rd-prose-section { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--faded); margin:24px 0 18px; text-align:center; }
+.rd-prose-continues { font-family:'Space Mono',monospace; font-size:0.42rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); text-align:center; padding:18px 0 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:6px; }
+
+/* link fallback (when no body_text) */
+.rd-link-section { padding:0 0 16px; }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -681,18 +758,27 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       </div>
     </div>
   </div>
-  <div class="rd-body">
+  <!-- reading progress bar -->
+  <div class="rd-progress-wrap"><div class="rd-progress-fill" id="rd-progress-fill"></div></div>
+  <!-- scrollable reading area -->
+  <div class="rd-body" id="rd-body" onscroll="rdTrackScroll(this)">
+    <!-- context blurb always shown -->
     <div class="rd-context" id="rd-context"></div>
     <div class="rd-friend-ratings" id="rd-friend-ratings" style="display:none">
       <div class="rd-friend-ratings-lbl">Friends who read this</div>
       <div id="rd-friend-ratings-list"></div>
     </div>
-    <a class="rd-open-btn" id="rd-link" href="#" target="_blank" rel="noopener">Open Full Text →</a>
-    <button class="rd-broken-btn" onclick="reportBrokenLink()">Link not working?</button>
-
-    <div style="margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--faded);">Add a note</div>
-    <textarea class="rd-note-area" id="rd-note" placeholder="Your thoughts, a line that struck you..."></textarea>
-    <button class="rd-note-save" onclick="saveNote()">Save Note ✏</button>
+    <!-- in-app text (shown when body_text exists) -->
+    <div id="rd-inapp-text" style="display:none;"></div>
+    <!-- link fallback (shown when no body_text) -->
+    <div id="rd-link-section" class="rd-link-section">
+      <a class="rd-open-btn" id="rd-link" href="#" target="_blank" rel="noopener">Open Full Text →</a>
+      <button class="rd-broken-btn" onclick="reportBrokenLink()">Link not working?</button>
+    </div>
+  </div>
+  <div class="rd-footer">
+    <textarea class="rd-note-area" id="rd-note" placeholder="Your thoughts, a line that struck you..." style="flex:1;min-height:unset;height:36px;padding:8px 10px;font-size:0.78rem;"></textarea>
+    <button class="done-btn" id="done-btn-footer" onclick="markComplete()" style="width:auto;padding:9px 14px;flex:none;font-size:0.52rem;">Mark Done</button>
   </div>
 </div>
 
@@ -855,6 +941,9 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       </div>
     </div>
   </div>
+  <div style="padding:0 22px 0">
+    <div id="browse-rec-container"></div>
+  </div>
   <div id="browse-list" style="padding:0 22px 40px"></div>
 </div>
 
@@ -902,14 +991,42 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
   </div>
 
   <div class="prof-body">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+
+    <!-- Your Reading Life -->
+    <div class="prof-sec-lbl" style="margin-top:24px;">Your Reading Life</div>
+    <div class="taste-block" id="prof-taste-block">
+      <div class="taste-lbl" id="prof-taste-lbl">Taste Profile</div>
+      <div class="taste-row">
+        <div class="taste-rname">Poems</div>
+        <div class="taste-track"><div class="taste-fill" id="taste-bar-poem" style="width:0%;background:var(--sage);"></div></div>
+        <div class="taste-pct" id="taste-pct-poem">—</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-rname">Stories</div>
+        <div class="taste-track"><div class="taste-fill" id="taste-bar-story" style="width:0%;background:var(--rust);"></div></div>
+        <div class="taste-pct" id="taste-pct-story">—</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-rname">Essays</div>
+        <div class="taste-track"><div class="taste-fill" id="taste-bar-essay" style="width:0%;background:#6b3a5a;"></div></div>
+        <div class="taste-pct" id="taste-pct-essay">—</div>
+      </div>
+      <div class="taste-tags" id="prof-taste-tags"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px;">
+      <div class="prof-sec-lbl" style="margin:0;">★ Five-Star Reads</div>
+      <button onclick="navTo('completed')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
+    </div>
+    <div id="prof-favs"></div>
+
+    <!-- Badges -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px;margin-bottom:10px">
       <div class="prof-sec-lbl" style="margin:0" id="wt-badges-lbl">Badges</div>
       <button onclick="openBadgesSlide()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
     </div>
     <div class="badge-grid" id="profile-badges-preview"></div>
 
-    <div class="prof-sec-lbl">★ Five-Star Favorites</div>
-    <div id="prof-favs"></div>
   </div>
 
   <!-- Badges all slide -->
@@ -1176,7 +1293,14 @@ function goStep(from,to){
   document.getElementById('screen-onboard').scrollTop=0;
 }
 async function finishOnboard(){
-  await sb.from('profiles').upsert({id:user.id,duration_goal:od.duration,era_preference:od.era,counts_poems:od.poems,counts_stories:od.stories,counts_essays:od.essays});
+  // Use update (not upsert) so we never overwrite username or other existing fields
+  await sb.from('profiles').update({
+    duration_goal:od.duration,
+    era_preference:od.era,
+    counts_poems:od.poems,
+    counts_stories:od.stories,
+    counts_essays:od.essays
+  }).eq('id',user.id);
   if(od.themes.length>0){
     await sb.from('user_themes').delete().eq('user_id',user.id);
     await sb.from('user_themes').insert(od.themes.map(t=>({user_id:user.id,theme:t})));
@@ -1210,8 +1334,8 @@ async function refreshHome(){
   const now=new Date();
   const h=now.getHours();
   document.getElementById('home-greet').textContent=h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening';
-  document.getElementById('home-ttl').textContent=`Day ${dayNum()} of ${profile.duration_goal||1000}`;
-  document.getElementById('home-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('home-ttl').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('home-date').textContent=`Day ${dayNum()} of ${profile.duration_goal||1000}`;
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
   const fc=profile.streak_freezes||0;
@@ -1257,17 +1381,13 @@ async function renderWeek(){
     if(q.completed) dateMap[q.queued_date].done++;
   });
   const readDates=new Set(Object.entries(dateMap).filter(([,v])=>v.total>0&&v.done===v.total).map(([k])=>k));
-  // Fall back to streak_last_date when no queue rows exist for a completed day.
-  if(profile?.streak_last_date && profile.streak_current>0){
+  // Fall back to streak_last_date only for past days within this week
+  // where queue rows may be missing (e.g. after a queue was deleted).
+  // Never infer yesterday from today — that caused phantom green dots.
+  if(profile?.streak_last_date && profile.streak_current>1){
     const sld=profile.streak_last_date;
     if(sld>=weekStartStr && sld<todayStr){
-      // Normal case: streak_last_date is a past local date
       readDates.add(sld);
-    } else if(sld===todayStr){
-      // UTC bleed: completed yesterday evening, but date written as today (UTC).
-      // Mark yesterday's dot instead.
-      const yesterday=localDateOffset(-86400000);
-      if(yesterday>=weekStartStr) readDates.add(yesterday);
     }
   }
   document.getElementById('week-row').innerHTML=days.map((d,i)=>{
@@ -1429,7 +1549,6 @@ async function switchToShortQueue(){
 async function openReader(qid){
   setTimeout(()=>maybeStartWalkthrough('reader'),600);
   readerReturnScreen='home';
-  // Always clear feedback overlay so it never blocks the back button
   document.getElementById('feedback-overlay').classList.remove('show');
   const {data:qi}=await sb.from('daily_queue').select('*,readings(*)').eq('id',qid).single();
   if(!qi||!qi.readings)return;
@@ -1440,15 +1559,84 @@ async function openReader(qid){
   document.getElementById('rd-title').textContent=r.title;
   document.getElementById('rd-author').textContent=`${r.author}${r.year?' — '+r.year:''}`;
   document.getElementById('rd-context').textContent=r.context||'';
-  document.getElementById('rd-link').href=r.source_url||'#';
-
+  // Reset progress bar
+  document.getElementById('rd-progress-fill').style.width='0%';
+  document.getElementById('rd-body').scrollTop=0;
+  // Render body text or link
+  const inapp=document.getElementById('rd-inapp-text');
+  const linkSec=document.getElementById('rd-link-section');
+  if(r.body_text){
+    linkSec.style.display='none';
+    inapp.style.display='block';
+    inapp.innerHTML=rdRenderBody(r.type, r.body_text);
+  } else {
+    inapp.style.display='none';
+    linkSec.style.display='block';
+    document.getElementById('rd-link').href=r.source_url||'#';
+  }
   document.getElementById('rd-note').value='';
   document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<currentRating));
   const db=document.getElementById('done-btn');
-  db.textContent=qi.completed?'✓ Complete':'Mark Done';
+  const dbf=document.getElementById('done-btn-footer');
+  const label=qi.completed?'✓ Complete':'Mark Done';
+  db.textContent=label; dbf.textContent=label;
   db.classList.toggle('complete',qi.completed);
+  dbf.classList.toggle('complete',qi.completed);
   loadFriendRatings(r.id);
   showScreen('reader');
+}
+
+function rdRenderBody(type, text){
+  if(type==='poem') return rdRenderPoem(text);
+  return rdRenderProse(text);
+}
+
+function rdRenderPoem(text){
+  const stanzas=text.split(/\n\n+/);
+  const html=stanzas.map(stanza=>{
+    const lines=stanza.split('\n').map(line=>{
+      const trimmed=line.trimStart();
+      const indent=line.length-trimmed.length>0?' indent':'';
+      // Lines in ALL CAPS or wrapped in quotes treated as emphasis
+      const emph=(trimmed===trimmed.toUpperCase()&&trimmed.length>4&&/[A-Z]/.test(trimmed))?' emphasis':'';
+      return `<div class="rd-poem-line${indent}${emph}">${trimmed||'&nbsp;'}</div>`;
+    }).join('');
+    return `<div class="rd-poem-stanza">${lines}</div>`;
+  }).join('');
+  return `<div class="rd-poem">${html}<div class="rd-poem-end">· · ·</div></div>`;
+}
+
+function rdRenderProse(text){
+  // Split on double newline for paragraphs; triple-dash becomes section break
+  const parts=text.split(/\n\n+/);
+  let isFirst=true;
+  const html=parts.map(p=>{
+    const trimmed=p.trim();
+    if(trimmed==='---'||trimmed==='***'||trimmed==='* * *'){
+      return '<div class="rd-prose-section">· · ·</div>';
+    }
+    const cls=isFirst?'rd-prose-graf drop-cap':'rd-prose-graf';
+    isFirst=false;
+    return `<p class="${cls}">${trimmed}</p>`;
+  }).join('');
+  // First paragraph becomes lede
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
+  const firstP=doc.querySelector('p');
+  let lede='', body='';
+  if(firstP){
+    lede=`<div class="rd-prose-lede">${firstP.textContent}</div>`;
+    firstP.remove();
+    body=doc.body.innerHTML;
+  } else {
+    body=html;
+  }
+  return `<div class="rd-prose">${lede}<div class="rd-prose-body">${body}</div></div>`;
+}
+
+function rdTrackScroll(el){
+  const pct=el.scrollTop/(el.scrollHeight-el.clientHeight)*100;
+  document.getElementById('rd-progress-fill').style.width=Math.min(100,pct||0)+'%';
 }
 let readerReturnScreen='home';
 function closeReader(){
@@ -1597,6 +1785,7 @@ async function updateStreak(){
   document.getElementById('s-best').textContent=best;
   await checkStreakFreeze();
   retMaybeShowMilestone(streak);
+  rpMaybeShow(streak);
 }
 async function saveNote(){
   const note=document.getElementById('rd-note').value.trim();
@@ -1795,21 +1984,33 @@ async function loadProfileScreen(){
   document.getElementById('prof-tonight').textContent=tonightMins>0?`${tonightMins}m`:'Done ✓';
   // Badges preview
   await loadBadgesPreview(user.id);
-  // Five-star favorites
+  // Taste profile + anthology
+  await loadTasteProfile();
+  // Five-star anthology
   const {data:favs}=await sb.from('completed_readings')
-    .select('reading_id,readings(id,title,author)')
+    .select('reading_id,completed_at,rating,readings(id,title,author,type,year),annotations(note_body)')
     .eq('user_id',user.id).eq('rating',5)
     .order('completed_at',{ascending:false}).limit(5);
   const favsEl=document.getElementById('prof-favs');
   if(!favs||favs.length===0){
     favsEl.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.82rem;padding:8px 0">No five-star reads yet.</div>';
   } else {
-    favsEl.innerHTML=favs.map(f=>`
-      <div class="prof-fav" onclick="openReadingDirect('${f.readings?.id}')">
-        <div class="prof-fav-title">${f.readings?.title||'—'}</div>
-        <div class="prof-fav-author">${f.readings?.author||''}</div>
-        <div class="prof-fav-stars">★★★★★</div>
-      </div>`).join('');
+    favsEl.innerHTML=favs.map(f=>{
+      const r=f.readings; if(!r) return '';
+      const note=f.annotations?.[0]?.note_body;
+      const date=new Date(f.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const typeLabel=r.type?r.type.charAt(0).toUpperCase()+r.type.slice(1):'';
+      const meta=[typeLabel,r.author,r.year].filter(Boolean).join(' · ');
+      return `<div class="anth-entry" onclick="openReadingDirect('${r.id}')">
+        <div class="anth-entry-meta">${meta}</div>
+        <div class="anth-entry-title">${r.title||'—'}</div>
+        ${note?`<div class="anth-entry-note">"${note}"</div>`:''}
+        <div class="anth-entry-foot">
+          <div class="anth-entry-stars">★★★★★</div>
+          <div class="anth-entry-date">${date}</div>
+        </div>
+      </div>`;
+    }).filter(Boolean).join('');
   }
   // Settings slide values
   document.getElementById('set-duration').textContent=`${profile.duration_goal||1000} nights`;
@@ -2097,6 +2298,7 @@ async function loadBrowse(){
   const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
   browseReadIds=new Set((done||[]).map(d=>d.reading_id));
   renderBrowse();
+  loadBrowseRec();
 }
 function setBrowseFilter(f,el){
   browseFilter=f;
@@ -2411,15 +2613,20 @@ async function checkStreakFreeze(){
   }
 }
 // offerStreakFreeze now delegates to the missed-day modal (returns Promise)
+// Keyed to the last-read date so it shows at most once per broken streak
 let _retMissedResolve=null;
 function offerStreakFreeze(){
   return new Promise(resolve=>{
+    // Only show once per broken streak — key off the last-read date
+    const seenKey='rlr_missed_seen_'+profile.streak_last_date;
+    if(localStorage.getItem(seenKey)){ resolve(false); return; }
+    localStorage.setItem(seenKey,'1');
     _retMissedResolve=resolve;
     const streakNum=profile.streak_current||0;
     const count=profile.streak_freezes||0;
     document.getElementById('ret-missed-num').textContent=streakNum;
-    const readings=streakNum*(((profile.counts_poems||1)+(profile.counts_stories||1)+(profile.counts_essays||1)));
-    document.getElementById('ret-missed-sub').textContent=`${streakNum} day${streakNum!==1?'s':''} of reading. That's ${readings} piece${readings!==1?'s':''} of writing you finished. None of that disappears.`;
+    // Just show the streak number — don't try to compute pieces read
+    document.getElementById('ret-missed-sub').textContent='It happens. Tonight is a fresh start.';
     const freezeBtn=document.getElementById('ret-freeze-btn');
     const noFreezeMsg=document.getElementById('ret-no-freeze-msg');
     if(count>0){
@@ -3079,6 +3286,187 @@ async function updateChallengeProgress(readingType){
     }
   }
 }
+
+// ── RATING PROMPT ──
+let _rpStars = 0;
+const RP_TRIGGER_STREAKS = [7, 14, 30];
+
+function rpMaybeShow(streak){
+  if(!RP_TRIGGER_STREAKS.includes(streak)) return;
+  const key = 'rlr_rp_' + streak;
+  if(localStorage.getItem(key)) return; // already shown for this streak milestone
+  if(localStorage.getItem('rlr_rp_never')) return; // user said don't ask again
+  localStorage.setItem(key, '1');
+  // Reset state
+  _rpStars = 0;
+  document.querySelectorAll('.rp-star').forEach(s=>s.classList.remove('lit'));
+  const btn = document.getElementById('rp-continue-btn');
+  btn.disabled = true; btn.classList.remove('enabled');
+  document.getElementById('rp-feedback-text').value = '';
+  document.getElementById('rp-step-stars').style.display = 'block';
+  document.getElementById('rp-step-feedback').style.display = 'none';
+  document.getElementById('rp-step-thanks').style.display = 'none';
+  document.getElementById('rp-step-sent').style.display = 'none';
+  // Set copy to match the milestone
+  const labels = {7:'7-Day Streak', 14:'14-Day Streak', 30:'30-Day Streak'};
+  const headlines = {
+    7:"You've been reading<br>for a week.",
+    14:"Two weeks of showing up.",
+    30:"Thirty nights of reading."
+  };
+  document.getElementById('rp-eyebrow').textContent = labels[streak] || streak+'-Day Streak';
+  document.getElementById('rp-headline').innerHTML = headlines[streak] || "You're still here.";
+  setTimeout(()=>document.getElementById('rating-prompt-bg').classList.add('show'), 800);
+}
+
+function rpTapStar(n){
+  _rpStars = n;
+  document.querySelectorAll('.rp-star').forEach((s,i)=>s.classList.toggle('lit', i<n));
+  const btn = document.getElementById('rp-continue-btn');
+  btn.disabled = false; btn.classList.add('enabled');
+}
+
+function rpContinue(){
+  if(!_rpStars) return;
+  if(_rpStars <= 2){
+    document.getElementById('rp-step-stars').style.display = 'none';
+    document.getElementById('rp-step-feedback').style.display = 'block';
+  } else {
+    // Log to Supabase and open App Store
+    if(user) sb.from('app_feedback').insert({user_id:user.id, stars:_rpStars});
+    document.getElementById('rp-step-stars').style.display = 'none';
+    document.getElementById('rp-step-thanks').style.display = 'block';
+    // Open App Store review — replace XXXXXXXXX with real app ID once live
+    // window.open('https://apps.apple.com/app/idXXXXXXXXX?action=write-review');
+  }
+}
+
+async function rpSendFeedback(){
+  const text = document.getElementById('rp-feedback-text').value.trim();
+  if(user) await sb.from('app_feedback').insert({user_id:user.id, stars:_rpStars, feedback_text:text||null});
+  document.getElementById('rp-step-feedback').style.display = 'none';
+  document.getElementById('rp-step-sent').style.display = 'block';
+}
+
+function rpDismiss(type){
+  if(type==='never') localStorage.setItem('rlr_rp_never','1');
+  // 'later' — key not set for this streak so it won't repeat, but next milestone will still trigger
+  rpClose();
+}
+
+function rpClose(){
+  document.getElementById('rating-prompt-bg').classList.remove('show');
+}
+
+
+// ── TASTE PROFILE ──
+async function loadTasteProfile(){
+  const {data:done}=await sb.from('completed_readings')
+    .select('readings(type,themes)')
+    .eq('user_id',user.id);
+  if(!done||done.length===0) return;
+  const total=done.length;
+  const byType={poem:0,story:0,essay:0};
+  const themeCounts={};
+  for(const d of done){
+    const t=d.readings?.type;
+    if(t&&byType[t]!==undefined) byType[t]++;
+    for(const th of (d.readings?.themes||[])){
+      themeCounts[th]=(themeCounts[th]||0)+1;
+    }
+  }
+  // Bars
+  const types=['poem','story','essay'];
+  for(const t of types){
+    const pct=total>0?Math.round((byType[t]/total)*100):0;
+    const bar=document.getElementById('taste-bar-'+t);
+    const pctEl=document.getElementById('taste-pct-'+t);
+    if(bar) setTimeout(()=>bar.style.width=pct+'%',100);
+    if(pctEl) pctEl.textContent=pct+'%';
+  }
+  document.getElementById('prof-taste-lbl').textContent=`Taste Profile · ${total} reading${total!==1?'s':''}`;
+  // Top themes
+  const topThemes=Object.entries(themeCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6)
+    .map(([t])=>t);
+  const tagsEl=document.getElementById('prof-taste-tags');
+  if(tagsEl&&topThemes.length>0){
+    tagsEl.innerHTML=topThemes.map(t=>`<div class="taste-tag">${t}</div>`).join('');
+  } else if(tagsEl){
+    tagsEl.style.display='none';
+  }
+}
+
+// ── BROWSE RECOMMENDATION ──
+async function loadBrowseRec(){
+  const el=document.getElementById('browse-rec-container');
+  if(!el) return;
+  // Dismissed this session?
+  if(sessionStorage.getItem('browse_rec_dismissed')) return;
+  // Get user's five-star reading themes
+  const {data:fiveStars}=await sb.from('completed_readings')
+    .select('reading_id,readings(themes,type,title)')
+    .eq('user_id',user.id).eq('rating',5)
+    .limit(10);
+  if(!fiveStars||fiveStars.length===0){ el.innerHTML=''; return; }
+  // Collect themes and source titles from five-star reads
+  const themeCounts={};
+  const sourceTitles=[];
+  for(const f of fiveStars){
+    sourceTitles.push(f.readings?.title);
+    for(const t of (f.readings?.themes||[])){ themeCounts[t]=(themeCounts[t]||0)+1; }
+  }
+  const topThemes=Object.entries(themeCounts).sort((a,b)=>b[1]-a[1]).map(([t])=>t).slice(0,3);
+  if(topThemes.length===0){ el.innerHTML=''; return; }
+  // Find a reading matching those themes that user hasn't read or wishlisted
+  const {data:done}=await sb.from('completed_readings').select('reading_id').eq('user_id',user.id);
+  const {data:wished}=await sb.from('reading_wishlist').select('reading_id').eq('user_id',user.id);
+  const excludeIds=new Set([...(done||[]).map(d=>d.reading_id),...(wished||[]).map(w=>w.reading_id)]);
+  const {data:pool}=await sb.from('readings')
+    .select('id,title,author,type,year,themes,context')
+    .overlaps('themes',topThemes)
+    .limit(50);
+  const candidates=(pool||[]).filter(r=>!excludeIds.has(r.id));
+  if(candidates.length===0){ el.innerHTML=''; return; }
+  // Pick one that shares the most themes with five-star reads
+  candidates.sort((a,b)=>{
+    const aScore=(a.themes||[]).filter(t=>topThemes.includes(t)).length;
+    const bScore=(b.themes||[]).filter(t=>topThemes.includes(t)).length;
+    return bScore-aScore;
+  });
+  const rec=candidates[0];
+  // Find which five-star reads share themes
+  const matchingTitles=fiveStars
+    .filter(f=>(f.readings?.themes||[]).some(t=>(rec.themes||[]).includes(t)))
+    .map(f=>f.readings?.title)
+    .filter(Boolean)
+    .slice(0,3);
+  el.innerHTML=`<div class="browse-rec">
+    <div class="browse-rec-top">
+      <div class="browse-rec-eyebrow">✦ Because you loved these</div>
+      <div class="browse-rec-title">${rec.title}</div>
+      <div class="browse-rec-author">${rec.author}${rec.year?', '+rec.year:''}</div>
+      ${rec.context?`<div class="browse-rec-reason">${rec.context}</div>`:''}
+      <div class="browse-rec-because">Matches your five-star reads</div>
+      <div class="browse-rec-pills">${matchingTitles.map(t=>`<div class="browse-rec-pill">${t}</div>`).join('')}</div>
+    </div>
+    <div class="browse-rec-foot">
+      <button class="browse-rec-add" onclick="browseRecAdd('${rec.id}','${rec.title.replace(/'/g,"\'")}')">+ Add to Wishlist</button>
+      <button class="browse-rec-skip" onclick="browseRecDismiss()">Not now</button>
+    </div>
+  </div>`;
+}
+async function browseRecAdd(id, title){
+  await addToWishlist(id, title, {stopPropagation:()=>{}}, null);
+  browseRecDismiss();
+}
+function browseRecDismiss(){
+  sessionStorage.setItem('browse_rec_dismissed','1');
+  const el=document.getElementById('browse-rec-container');
+  if(el) el.innerHTML='';
+}
+
 </script>
 
 <!-- WALKTHROUGH OVERLAY -->
@@ -3235,6 +3623,57 @@ async function updateChallengeProgress(readingType){
     <button class="chal-submit" onclick="submitChallenge()">Send Challenge →</button>
     <button class="chal-cancel" onclick="closeChallengeSheet()">Cancel</button>
   </div>
+</div>
+
+
+<!-- RATING PROMPT -->
+<div id="rating-prompt-bg">
+
+  <!-- Step 1: Stars -->
+  <div class="rp-sheet" id="rp-step-stars">
+    <div style="font-size:2.8rem;margin-bottom:6px;">🔥</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:12px;" id="rp-eyebrow">7-Day Streak</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--paper);line-height:1.25;margin-bottom:10px;" id="rp-headline">You've been reading<br>for a week.</div>
+    <div style="font-size:0.8rem;color:var(--faded);line-height:1.7;margin-bottom:28px;">If Read Like Ray has been worth showing up for, a review in the App Store helps other readers find it.</div>
+    <div class="rp-star-row" id="rp-stars">
+      <div class="rp-star" onclick="rpTapStar(1)">★</div>
+      <div class="rp-star" onclick="rpTapStar(2)">★</div>
+      <div class="rp-star" onclick="rpTapStar(3)">★</div>
+      <div class="rp-star" onclick="rpTapStar(4)">★</div>
+      <div class="rp-star" onclick="rpTapStar(5)">★</div>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px;"></div>
+    <button class="rp-btn-primary" id="rp-continue-btn" onclick="rpContinue()" disabled>Continue →</button>
+    <button class="rp-btn-secondary" onclick="rpDismiss('later')">Remind me later</button>
+    <button class="rp-btn-ghost" onclick="rpDismiss('never')">Don't ask again</button>
+  </div>
+
+  <!-- Step 2a: Feedback form (low rating) -->
+  <div class="rp-sheet" id="rp-step-feedback" style="display:none;text-align:left;">
+    <div style="font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--rust);margin-bottom:10px;">Your feedback</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper);line-height:1.25;margin-bottom:8px;">What's not working?</div>
+    <div style="font-size:0.78rem;color:var(--faded);line-height:1.65;margin-bottom:18px;">Every message goes directly to the person who built this. No support ticket, no bot.</div>
+    <textarea class="rp-feedback-area" id="rp-feedback-text" placeholder="Tell us what's wrong, what's missing, or what just felt off..."></textarea>
+    <button class="rp-btn-primary enabled" onclick="rpSendFeedback()">Send →</button>
+    <button class="rp-btn-ghost" onclick="rpClose()">Skip</button>
+  </div>
+
+  <!-- Step 2b: Thank you (high rating) -->
+  <div class="rp-sheet" id="rp-step-thanks" style="display:none;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:12px;">📖</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper);margin-bottom:8px;">Thank you.</div>
+    <div style="font-size:0.78rem;color:var(--faded);line-height:1.7;margin-bottom:28px;">Every review helps another reader find their way here.</div>
+    <button class="rp-btn-primary enabled" onclick="rpClose()">Back to Reading →</button>
+  </div>
+
+  <!-- Step 3: Feedback sent -->
+  <div class="rp-sheet" id="rp-step-sent" style="display:none;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:12px;">✉️</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper);margin-bottom:8px;">Sent.</div>
+    <div style="font-size:0.78rem;color:var(--faded);line-height:1.7;margin-bottom:28px;">Hannah reads every message. Thanks for taking the time — it genuinely helps.</div>
+    <button class="rp-btn-primary enabled" onclick="rpClose()">Back to Reading →</button>
+  </div>
+
 </div>
 
 </body>
