@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Read Like Ray</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1a1108; --paper:#f5f0e4; --aged:#e8dfc8; --rust:#b5451b; --gold:#c9922a; --faded:#8a7a60; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--ink); color:var(--aged); font-family:'Libre Baskerville',Georgia,serif; max-width:680px; margin:0 auto; padding:60px 28px 100px; line-height:1.8; }
+  .logo { font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.25em; color:var(--rust); margin-bottom:12px; }
+  h1 { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--paper); margin-bottom:6px; }
+  .date { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:48px; }
+  h2 { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--paper); margin:40px 0 12px; }
+  p { margin-bottom:16px; font-size:0.92rem; color:var(--aged); }
+  a { color:var(--gold); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .divider { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:40px 0; }
+</style>
+</head>
+<body>
+
+<div class="logo">Read Like Ray</div>
+<h1>Privacy Policy</h1>
+<div class="date">Effective: March 24, 2026</div>
+
+<p>Read Like Ray is a reading habit app built and operated by Hannah Phillips. This policy explains what information we collect, how we use it, and your rights regarding your data.</p>
+
+<hr class="divider">
+
+<h2>What we collect</h2>
+<p><strong style="color:var(--paper)">Account information.</strong> When you create an account, we collect your email address and the username you choose. If you sign in with Apple and choose to hide your email, we receive a private relay address from Apple instead.</p>
+<p><strong style="color:var(--paper)">Reading activity.</strong> We store the readings you complete, the ratings you assign (1–5 stars), any notes you write, readings you mark as Did Not Finish, and your daily reading queue.</p>
+<p><strong style="color:var(--paper)">Streak and progress data.</strong> We track your reading streak, your best streak, lifetime reading time, badges earned, and streak freezes used.</p>
+<p><strong style="color:var(--paper)">Preferences.</strong> We store your duration goal, nightly reading counts, theme preferences, and reminder time (stored locally on your device).</p>
+<p><strong style="color:var(--paper)">Social data.</strong> If you add friends, we store those friendship connections and make certain reading activity visible to your friends, including completed readings, star ratings, and earned badges.</p>
+<p><strong style="color:var(--paper)">Feedback.</strong> If you submit in-app feedback or a low star rating of the app, we collect the feedback text you provide.</p>
+
+<h2>What we do not collect</h2>
+<p>We do not collect your location, contacts, camera, microphone, or any device sensor data. We do not track you across other apps or websites. We do not build advertising profiles. We do not sell your data to anyone.</p>
+
+<h2>How we use your information</h2>
+<p>Your data is used solely to operate the app — to show you your reading history, maintain your streak, display your progress, and enable optional social features with friends you choose to add. We do not use your data for advertising or marketing.</p>
+
+<h2>How we store your data</h2>
+<p>Your data is stored securely using <a href="https://supabase.com" target="_blank">Supabase</a>, a database platform hosted on AWS infrastructure. Data is encrypted in transit and at rest. Supabase's privacy policy is available at <a href="https://supabase.com/privacy" target="_blank">supabase.com/privacy</a>.</p>
+
+<h2>Friends and social features</h2>
+<p>If you use the friends feature, other users you add as friends can see your reading activity, streak, five-star reads, badges, and taste profile. You control who you add. You can remove friends at any time from Settings.</p>
+
+<h2>Data retention</h2>
+<p>Your data is retained for as long as your account exists. If you delete your account, all associated data — including your reading history, streak, notes, and social connections — is permanently deleted.</p>
+
+<h2>Your rights</h2>
+<p>You may request a copy of your data, correction of inaccurate data, or deletion of your account and all associated data at any time by contacting us at the address below or by using the Delete Account option in Settings.</p>
+
+<h2>Children</h2>
+<p>Read Like Ray is not directed at children under 13. We do not knowingly collect personal information from anyone under 13. If you believe a child has provided us with personal information, please contact us and we will delete it.</p>
+
+<h2>Changes to this policy</h2>
+<p>If we make material changes to this policy, we will update the effective date above. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy can be directed to:<br>
+Hannah Phillips<br>
+<a href="mailto:readlikeray@gmail.com">readlikeray@gmail.com</a></p>
+
+</body>
+</html>
