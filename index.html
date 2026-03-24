@@ -2165,12 +2165,10 @@ function fpToggleBadges(){
   const grid=document.getElementById('fp-badges');
   const btn=document.getElementById('fp-badges-see-all');
   if(_fpBadgesExpanded){
-    grid.style.gridTemplateColumns='repeat(4,1fr)';
-    grid.querySelectorAll('.badge-item').forEach(b=>b.style.display='flex');
+    grid.querySelectorAll('.badge').forEach(b=>b.style.display='flex');
     btn.textContent='Show Less ↑';
   } else {
-    grid.style.gridTemplateColumns='repeat(4,1fr)';
-    grid.querySelectorAll('.badge-item').forEach((b,i)=>b.style.display=i<8?'flex':'none');
+    grid.querySelectorAll('.badge').forEach((b,i)=>b.style.display=i<8?'flex':'none');
     btn.textContent='See All →';
   }
 }
@@ -2261,7 +2259,7 @@ async function openFriendProfile(friendId, username){
 
   // Badges (collapsed to 8, expandable)
   await loadBadgesUI(friendId,'fp-badges');
-  document.querySelectorAll('#fp-badges .badge-item').forEach((b,i)=>b.style.display=i<8?'flex':'none');
+  document.querySelectorAll('#fp-badges .badge').forEach((b,i)=>b.style.display=i<8?'flex':'none');
   document.getElementById('fp-badges-see-all').textContent='See All →';
 }
 
