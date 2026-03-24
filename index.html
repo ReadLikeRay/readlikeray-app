@@ -296,6 +296,25 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 /* link fallback (when no body_text) */
 .rd-link-section { padding:0 0 16px; }
 
+
+/* ── SETTINGS SHEETS ── */
+.settings-sheet-bg { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:600; display:none; align-items:flex-end; justify-content:center; }
+.settings-sheet-bg.show { display:flex; }
+.settings-sheet { background:var(--surface2); width:100%; max-width:390px; padding:28px 22px 48px; border-top:1px solid rgba(255,255,255,0.08); }
+.settings-sheet-ttl { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:var(--paper); margin-bottom:20px; }
+.settings-sheet-opts { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.settings-sheet-opt { padding:13px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--aged); font-family:'Libre Baskerville',serif; font-size:0.88rem; cursor:pointer; text-align:left; transition:all 0.15s; display:flex; align-items:center; justify-content:space-between; }
+.settings-sheet-opt.sel { background:rgba(181,69,27,0.15); border-color:var(--rust); color:var(--paper); }
+.settings-sheet-opt:hover { border-color:rgba(255,255,255,0.2); }
+.settings-sheet-apply { display:block; width:100%; padding:14px; background:var(--rust); color:var(--paper); font-family:'Space Mono',monospace; font-size:0.56rem; text-transform:uppercase; letter-spacing:0.12em; border:none; cursor:pointer; margin-bottom:8px; }
+.settings-sheet-cancel { display:block; width:100%; padding:11px; background:none; border:1px solid rgba(255,255,255,0.08); color:var(--faded); font-family:'Space Mono',monospace; font-size:0.48rem; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; }
+.settings-stepper-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.settings-stepper-lbl { font-family:'Space Mono',monospace; font-size:0.52rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--aged); }
+.settings-stepper { display:flex; align-items:center; gap:16px; }
+.settings-stepper-btn { width:32px; height:32px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--aged); font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.settings-stepper-val { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--gold); min-width:20px; text-align:center; }
+.settings-input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:var(--aged); font-family:'Libre Baskerville',serif; font-size:0.9rem; padding:11px 12px; outline:none; margin-bottom:14px; }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -2297,9 +2316,7 @@ async function openReadingDirect(readingId, returnScreen='completed'){
   }
 }
 
-async function addFriend(){
-  const username=prompt('Enter their username:');
-  if(!username)return;
+async function doAddFriend(username){
   const {data:found}=await sb.from('profiles').select('id').eq('username',username).single();
   if(!found){toast('User not found.');return;}
   if(found.id===user.id){toast("You can't add yourself.");return;}
@@ -2317,21 +2334,7 @@ async function addFriend(){
 
 
 // SETTINGS ACTIONS
-async function editCounts(){
-  const poems=prompt(`Poems per night (current: ${profile.counts_poems||1}):`,profile.counts_poems||1);
-  if(poems===null) return;
-  const stories=prompt(`Stories per night (current: ${profile.counts_stories||1}):`,profile.counts_stories||1);
-  if(stories===null) return;
-  const essays=prompt(`Essays per night (current: ${profile.counts_essays||1}):`,profile.counts_essays||1);
-  if(essays===null) return;
-  const p=Math.min(3,Math.max(0,parseInt(poems)||0));
-  const s=Math.min(3,Math.max(0,parseInt(stories)||0));
-  const e=Math.min(3,Math.max(0,parseInt(essays)||0));
-  await sb.from('profiles').update({counts_poems:p,counts_stories:s,counts_essays:e}).eq('id',user.id);
-  profile.counts_poems=p; profile.counts_stories=s; profile.counts_essays=e;
-  document.getElementById('set-counts').textContent=`${p} poem · ${s} story · ${e} essay`;
-  toast('Updated ✓');
-}
+// editCounts → see ssCountsApply above
 async function editThemes(){
   // Load current themes and show a prompt listing all options
   const {data:current}=await sb.from('user_themes').select('theme').eq('user_id',user.id);
@@ -2346,37 +2349,9 @@ async function editThemes(){
   await sb.from('user_themes').insert(newThemes.map(t=>({user_id:user.id,theme:t})));
   toast('Themes updated ✓');
 }
-async function changeUsername(){
-  const newName=prompt('Enter new username:');
-  if(!newName||!newName.trim()) return;
-  const name=newName.trim();
-  const {data:existing}=await sb.from('profiles').select('id').eq('username',name).single();
-  if(existing){toast('Username already taken.'); return;}
-  await sb.from('profiles').update({username:name}).eq('id',user.id);
-  profile.username=name;
-  document.getElementById('set-username').textContent=name;
-  toast('Username updated ✓');
-}
-async function changePassword(){
-  const pw=prompt('Enter new password (min 6 characters):');
-  if(!pw||pw.length<6){toast('Password too short.'); return;}
-  const {error}=await sb.auth.updateUser({password:pw});
-  if(error){toast('Error: '+error.message); return;}
-  toast('Password updated ✓');
-}
-async function removeFriendFlow(){
-  const {data:fs}=await sb.from('friendships').select('friend_id,profiles!friend_id(username)').eq('user_id',user.id);
-  if(!fs||fs.length===0){toast('No friends to remove.'); return;}
-  const names=fs.map(f=>f.profiles?.username).filter(Boolean).join(', ');
-  const target=prompt(`Your friends: ${names}\n\nEnter the username to remove:`);
-  if(!target) return;
-  const match=fs.find(f=>f.profiles?.username?.toLowerCase()===target.trim().toLowerCase());
-  if(!match){toast('Friend not found.'); return;}
-  // Remove both directions
-  await sb.from('friendships').delete().eq('user_id',user.id).eq('friend_id',match.friend_id);
-  await sb.from('friendships').delete().eq('user_id',match.friend_id).eq('friend_id',user.id);
-  toast(`${match.profiles.username} removed.`);
-}
+// changeUsername → see ssUsernameApply above
+// changePassword → see ssPasswordApply above
+// removeFriendFlow → see ssRemoveFriend above
 async function deleteAccount(){
   const confirm1=prompt('This will permanently delete your account and all your data. Type DELETE to confirm:');
   if(confirm1!=='DELETE'){toast('Cancelled.'); return;}
@@ -2474,17 +2449,125 @@ async function shareReading(){
   }
 }
 
-async function editDuration(){
-  const options='1. 7 nights\n2. 30 nights\n3. 90 nights\n4. 6 months (180)\n5. 1,000 nights (Bradbury Method)';
-  const input=prompt(`Choose a new duration goal:\n\n${options}`);
-  if(!input) return;
-  const map={'1':7,'2':30,'3':90,'4':180,'5':1000};
-  const val=map[input.trim()];
-  if(!val){toast('Invalid selection.'); return;}
-  await sb.from('profiles').update({duration_goal:val}).eq('id',user.id);
-  profile.duration_goal=val;
-  document.getElementById('set-duration').textContent=`${val} nights`;
+// ── SETTINGS SHEETS ──
+let _ssDuration=null, _ssCounts={};
+
+function ssClose(id){ document.getElementById(id).classList.remove('show'); }
+
+function editDuration(){
+  _ssDuration=profile.duration_goal||1000;
+  document.querySelectorAll('#ss-duration-opts .settings-sheet-opt').forEach(btn=>{
+    const v=parseInt(btn.getAttribute('onclick').match(/\d+/)[0]);
+    btn.classList.toggle('sel', v===_ssDuration);
+  });
+  document.getElementById('ss-duration-bg').classList.add('show');
+}
+function ssDurationSel(btn,val){
+  _ssDuration=val;
+  document.querySelectorAll('#ss-duration-opts .settings-sheet-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+async function ssDurationApply(){
+  if(!_ssDuration) return;
+  await sb.from('profiles').update({duration_goal:_ssDuration}).eq('id',user.id);
+  profile.duration_goal=_ssDuration;
+  document.getElementById('set-duration').textContent=`${_ssDuration} nights`;
+  const homeDate=document.getElementById('home-date');
+  if(homeDate) homeDate.textContent=`Day ${dayNum()} of ${_ssDuration}`;
+  const profGoal=document.getElementById('prof-goal'); if(profGoal) profGoal.textContent=_ssDuration;
+  ssClose('ss-duration-bg');
   toast('Duration updated ✓');
+}
+
+function editCounts(){
+  _ssCounts={poems:profile.counts_poems||1,stories:profile.counts_stories||1,essays:profile.counts_essays||1};
+  document.getElementById('ss-poems-val').textContent=_ssCounts.poems;
+  document.getElementById('ss-stories-val').textContent=_ssCounts.stories;
+  document.getElementById('ss-essays-val').textContent=_ssCounts.essays;
+  document.getElementById('ss-counts-bg').classList.add('show');
+}
+function ssAdj(type,delta){
+  _ssCounts[type]=Math.max(0,Math.min(3,(_ssCounts[type]||1)+delta));
+  document.getElementById(`ss-${type}-val`).textContent=_ssCounts[type];
+}
+async function ssCountsApply(){
+  const p=_ssCounts.poems, s=_ssCounts.stories, e=_ssCounts.essays;
+  await sb.from('profiles').update({counts_poems:p,counts_stories:s,counts_essays:e}).eq('id',user.id);
+  profile.counts_poems=p; profile.counts_stories=s; profile.counts_essays=e;
+  document.getElementById('set-counts').textContent=`${p} poem · ${s} story · ${e} essay`;
+  ssClose('ss-counts-bg');
+  toast('Reading counts updated ✓');
+}
+
+function changeUsername(){
+  document.getElementById('ss-username-input').value='';
+  document.getElementById('ss-username-bg').classList.add('show');
+  setTimeout(()=>document.getElementById('ss-username-input').focus(),300);
+}
+async function ssUsernameApply(){
+  const val=document.getElementById('ss-username-input').value.trim();
+  if(!val){toast('Username cannot be empty.'); return;}
+  await sb.from('profiles').update({username:val}).eq('id',user.id);
+  profile.username=val;
+  document.getElementById('set-username').textContent=val;
+  document.getElementById('prof-name').textContent=val;
+  ssClose('ss-username-bg');
+  toast('Username updated ✓');
+}
+
+function changePassword(){
+  document.getElementById('ss-password-input').value='';
+  document.getElementById('ss-password-bg').classList.add('show');
+  setTimeout(()=>document.getElementById('ss-password-input').focus(),300);
+}
+async function ssPasswordApply(){
+  const val=document.getElementById('ss-password-input').value;
+  if(!val||val.length<6){toast('Password must be at least 6 characters.'); return;}
+  const {error}=await sb.auth.updateUser({password:val});
+  if(error){toast('Error: '+error.message); return;}
+  ssClose('ss-password-bg');
+  toast('Password updated ✓');
+}
+
+function addFriend(){
+  document.getElementById('ss-addfriend-input').value='';
+  document.getElementById('ss-addfriend-bg').classList.add('show');
+  setTimeout(()=>document.getElementById('ss-addfriend-input').focus(),300);
+}
+async function ssAddFriendApply(){
+  const username=document.getElementById('ss-addfriend-input').value.trim();
+  if(!username) return;
+  ssClose('ss-addfriend-bg');
+  await doAddFriend(username);
+}
+
+
+async function ssRemoveFriend(friendId, username, btn){
+  btn.textContent='Removing…'; btn.disabled=true;
+  await sb.from('friendships').delete().eq('user_id',user.id).eq('friend_id',friendId);
+  await sb.from('friendships').delete().eq('user_id',friendId).eq('friend_id',user.id);
+  ssClose('ss-removefriend-bg');
+  toast(`${username} removed.`);
+  loadFriends();
+}
+
+function setReminderTime(){
+  const current=localStorage.getItem('reminderTime')||'21:00';
+  document.getElementById('ss-reminder-input').value=current;
+  document.getElementById('ss-reminder-bg').classList.add('show');
+}
+function ssReminderApply(){
+  const val=document.getElementById('ss-reminder-input').value;
+  if(!val) return;
+  localStorage.setItem('reminderTime',val);
+  const [h,m]=val.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  const display=`${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+  document.getElementById('reminder-time-val').textContent=display;
+  ssClose('ss-reminder-bg');
+  scheduleReminder();
+  toast('Reminder set for '+display);
 }
 
 // COMPLETED → READER
@@ -2574,16 +2657,7 @@ async function toggleReminder(){
   }
   loadReminderUI();
 }
-async function setReminderTime(){
-  const input=prompt('Enter reminder time (e.g. 21:00 for 9 PM, 20:30 for 8:30 PM):',localStorage.getItem('reminderTime')||'21:00');
-  if(!input) return;
-  const match=input.trim().match(/^(\d{1,2}):(\d{2})$/);
-  if(!match||parseInt(match[1])>23||parseInt(match[2])>59){toast('Invalid time. Use HH:MM format.'); return;}
-  localStorage.setItem('reminderTime',input.trim());
-  scheduleReminder();
-  loadReminderUI();
-  toast('Reminder time updated ✓');
-}
+
 function scheduleReminder(){
   if(localStorage.getItem('reminderEnabled')!=='true') return;
   const time=localStorage.getItem('reminderTime')||'21:00';
@@ -3808,6 +3882,107 @@ function browseRecDismiss(){
     <button class="rp-btn-primary enabled" onclick="rpClose()">Back to Reading →</button>
   </div>
 
+</div>
+
+
+<!-- SETTINGS SHEETS (replace prompt() dialogs) -->
+
+<!-- Duration -->
+<div class="settings-sheet-bg" id="ss-duration-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Duration Goal</div>
+    <div class="settings-sheet-opts" id="ss-duration-opts">
+      <button class="settings-sheet-opt" onclick="ssDurationSel(this,7)">7 nights <span>One week</span></button>
+      <button class="settings-sheet-opt" onclick="ssDurationSel(this,30)">30 nights <span>One month</span></button>
+      <button class="settings-sheet-opt" onclick="ssDurationSel(this,90)">90 nights <span>Three months</span></button>
+      <button class="settings-sheet-opt" onclick="ssDurationSel(this,180)">180 nights <span>Six months</span></button>
+      <button class="settings-sheet-opt" onclick="ssDurationSel(this,1000)">1,000 nights <span>Bradbury Method</span></button>
+    </div>
+    <button class="settings-sheet-apply" onclick="ssDurationApply()">Save →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-duration-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Per Night counts -->
+<div class="settings-sheet-bg" id="ss-counts-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Readings Per Night</div>
+    <div class="settings-stepper-row">
+      <div class="settings-stepper-lbl">Poems</div>
+      <div class="settings-stepper">
+        <button class="settings-stepper-btn" onclick="ssAdj('poems',-1)">−</button>
+        <div class="settings-stepper-val" id="ss-poems-val">1</div>
+        <button class="settings-stepper-btn" onclick="ssAdj('poems',1)">+</button>
+      </div>
+    </div>
+    <div class="settings-stepper-row">
+      <div class="settings-stepper-lbl">Stories</div>
+      <div class="settings-stepper">
+        <button class="settings-stepper-btn" onclick="ssAdj('stories',-1)">−</button>
+        <div class="settings-stepper-val" id="ss-stories-val">1</div>
+        <button class="settings-stepper-btn" onclick="ssAdj('stories',1)">+</button>
+      </div>
+    </div>
+    <div class="settings-stepper-row" style="border-bottom:none;margin-bottom:18px;">
+      <div class="settings-stepper-lbl">Essays</div>
+      <div class="settings-stepper">
+        <button class="settings-stepper-btn" onclick="ssAdj('essays',-1)">−</button>
+        <div class="settings-stepper-val" id="ss-essays-val">1</div>
+        <button class="settings-stepper-btn" onclick="ssAdj('essays',1)">+</button>
+      </div>
+    </div>
+    <button class="settings-sheet-apply" onclick="ssCountsApply()">Save →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-counts-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Username -->
+<div class="settings-sheet-bg" id="ss-username-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Change Username</div>
+    <input class="settings-input" id="ss-username-input" type="text" placeholder="New username" autocomplete="off" autocorrect="off" autocapitalize="off">
+    <button class="settings-sheet-apply" onclick="ssUsernameApply()">Save →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-username-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Password -->
+<div class="settings-sheet-bg" id="ss-password-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Change Password</div>
+    <input class="settings-input" id="ss-password-input" type="password" placeholder="New password (min 6 characters)">
+    <button class="settings-sheet-apply" onclick="ssPasswordApply()">Save →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-password-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Add friend -->
+<div class="settings-sheet-bg" id="ss-addfriend-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Add a Friend</div>
+    <input class="settings-input" id="ss-addfriend-input" type="text" placeholder="Their username" autocomplete="off" autocorrect="off" autocapitalize="off">
+    <button class="settings-sheet-apply" onclick="ssAddFriendApply()">Send Request →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-addfriend-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Remove friend -->
+<div class="settings-sheet-bg" id="ss-removefriend-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Remove a Friend</div>
+    <div class="settings-sheet-opts" id="ss-removefriend-opts"></div>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-removefriend-bg')">Cancel</button>
+  </div>
+</div>
+
+<!-- Reminder time -->
+<div class="settings-sheet-bg" id="ss-reminder-bg">
+  <div class="settings-sheet">
+    <div class="settings-sheet-ttl">Reminder Time</div>
+    <input class="settings-input" id="ss-reminder-input" type="time" style="color-scheme:dark;">
+    <button class="settings-sheet-apply" onclick="ssReminderApply()">Save →</button>
+    <button class="settings-sheet-cancel" onclick="ssClose('ss-reminder-bg')">Cancel</button>
+  </div>
 </div>
 
 </body>
