@@ -1334,7 +1334,7 @@ async function refreshHome(){
   const now=new Date();
   const h=now.getHours();
   document.getElementById('home-greet').textContent=h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening';
-  document.getElementById('home-ttl').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('home-ttl').textContent=now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   document.getElementById('home-date').textContent=`Day ${dayNum()} of ${profile.duration_goal||1000}`;
   document.getElementById('s-num').textContent=profile.streak_current||0;
   document.getElementById('s-best').textContent=profile.streak_best||0;
@@ -1987,17 +1987,30 @@ async function loadProfileScreen(){
   // Taste profile + anthology
   await loadTasteProfile();
   // Five-star anthology
+  // Fetch five-star reads (no annotations join — annotations table has no FK from completed_readings)
   const {data:favs}=await sb.from('completed_readings')
-    .select('reading_id,completed_at,rating,readings(id,title,author,type,year),annotations(note_body)')
+    .select('reading_id,completed_at,rating,readings(id,title,author,type,year)')
     .eq('user_id',user.id).eq('rating',5)
     .order('completed_at',{ascending:false}).limit(5);
+  // Fetch notes separately for those reading IDs
+  const favIds=(favs||[]).map(f=>f.reading_id).filter(Boolean);
+  let noteMap={};
+  if(favIds.length>0){
+    const {data:notes}=await sb.from('annotations')
+      .select('reading_id,note_body')
+      .eq('user_id',user.id)
+      .in('reading_id',favIds)
+      .order('created_at',{ascending:false});
+    // Keep only the most recent note per reading
+    (notes||[]).forEach(n=>{ if(!noteMap[n.reading_id]) noteMap[n.reading_id]=n.note_body; });
+  }
   const favsEl=document.getElementById('prof-favs');
   if(!favs||favs.length===0){
     favsEl.innerHTML='<div style="color:var(--faded);font-style:italic;font-size:0.82rem;padding:8px 0">No five-star reads yet.</div>';
   } else {
     favsEl.innerHTML=favs.map(f=>{
       const r=f.readings; if(!r) return '';
-      const note=f.annotations?.[0]?.note_body;
+      const note=noteMap[f.reading_id];
       const date=new Date(f.completed_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
       const typeLabel=r.type?r.type.charAt(0).toUpperCase()+r.type.slice(1):'';
       const meta=[typeLabel,r.author,r.year].filter(Boolean).join(' · ');
@@ -3362,31 +3375,47 @@ function rpClose(){
 // ── TASTE PROFILE ──
 async function loadTasteProfile(){
   const {data:done}=await sb.from('completed_readings')
-    .select('readings(type,themes)')
+    .select('rating,readings(type,themes)')
     .eq('user_id',user.id);
   if(!done||done.length===0) return;
   const total=done.length;
-  const byType={poem:0,story:0,essay:0};
+  // Average star rating per type (only rated readings count)
+  const ratingSum={poem:0,story:0,essay:0};
+  const ratingCount={poem:0,story:0,essay:0};
   const themeCounts={};
   for(const d of done){
     const t=d.readings?.type;
-    if(t&&byType[t]!==undefined) byType[t]++;
+    if(t&&ratingSum[t]!==undefined&&d.rating){
+      ratingSum[t]+=d.rating;
+      ratingCount[t]++;
+    }
     for(const th of (d.readings?.themes||[])){
       themeCounts[th]=(themeCounts[th]||0)+1;
     }
   }
-  // Bars
+  // Bars show avg rating out of 5, scaled to 100%
   const types=['poem','story','essay'];
   for(const t of types){
-    const pct=total>0?Math.round((byType[t]/total)*100):0;
+    const avg=ratingCount[t]>0?(ratingSum[t]/ratingCount[t]):0;
+    const pct=Math.round((avg/5)*100);
     const bar=document.getElementById('taste-bar-'+t);
     const pctEl=document.getElementById('taste-pct-'+t);
     if(bar) setTimeout(()=>bar.style.width=pct+'%',100);
-    if(pctEl) pctEl.textContent=pct+'%';
+    if(pctEl) pctEl.textContent=avg>0?avg.toFixed(1)+'★':'—';
   }
   document.getElementById('prof-taste-lbl').textContent=`Taste Profile · ${total} reading${total!==1?'s':''}`;
-  // Top themes
-  const topThemes=Object.entries(themeCounts)
+  // Top themes from highest-rated readings (4+ stars)
+  const topThemeCounts={};
+  for(const d of done){
+    if((d.rating||0)>=4){
+      for(const th of (d.readings?.themes||[])){
+        topThemeCounts[th]=(topThemeCounts[th]||0)+1;
+      }
+    }
+  }
+  // Fall back to all themes if no rated reads
+  const themeSource=Object.keys(topThemeCounts).length>0?topThemeCounts:themeCounts;
+  const topThemes=Object.entries(themeSource)
     .sort((a,b)=>b[1]-a[1])
     .slice(0,6)
     .map(([t])=>t);
