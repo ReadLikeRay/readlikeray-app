@@ -325,6 +325,121 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .btn-apple:active { background:#e0e0e0; }
 .btn-apple svg { flex-shrink:0; }
 
+
+/* ── PROFILE TABS ── */
+.prof-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-top:0; }
+.prof-tab-btn { flex:1; font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.07em; padding:9px 4px 8px; background:none; border:none; color:var(--faded); cursor:pointer; border-bottom:2px solid transparent; }
+.prof-tab-btn.on { color:var(--rust); border-bottom-color:var(--rust); }
+.prof-tab-panel { display:none; }
+.prof-tab-panel.on { display:block; }
+
+/* ── PASSPORT ── */
+.passport-card { margin:16px 20px; background:var(--surface); border:1px solid rgba(255,255,255,0.07); overflow:hidden; }
+.passport-top { background:linear-gradient(135deg,#1a0e04 0%,#2a1a08 100%); padding:14px 18px 12px; border-bottom:1px solid rgba(201,146,42,0.2); position:relative; overflow:hidden; }
+.passport-top::after { content:'READ LIKE RAY · LITERARY PASSPORT'; position:absolute; bottom:5px; left:0; right:0; text-align:center; font-family:'Space Mono',monospace; font-size:0.28rem; letter-spacing:0.18em; color:rgba(201,146,42,0.1); }
+.passport-eyebrow { font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--gold); opacity:0.7; margin-bottom:2px; }
+.passport-pstats { display:flex; border-bottom:1px solid rgba(255,255,255,0.06); }
+.pstat { flex:1; padding:10px 8px; text-align:center; border-right:1px solid rgba(255,255,255,0.06); }
+.pstat:last-child { border-right:none; }
+.pstat-n { font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--gold); line-height:1; }
+.pstat-l { font-family:'Space Mono',monospace; font-size:0.32rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--faded); margin-top:3px; line-height:1.4; }
+.era-section { padding:12px 14px 4px; }
+.era-sec-hdr { font-family:'Space Mono',monospace; font-size:0.37rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:9px; display:flex; justify-content:space-between; align-items:center; }
+.era-see-all { color:var(--faded); cursor:pointer; font-size:0.35rem; }
+.era-see-all:hover { color:var(--gold); }
+.era-grid-inner { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:4px; }
+.era-stamp { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding:8px 5px 6px; text-align:center; position:relative; }
+.era-stamp.earned { background:rgba(201,146,42,0.07); border-color:rgba(201,146,42,0.22); }
+.era-stamp.earned::after { content:'✓'; position:absolute; top:3px; right:4px; font-size:0.4rem; color:var(--gold); }
+.era-icon { font-size:1.1rem; display:block; margin-bottom:2px; }
+.era-name { font-family:'Space Mono',monospace; font-size:0.3rem; text-transform:uppercase; letter-spacing:0.04em; line-height:1.4; color:var(--faded); }
+.era-dates { font-family:'Space Mono',monospace; font-size:0.28rem; color:rgba(255,255,255,0.15); margin-top:1px; }
+.era-cnt { font-family:'Space Mono',monospace; font-size:0.28rem; margin-top:2px; color:rgba(255,255,255,0.15); }
+.era-stamp.earned .era-name { color:var(--gold); }
+.era-stamp.earned .era-dates { color:rgba(201,146,42,0.35); }
+.era-stamp.earned .era-cnt { color:rgba(201,146,42,0.45); }
+.era-stamp:not(.earned) .era-icon { filter:grayscale(1); opacity:0.22; }
+.region-section { padding:4px 14px 14px; border-top:1px solid rgba(255,255,255,0.06); margin-top:4px; }
+.region-sec-lbl { font-family:'Space Mono',monospace; font-size:0.37rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:7px; margin-top:10px; }
+.rpill { font-family:'Space Mono',monospace; font-size:0.32rem; text-transform:uppercase; letter-spacing:0.04em; padding:3px 8px; display:inline-block; margin:2px 3px 2px 0; }
+.rpill.earned { background:rgba(90,122,90,0.15); border:1px solid rgba(90,122,90,0.35); color:#8ab88a; }
+.rpill.locked { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.18); }
+.passport-next { margin:0 20px 16px; background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:12px 14px; }
+.passport-next-lbl { font-family:'Space Mono',monospace; font-size:0.37rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin-bottom:9px; }
+.pnext-item { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.pnext-item:last-child { margin-bottom:0; }
+.pnext-icon { font-size:0.95rem; width:26px; text-align:center; flex-shrink:0; }
+.pnext-info { flex:1; }
+.pnext-name { font-size:0.72rem; color:var(--paper); margin-bottom:3px; }
+.pnext-bar { height:2px; background:rgba(255,255,255,0.07); }
+.pnext-fill { height:100%; background:var(--gold); }
+.pnext-sub { font-family:'Space Mono',monospace; font-size:0.3rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--faded); margin-top:2px; }
+
+/* ── RARE BADGES ── */
+.rare-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin:0 20px 6px; }
+.rb { background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:12px 10px 10px; text-align:center; position:relative; overflow:hidden; }
+.rb.earned { border-color:rgba(201,146,42,0.28); }
+.rb.earned::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(201,146,42,0.07) 0%,transparent 65%); pointer-events:none; }
+.rb.locked-rb { opacity:0.45; }
+.rb-rarity { position:absolute; top:5px; right:6px; font-family:'Space Mono',monospace; font-size:0.27rem; text-transform:uppercase; letter-spacing:0.07em; }
+.rb.legendary .rb-rarity { color:#d4a843; }
+.rb.secret .rb-rarity { color:#9a7abf; }
+.rb.epic .rb-rarity { color:#7aaa6a; }
+.rb-icon { font-size:1.8rem; display:block; margin-bottom:4px; }
+.rb-name { font-family:'Space Mono',monospace; font-size:0.38rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--paper); margin-bottom:3px; line-height:1.4; }
+.rb-desc { font-size:0.6rem; color:var(--faded); line-height:1.5; }
+.rb.earned .rb-name { color:var(--gold); }
+.rb-date { font-family:'Space Mono',monospace; font-size:0.3rem; text-transform:uppercase; letter-spacing:0.05em; color:rgba(201,146,42,0.5); margin-top:4px; }
+.rb.mystery .rb-icon { filter:blur(4px); opacity:0.22; }
+.rb.mystery .rb-name { filter:blur(3px); color:rgba(255,255,255,0.1); }
+.rb.mystery .rb-desc { filter:blur(2px); opacity:0.22; }
+
+/* ── PROFILE TEASER CARDS ── */
+.prof-teaser { margin:0 20px 14px; background:var(--surface); border:1px solid rgba(255,255,255,0.07); padding:12px 14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.prof-teaser:hover { border-color:rgba(255,255,255,0.14); }
+.prof-teaser-icons { display:flex; gap:5px; margin-bottom:6px; flex-wrap:wrap; }
+.prof-teaser-sub { font-family:'Space Mono',monospace; font-size:0.35rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); }
+.prof-teaser-arr { font-family:'Space Mono',monospace; font-size:0.4rem; color:var(--faded); }
+
+/* ── ALL ERAS / BADGES SHEET ── */
+.profile-sheet-bg { position:absolute; inset:0; background:rgba(0,0,0,0.75); z-index:200; display:none; align-items:flex-end; }
+.profile-sheet-bg.show { display:flex; }
+.profile-sheet { background:var(--surface2); width:100%; max-height:85vh; overflow-y:auto; border-top:1px solid rgba(255,255,255,0.08); }
+.profile-sheet-hdr { position:sticky; top:0; background:var(--surface2); padding:16px 18px 13px; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-between; z-index:10; }
+.profile-sheet-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--paper); }
+.profile-sheet-close { background:none; border:none; color:var(--faded); font-family:'Space Mono',monospace; font-size:0.5rem; cursor:pointer; }
+.profile-sheet-body { padding:12px 16px 40px; }
+.ps-era-row { display:flex; align-items:center; gap:11px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ps-era-row:last-child { border-bottom:none; }
+.ps-era-icon { font-size:1.3rem; width:32px; text-align:center; flex-shrink:0; }
+.ps-era-icon.dim { filter:grayscale(1); opacity:0.22; }
+.ps-era-info { flex:1; }
+.ps-era-name { font-size:0.78rem; color:var(--paper); margin-bottom:1px; }
+.ps-era-row:not(.e-row) .ps-era-name { color:rgba(255,255,255,0.28); }
+.ps-era-dates { font-family:'Space Mono',monospace; font-size:0.34rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--faded); }
+.ps-era-row:not(.e-row) .ps-era-dates { color:rgba(255,255,255,0.14); }
+.ps-era-authors { font-size:0.63rem; color:var(--faded); font-style:italic; margin-top:1px; line-height:1.45; }
+.ps-era-row:not(.e-row) .ps-era-authors { color:rgba(255,255,255,0.14); }
+.ps-era-cnt { font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.05em; flex-shrink:0; text-align:right; }
+.ps-era-row.e-row .ps-era-cnt { color:var(--gold); }
+.ps-era-row:not(.e-row) .ps-era-cnt { color:rgba(255,255,255,0.14); }
+.ps-badge-row { display:flex; align-items:flex-start; gap:11px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.ps-badge-row:last-child { border-bottom:none; }
+.ps-badge-icon { font-size:1.4rem; width:32px; text-align:center; flex-shrink:0; margin-top:1px; }
+.ps-badge-info { flex:1; }
+.ps-badge-name { font-size:0.78rem; margin-bottom:2px; }
+.ps-badge-row.e-b .ps-badge-name { color:var(--paper); }
+.ps-badge-row:not(.e-b) .ps-badge-name { color:rgba(255,255,255,0.28); }
+.ps-badge-desc { font-size:0.62rem; color:var(--faded); line-height:1.5; }
+.ps-badge-row:not(.e-b) .ps-badge-desc { color:rgba(255,255,255,0.18); }
+.ps-badge-meta { display:flex; align-items:center; gap:6px; margin-top:3px; }
+.ps-badge-rarity { font-family:'Space Mono',monospace; font-size:0.28rem; text-transform:uppercase; letter-spacing:0.06em; padding:2px 5px; border:1px solid; }
+.rarity-legendary { color:#d4a843; border-color:rgba(212,168,67,0.3); }
+.rarity-epic { color:#7aaa6a; border-color:rgba(122,170,106,0.3); }
+.rarity-secret { color:#9a7abf; border-color:rgba(154,122,191,0.3); }
+.ps-badge-date { font-family:'Space Mono',monospace; font-size:0.28rem; text-transform:uppercase; letter-spacing:0.05em; color:rgba(201,146,42,0.5); }
+.ps-sub-lbl { font-family:'Space Mono',monospace; font-size:0.36rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); margin:14px 0 8px; }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -1060,46 +1175,141 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
     <div class="prof-freeze-tip">Earn 1 for every<br>5-day streak →</div>
   </div>
 
-  <div class="prof-body">
-
-    <!-- Your Reading Life -->
-    <div class="prof-sec-lbl" style="margin-top:24px;">Your Reading Life</div>
-    <div class="taste-block" id="prof-taste-block">
-      <div class="taste-lbl" id="prof-taste-lbl">Taste Profile</div>
-      <div class="taste-row">
-        <div class="taste-rname">Poems</div>
-        <div class="taste-track"><div class="taste-fill" id="taste-bar-poem" style="width:0%;background:var(--sage);"></div></div>
-        <div class="taste-pct" id="taste-pct-poem">—</div>
-      </div>
-      <div class="taste-row">
-        <div class="taste-rname">Stories</div>
-        <div class="taste-track"><div class="taste-fill" id="taste-bar-story" style="width:0%;background:var(--rust);"></div></div>
-        <div class="taste-pct" id="taste-pct-story">—</div>
-      </div>
-      <div class="taste-row">
-        <div class="taste-rname">Essays</div>
-        <div class="taste-track"><div class="taste-fill" id="taste-bar-essay" style="width:0%;background:#6b3a5a;"></div></div>
-        <div class="taste-pct" id="taste-pct-essay">—</div>
-      </div>
-      <div class="taste-tags" id="prof-taste-tags"></div>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px;">
-      <div class="prof-sec-lbl" style="margin:0;">★ Five-Star Reads</div>
-      <button onclick="navTo('completed')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
-    </div>
-    <div id="prof-favs"></div>
-
-    <!-- Badges -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px;margin-bottom:10px">
-      <div class="prof-sec-lbl" style="margin:0" id="wt-badges-lbl">Badges</div>
-      <button onclick="openBadgesSlide()" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
-    </div>
-    <div class="badge-grid" id="profile-badges-preview"></div>
-
+  <!-- Profile tab bar -->
+  <div class="prof-tabs">
+    <button class="prof-tab-btn on" id="wt-prof-tab-overview" onclick="profTab('overview',this)">Overview</button>
+    <button class="prof-tab-btn" onclick="profTab('passport',this)">Passport</button>
+    <button class="prof-tab-btn" onclick="profTab('badges',this)">Badges</button>
   </div>
 
-  <!-- Badges all slide -->
+  <!-- ── OVERVIEW TAB ── -->
+  <div class="prof-tab-panel on" id="prof-panel-overview">
+    <div class="prof-body">
+      <div class="prof-sec-lbl" style="margin-top:22px;">Your Reading Life</div>
+      <div class="taste-block" id="prof-taste-block">
+        <div class="taste-lbl" id="prof-taste-lbl">Taste Profile</div>
+        <div class="taste-row">
+          <div class="taste-rname">Poems</div>
+          <div class="taste-track"><div class="taste-fill" id="taste-bar-poem" style="width:0%;background:var(--sage);"></div></div>
+          <div class="taste-pct" id="taste-pct-poem">—</div>
+        </div>
+        <div class="taste-row">
+          <div class="taste-rname">Stories</div>
+          <div class="taste-track"><div class="taste-fill" id="taste-bar-story" style="width:0%;background:var(--rust);"></div></div>
+          <div class="taste-pct" id="taste-pct-story">—</div>
+        </div>
+        <div class="taste-row">
+          <div class="taste-rname">Essays</div>
+          <div class="taste-track"><div class="taste-fill" id="taste-bar-essay" style="width:0%;background:#6b3a5a;"></div></div>
+          <div class="taste-pct" id="taste-pct-essay">—</div>
+        </div>
+        <div class="taste-tags" id="prof-taste-tags"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px;">
+        <div class="prof-sec-lbl" style="margin:0;">★ Five-Star Reads</div>
+        <button onclick="navTo('completed')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.44rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
+      </div>
+      <div id="prof-favs"></div>
+
+      <!-- Passport teaser -->
+      <div class="prof-sec-lbl" style="margin-top:22px;margin-bottom:10px;">Passport</div>
+      <div class="prof-teaser" onclick="profTab('passport',document.querySelectorAll('.prof-tab-btn')[1])">
+        <div>
+          <div class="prof-teaser-icons" id="prof-teaser-era-icons"></div>
+          <div class="prof-teaser-sub" id="prof-teaser-era-sub">0 of 13 eras · 0 regions</div>
+        </div>
+        <div class="prof-teaser-arr">→</div>
+      </div>
+
+      <!-- Badges teaser -->
+      <div class="prof-sec-lbl" style="margin-top:18px;margin-bottom:10px;" id="wt-badges-lbl">Badges</div>
+      <div class="prof-teaser" onclick="profTab('badges',document.querySelectorAll('.prof-tab-btn')[2])">
+        <div>
+          <div class="prof-teaser-icons" id="prof-teaser-badge-icons"></div>
+          <div class="prof-teaser-sub" id="prof-teaser-badge-sub">0 earned</div>
+        </div>
+        <div class="prof-teaser-arr">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PASSPORT TAB ── -->
+  <div class="prof-tab-panel" id="prof-panel-passport">
+    <div class="passport-card">
+      <div class="passport-top">
+        <div class="passport-eyebrow">Literary Passport</div>
+      </div>
+      <div class="passport-pstats">
+        <div class="pstat"><div class="pstat-n" id="pp-eras-earned">0</div><div class="pstat-l">Eras<br>Stamped</div></div>
+        <div class="pstat"><div class="pstat-n" id="pp-regions-earned">0</div><div class="pstat-l">Regions<br>Visited</div></div>
+        <div class="pstat"><div class="pstat-n" id="pp-total">0</div><div class="pstat-l">Readings<br>Total</div></div>
+        <div class="pstat"><div class="pstat-n" id="pp-eras-left">13</div><div class="pstat-l">Eras<br>Remaining</div></div>
+      </div>
+      <div class="era-section">
+        <div class="era-sec-hdr">
+          Literary Eras
+          <span class="era-see-all" onclick="openProfileSheet('prof-eras-sheet')">See All 13 →</span>
+        </div>
+        <div class="era-grid-inner" id="prof-era-grid"></div>
+      </div>
+      <div class="region-section">
+        <div class="region-sec-lbl">Regions</div>
+        <div id="prof-region-list"></div>
+      </div>
+    </div>
+    <div class="passport-next" id="prof-passport-next" style="display:none;">
+      <div class="passport-next-lbl">Close to your next stamp</div>
+      <div id="prof-next-items"></div>
+    </div>
+  </div>
+
+  <!-- ── BADGES TAB ── -->
+  <div class="prof-tab-panel" id="prof-panel-badges">
+    <div style="padding:18px 22px 0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Earned</div>
+      <button onclick="openProfileSheet('prof-badges-sheet')" style="background:none;border:none;color:var(--faded);font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">See All →</button>
+    </div>
+    <div class="badge-grid" id="profile-badges-preview" style="padding:10px 20px 0;"></div>
+
+    <div style="padding:18px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Rare &amp; Secret</div>
+    <div class="rare-grid" id="prof-rare-earned"></div>
+
+    <div style="padding:14px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Locked</div>
+    <div class="rare-grid" id="prof-rare-locked"></div>
+
+    <div style="padding:14px 22px 8px;font-family:'Space Mono',monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--rust);">Unknown</div>
+    <div class="rare-grid">
+      <div class="rb mystery secret"><div class="rb-rarity">Secret</div><span class="rb-icon">👁️</span><div class="rb-name">????????????</div><div class="rb-desc">Nobody knows what unlocks this</div></div>
+      <div class="rb mystery secret"><div class="rb-rarity">Secret</div><span class="rb-icon">🕯️</span><div class="rb-name">????????????</div><div class="rb-desc">Nobody knows what unlocks this</div></div>
+      <div class="rb mystery legendary"><div class="rb-rarity">Legendary</div><span class="rb-icon">🗝️</span><div class="rb-name">????????????</div><div class="rb-desc">Nobody knows what unlocks this</div></div>
+      <div class="rb mystery legendary"><div class="rb-rarity">Legendary</div><span class="rb-icon">📜</span><div class="rb-name">????????????</div><div class="rb-desc">Nobody knows what unlocks this</div></div>
+    </div>
+  </div>
+
+  <!-- All Eras sheet -->
+  <div class="profile-sheet-bg" id="prof-eras-sheet">
+    <div class="profile-sheet">
+      <div class="profile-sheet-hdr">
+        <div class="profile-sheet-title">All Literary Eras</div>
+        <button class="profile-sheet-close" onclick="closeProfileSheet('prof-eras-sheet')">✕ Close</button>
+      </div>
+      <div class="profile-sheet-body" id="prof-eras-sheet-body"></div>
+    </div>
+  </div>
+
+  <!-- All Earned Badges sheet -->
+  <div class="profile-sheet-bg" id="prof-badges-sheet">
+    <div class="profile-sheet">
+      <div class="profile-sheet-hdr">
+        <div class="profile-sheet-title">All Earned Badges</div>
+        <button class="profile-sheet-close" onclick="closeProfileSheet('prof-badges-sheet')">✕ Close</button>
+      </div>
+      <div class="profile-sheet-body" id="prof-badges-sheet-body"></div>
+    </div>
+  </div>
+
+  <!-- Badges all slide (kept for walkthrough compat) -->
   <div id="badges-slide" class="settings-slide">
     <div class="settings-slide-hdr">
       <button class="settings-back" onclick="closeBadgesSlide()">← Back</button>
@@ -1777,6 +1987,7 @@ async function markComplete(){
   if(completedFullQueue) await updateStreak();
   // Increment challenge counts for any active challenges matching this reading type
   await updateChallengeProgress(currentReading?.type);
+  await checkRareBadges();
   await checkBadges({
     rating:currentRating, type:currentReading.type,
     hour:now.getHours(), totalCompleted, totalByType,
@@ -2057,6 +2268,9 @@ async function loadProfileScreen(){
   document.getElementById('prof-tonight').textContent=tonightMins>0?`${tonightMins}m`:'Done ✓';
   // Badges preview
   await loadBadgesPreview(user.id);
+  // Load tab teasers in background
+  loadPassportTab();
+  loadBadgesTab();
   // Taste profile + anthology
   await loadTasteProfile();
   // Five-star anthology
@@ -3725,6 +3939,260 @@ async function ssForgotApply(){
   if(error){toast('Error: '+error.message); return;}
   ssClose('ss-forgot-bg');
   toast('Reset link sent — check your email.');
+}
+
+
+// ── PROFILE TABS ──
+function profTab(id, btn){
+  document.querySelectorAll('.prof-tab-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.prof-tab-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('prof-panel-'+id).classList.add('on');
+  if(id==='passport') loadPassportTab();
+  if(id==='badges') loadBadgesTab();
+}
+function openProfileSheet(id){ document.getElementById(id).classList.add('show'); }
+function closeProfileSheet(id){ document.getElementById(id).classList.remove('show'); }
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.profile-sheet-bg').forEach(bg=>{
+    bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('show'); });
+  });
+});
+
+// ── ERA / REGION DATA ──
+const ERAS=[
+  {id:'classical',icon:'🏛️',name:'Classical Antiquity',dates:'800 BC – 500 AD',authors:'Homer, Sophocles, Virgil, Sappho, Marcus Aurelius'},
+  {id:'medieval',icon:'📖',name:'Medieval',dates:'500 – 1400',authors:'Chaucer, Dante, anonymous ballads'},
+  {id:'renaissance',icon:'🎭',name:'Renaissance',dates:'1400 – 1600s',authors:'Shakespeare, Marlowe, Spenser, Montaigne'},
+  {id:'enlightenment',icon:'💡',name:'Enlightenment',dates:'1680 – 1780',authors:'Swift, Voltaire, Pope, Johnson'},
+  {id:'romantic',icon:'🌿',name:'Romantic',dates:'1780 – 1850',authors:'Keats, Shelley, Wordsworth, Blake, Byron'},
+  {id:'victorian',icon:'🕯️',name:'Victorian',dates:'1837 – 1901',authors:'Dickens, Eliot, Tennyson, Browning, Wilde'},
+  {id:'naturalist',icon:'🔬',name:'Naturalist',dates:'1880 – 1914',authors:'Chopin, Crane, Dreiser, Norris, London'},
+  {id:'modernist',icon:'⚡',name:'Modernist',dates:'1890 – 1940',authors:'Woolf, Eliot, Hemingway, Joyce, Pound'},
+  {id:'harlem',icon:'🎷',name:'Harlem Renaissance',dates:'1920s – 1930s',authors:'Hughes, Hurston, Cullen, McKay, Toomer'},
+  {id:'postwar',icon:'💀',name:'Postwar',dates:'1945 – 1970',authors:'Orwell, Camus, Baldwin, O\'Connor'},
+  {id:'beat',icon:'🌸',name:'Beat Generation',dates:'1950s – 1960s',authors:'Kerouac, Ginsberg, Burroughs, Corso'},
+  {id:'postcolonial',icon:'🌎',name:'Postcolonial',dates:'1950s – present',authors:'Achebe, Walcott, Soyinka, Adichie'},
+  {id:'contemporary',icon:'🌐',name:'Contemporary',dates:'1980s – present',authors:'Morrison, Oliver, Coates, Rankine'},
+];
+
+const REGIONS=['American','African American','British','Irish','Latin American','Russian','French','Japanese','African','South Asian','Scandinavian','Middle Eastern','East Asian','Caribbean','Australian'];
+
+// ── RARE BADGE DATA ──
+const RARE_BADGES=[
+  {id:'night_owl',icon:'🌙',name:'Night Owl',desc:'Completed a reading after midnight',rarity:'legendary'},
+  {id:'before_world',icon:'🌅',name:'Before the World',desc:'Completed a reading before 6am',rarity:'epic'},
+  {id:'sunday_reader',icon:'🍂',name:'Sunday Reader',desc:'Full queue completed every Sunday for four weeks',rarity:'secret'},
+  {id:'freeze_burn',icon:'❄️',name:'Freeze & Burn',desc:'Used a streak freeze, then read 7 days straight',rarity:'epic'},
+  {id:'read_twice',icon:'🔁',name:'Read It Twice',desc:'Rated the same reading 5 stars on two separate occasions',rarity:'legendary'},
+  {id:'annotator',icon:'✍️',name:'Annotator',desc:'Left a note on 10 different readings',rarity:'epic'},
+  {id:'literary_twin',icon:'👥',name:'Literary Twin',desc:'You and a friend both gave the same reading 5 stars',rarity:'secret'},
+  {id:'new_years',icon:'📅',name:'New Year\'s Reader',desc:'Completed your queue on January 1st',rarity:'legendary'},
+];
+
+async function loadPassportTab(){
+  if(!user) return;
+  // Fetch completed readings with era + region
+  const {data:done}=await sb.from('completed_readings')
+    .select('reading_id,readings(era,region)')
+    .eq('user_id',user.id);
+  const eraCounts={}, regionSet=new Set();
+  for(const d of (done||[])){
+    const era=d.readings?.era;
+    const region=d.readings?.region;
+    if(era){ eraCounts[era]=(eraCounts[era]||0)+1; }
+    if(region){ regionSet.add(region); }
+  }
+  const totalReadings=(done||[]).length;
+  const erasEarned=ERAS.filter(e=>eraCounts[e.id]>0).length;
+  const regionsEarned=regionSet.size;
+
+  // Stats
+  document.getElementById('pp-eras-earned').textContent=erasEarned;
+  document.getElementById('pp-regions-earned').textContent=regionsEarned;
+  document.getElementById('pp-total').textContent=totalReadings;
+  document.getElementById('pp-eras-left').textContent=Math.max(0,13-erasEarned);
+
+  // Era grid (show first 6, earned first)
+  const sorted=[...ERAS].sort((a,b)=>{
+    const ae=eraCounts[a.id]>0, be=eraCounts[b.id]>0;
+    return ae===be?0:ae?-1:1;
+  });
+  document.getElementById('prof-era-grid').innerHTML=sorted.slice(0,6).map(e=>{
+    const count=eraCounts[e.id]||0;
+    const earned=count>0;
+    return `<div class="era-stamp ${earned?'earned':''}">
+      <span class="era-icon">${e.icon}</span>
+      <div class="era-name">${e.name}</div>
+      <div class="era-dates">${e.dates}</div>
+      <div class="era-cnt">${earned?count+' read':'0 read'}</div>
+    </div>`;
+  }).join('');
+
+  // Region pills
+  document.getElementById('prof-region-list').innerHTML=REGIONS.map(r=>{
+    const earned=regionSet.has(r);
+    return `<span class="rpill ${earned?'earned':'locked'}">${r}</span>`;
+  }).join('');
+
+  // Next stamps progress (eras with 1 reading, need 2+)
+  const nearItems=ERAS.filter(e=>(eraCounts[e.id]||0)===1&&eraCounts[e.id]<2).slice(0,3);
+  const zeroNear=ERAS.filter(e=>!(eraCounts[e.id]>0)).slice(0,2);
+  const nextItems=[...nearItems,...zeroNear].slice(0,3);
+  if(nextItems.length>0){
+    document.getElementById('prof-passport-next').style.display='block';
+    document.getElementById('prof-next-items').innerHTML=nextItems.map(e=>{
+      const count=eraCounts[e.id]||0;
+      const pct=count>=2?100:count===1?50:0;
+      return `<div class="pnext-item">
+        <div class="pnext-icon">${e.icon}</div>
+        <div class="pnext-info">
+          <div class="pnext-name">${e.name} <span style="font-size:0.6rem;color:var(--faded);">${e.dates}</span></div>
+          <div class="pnext-bar"><div class="pnext-fill" style="width:${pct}%"></div></div>
+          <div class="pnext-sub">${count} of 2 readings needed · ${e.authors.split(',')[0].trim()}…</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // All eras sheet
+  document.getElementById('prof-eras-sheet-body').innerHTML=ERAS.map(e=>{
+    const count=eraCounts[e.id]||0;
+    const earned=count>0;
+    return `<div class="ps-era-row ${earned?'e-row':''}">
+      <div class="ps-era-icon ${earned?'':'dim'}">${e.icon}</div>
+      <div class="ps-era-info">
+        <div class="ps-era-name">${e.name}</div>
+        <div class="ps-era-dates">${e.dates}</div>
+        <div class="ps-era-authors">${e.authors}</div>
+      </div>
+      <div class="ps-era-cnt">${count} read</div>
+    </div>`;
+  }).join('');
+
+  // Teaser on overview tab
+  const earnedEras=ERAS.filter(e=>eraCounts[e.id]>0);
+  const teaserIcons=document.getElementById('prof-teaser-era-icons');
+  if(teaserIcons){
+    const show=[...earnedEras,...ERAS.filter(e=>!eraCounts[e.id])].slice(0,8);
+    teaserIcons.innerHTML=show.map(e=>`<span style="font-size:1.1rem;${!eraCounts[e.id]?'filter:grayscale(1);opacity:0.22':''}">${e.icon}</span>`).join('');
+    document.getElementById('prof-teaser-era-sub').textContent=`${erasEarned} of 13 eras · ${regionsEarned} region${regionsEarned!==1?'s':''}`;
+  }
+}
+
+async function loadBadgesTab(){
+  if(!user) return;
+  const {data:earned}=await sb.from('user_badges').select('badge_id,earned_at').eq('user_id',user.id);
+  const earnedMap=Object.fromEntries((earned||[]).map(b=>[b.badge_id,b.earned_at]));
+
+  // Standard badges preview (earned-first, 8 shown)
+  const sorted=[...BADGES].sort((a,b)=>{
+    const ae=!!earnedMap[a.id],be=!!earnedMap[b.id];
+    return ae===be?0:ae?-1:1;
+  });
+  const previewEl=document.getElementById('profile-badges-preview');
+  if(previewEl) previewEl.innerHTML=sorted.slice(0,8).map(b=>{
+    const isEarned=!!earnedMap[b.id];
+    const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return `<div class="badge ${isEarned?'earned':'locked'}" onclick="showBadgeInfo('${b.id}')" style="cursor:pointer">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      ${isEarned?`<div class="badge-date">${date}</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Rare badges
+  const rareEarned=RARE_BADGES.filter(b=>earnedMap['rare_'+b.id]);
+  const rareLocked=RARE_BADGES.filter(b=>!earnedMap['rare_'+b.id]);
+
+  const mkRare=(b,isEarned)=>{
+    const date=isEarned?new Date(earnedMap['rare_'+b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return `<div class="rb ${isEarned?'earned':'locked-rb'} ${b.rarity}">
+      <div class="rb-rarity">${b.rarity.charAt(0).toUpperCase()+b.rarity.slice(1)}</div>
+      <span class="rb-icon">${b.icon}</span>
+      <div class="rb-name">${b.name}</div>
+      <div class="rb-desc">${b.desc}</div>
+      ${isEarned?`<div class="rb-date">Earned ${date}</div>`:''}
+    </div>`;
+  };
+
+  document.getElementById('prof-rare-earned').innerHTML=rareEarned.length>0
+    ? rareEarned.map(b=>mkRare(b,true)).join('')
+    : '<div style="grid-column:span 2;font-family:\"Space Mono\",monospace;font-size:0.42rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--faded);padding:8px 0;">None earned yet.</div>';
+
+  document.getElementById('prof-rare-locked').innerHTML=rareLocked.map(b=>mkRare(b,false)).join('');
+
+  // All earned badges sheet
+  const allEarned=sorted.filter(b=>!!earnedMap[b.id]);
+  const allRareEarned=RARE_BADGES.filter(b=>earnedMap['rare_'+b.id]);
+  let sheetHtml='';
+  if(allEarned.length>0){
+    sheetHtml+=`<div class="ps-sub-lbl">Standard</div>`;
+    sheetHtml+=allEarned.map(b=>{
+      const date=new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `<div class="ps-badge-row e-b">
+        <div class="ps-badge-icon">${b.icon}</div>
+        <div class="ps-badge-info">
+          <div class="ps-badge-name">${b.name}</div>
+          <div class="ps-badge-desc">${b.desc}</div>
+          <div class="ps-badge-meta"><div class="ps-badge-date">${date}</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(allRareEarned.length>0){
+    sheetHtml+=`<div class="ps-sub-lbl">Rare</div>`;
+    sheetHtml+=allRareEarned.map(b=>{
+      const date=new Date(earnedMap['rare_'+b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `<div class="ps-badge-row e-b">
+        <div class="ps-badge-icon">${b.icon}</div>
+        <div class="ps-badge-info">
+          <div class="ps-badge-name">${b.name}</div>
+          <div class="ps-badge-desc">${b.desc}</div>
+          <div class="ps-badge-meta">
+            <div class="ps-badge-rarity rarity-${b.rarity}">${b.rarity}</div>
+            <div class="ps-badge-date">${date}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(!sheetHtml) sheetHtml='<div style="color:var(--faded);font-style:italic;font-size:0.82rem;padding:8px 0;">No badges earned yet.</div>';
+  document.getElementById('prof-badges-sheet-body').innerHTML=sheetHtml;
+
+  // Badge teaser on overview
+  const teaserIcons=document.getElementById('prof-teaser-badge-icons');
+  if(teaserIcons){
+    const show=sorted.filter(b=>!!earnedMap[b.id]).slice(0,6);
+    teaserIcons.innerHTML=show.map(b=>`<span style="font-size:1.1rem;">${b.icon}</span>`).join('');
+    const total=allEarned.length+allRareEarned.length;
+    document.getElementById('prof-teaser-badge-sub').textContent=`${total} earned${allRareEarned.length>0?' · '+allRareEarned.length+' rare':''}`;
+  }
+}
+
+// Check rare badges after reading complete
+async function checkRareBadges(){
+  if(!user) return;
+  const now=new Date();
+  const hour=now.getHours();
+  const {data:existing}=await sb.from('user_badges').select('badge_id').eq('user_id',user.id);
+  const has=new Set((existing||[]).map(b=>b.badge_id));
+  const toAward=[];
+
+  if(hour>=0&&hour<3&&!has.has('rare_night_owl')) toAward.push('rare_night_owl');
+  if(hour<6&&!has.has('rare_before_world')) toAward.push('rare_before_world');
+
+  // Annotator: check note count
+  if(!has.has('rare_annotator')){
+    const {count}=await sb.from('annotations').select('*',{count:'exact',head:true}).eq('user_id',user.id);
+    if((count||0)>=10) toAward.push('rare_annotator');
+  }
+
+  for(const id of toAward){
+    await sb.from('user_badges').upsert({user_id:user.id,badge_id:id,earned_at:new Date().toISOString()},{onConflict:'user_id,badge_id'});
+    const badge=RARE_BADGES.find(b=>'rare_'+b.id===id);
+    if(badge) toast(`${badge.icon} Rare badge unlocked: ${badge.name}`);
+  }
 }
 
 </script>
