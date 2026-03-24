@@ -1177,7 +1177,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 
   <!-- Profile tab bar -->
   <div class="prof-tabs">
-    <button class="prof-tab-btn on" id="wt-prof-tab-overview" onclick="profTab('overview',this)">Overview</button>
+    <button class="prof-tab-btn on" onclick="profTab('overview',this)">Overview</button>
     <button class="prof-tab-btn" onclick="profTab('passport',this)">Passport</button>
     <button class="prof-tab-btn" onclick="profTab('badges',this)">Badges</button>
   </div>
@@ -1223,7 +1223,7 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       </div>
 
       <!-- Badges teaser -->
-      <div class="prof-sec-lbl" style="margin-top:18px;margin-bottom:10px;" id="wt-badges-lbl">Badges</div>
+      <div class="prof-sec-lbl" style="margin-top:18px;margin-bottom:10px;">Badges</div>
       <div class="prof-teaser" onclick="profTab('badges',document.querySelectorAll('.prof-tab-btn')[2])">
         <div>
           <div class="prof-teaser-icons" id="prof-teaser-badge-icons"></div>
@@ -3130,9 +3130,7 @@ const WT_STEPS = {
   browse: [
     { target:'.wtr-btn', title:'Want to Read', body:'See something you want to come back to? Add it to your wishlist to queue it for a future read.', pos:'above' },
   ],
-  profile: [
-    { target:'wt-badges-lbl', title:'Badges', body:'Earn badges for streaks, completions, time of day, and more.', pos:'below' },
-  ],
+  profile: [],
 };
 let wtSteps=[], wtIdx=0;
 const wtSeen=new Set(JSON.parse(localStorage.getItem('rlr_wt_seen')||'[]'));
