@@ -315,6 +315,16 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
 .settings-stepper-val { font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--gold); min-width:20px; text-align:center; }
 .settings-input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:var(--aged); font-family:'Libre Baskerville',serif; font-size:0.9rem; padding:11px 12px; outline:none; margin-bottom:14px; }
 
+
+/* ── SIGN IN WITH APPLE (Apple HIG compliant) ── */
+.auth-divider { display:flex; align-items:center; gap:12px; margin:16px 0; }
+.auth-divider-line { flex:1; height:1px; background:rgba(255,255,255,0.08); }
+.auth-divider-txt { font-family:'Space Mono',monospace; font-size:0.44rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--faded); }
+.btn-apple { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px 16px; background:#ffffff; color:#000000; border:none; cursor:pointer; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.95rem; font-weight:600; letter-spacing:-0.01em; transition:background 0.15s; }
+.btn-apple:hover { background:#f0f0f0; }
+.btn-apple:active { background:#e0e0e0; }
+.btn-apple svg { flex-shrink:0; }
+
 /* LOADING */
 #loading { position:fixed; inset:0; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; }
 .load-logo { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; color:var(--paper); }
@@ -665,6 +675,13 @@ html, body { height: 100%; overflow: hidden; background: var(--ink); font-family
       <div id="auth-username-wrap" style="display:none"><input class="input" id="auth-username" type="text" placeholder="Choose a username"></div>
       <div class="auth-err" id="auth-err"></div>
       <button class="btn btn-primary" id="auth-btn" onclick="handleAuth()">Sign In</button>
+      <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-txt">or</div><div class="auth-divider-line"></div></div>
+      <button class="btn-apple" onclick="signInWithApple()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.507 0c.08.93-.263 1.86-.79 2.543-.543.7-1.42 1.247-2.3 1.176-.1-.877.31-1.797.813-2.437C12.763.6 13.69.077 14.507 0zM17.853 13.25c-.41.923-.607 1.337-1.137 2.153-.737 1.12-1.777 2.514-3.063 2.527-1.143.013-1.44-.737-2.993-.73-1.554.008-1.877.746-3.027.733-1.283-.013-2.267-1.273-3.003-2.393C2.8 12.877 2.243 9.997 3.293 8.19c.74-1.273 2.007-2.017 3.197-2.017 1.19 0 1.94.737 2.923.737.957 0 1.54-.74 2.92-.74 1.057 0 2.177.577 2.913 1.573-2.56 1.407-2.143 5.073.607 6.047z" fill="#000000"/>
+        </svg>
+        Sign in with Apple
+      </button>
     </div>
   </div>
 </div>
@@ -3673,6 +3690,18 @@ function browseRecDismiss(){
   sessionStorage.setItem('browse_rec_dismissed','1');
   const el=document.getElementById('browse-rec-container');
   if(el) el.innerHTML='';
+}
+
+
+async function signInWithApple(){
+  const {error}=await sb.auth.signInWithOAuth({
+    provider:'apple',
+    options:{
+      redirectTo:'https://app.readlikeray.com',
+      scopes:'name email',
+    }
+  });
+  if(error) toast('Apple sign-in failed: '+error.message);
 }
 
 </script>
