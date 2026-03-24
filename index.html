@@ -2693,7 +2693,13 @@ async function loadBadgesUI(userId, elementId){
   const earnedMap=Object.fromEntries((earned||[]).map(b=>[b.badge_id,b.earned_at]));
   const el=document.getElementById(elementId);
   if(!el) return;
-  el.innerHTML=BADGES.map(b=>{
+  const sorted=[...BADGES].sort((a,b)=>{
+    const ae=!!earnedMap[a.id], be=!!earnedMap[b.id];
+    if(ae&&!be) return -1;
+    if(!ae&&be) return 1;
+    return 0;
+  });
+  el.innerHTML=sorted.map(b=>{
     const isEarned=!!earnedMap[b.id];
     const date=isEarned?new Date(earnedMap[b.id]).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
     return `<div class="badge ${isEarned?'earned':'locked'}" title="${b.desc}">
